@@ -1,0 +1,13 @@
+{
+  "name": "Nuestro pequeño compañero",
+  "short_name": "Compañero",
+  "description": "Un pequeño compañero virtual creado con amor.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#f7c7d9",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
