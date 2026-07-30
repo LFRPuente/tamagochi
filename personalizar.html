@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Preparar regalo — Tamagotchi romántico</title>
+  <style>
+    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#382b33;background:radial-gradient(circle at 15% 10%,#f7c7d9 0,transparent 30%),linear-gradient(180deg,#fffafd,#fff4f8);padding:24px 16px}.wrap{width:min(100%,680px);margin:auto}.card{background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:28px;padding:22px;box-shadow:0 18px 55px rgba(105,67,87,.16)}h1{margin:0 0 8px;font-size:clamp(1.6rem,6vw,2.4rem)}p{color:#7f6c77;line-height:1.5}.field{margin:14px 0}.field label{display:block;font-size:.8rem;font-weight:800;margin-bottom:6px}.field input,.field textarea{width:100%;border:1px solid #eadde4;border-radius:14px;padding:12px 13px;font:inherit;color:#382b33;outline:none}.field textarea{min-height:85px;resize:vertical}.field input:focus,.field textarea:focus{border-color:#e77da7;box-shadow:0 0 0 3px rgba(231,125,167,.12)}button,a.button{border:0;border-radius:15px;padding:12px 15px;font:inherit;font-weight:850;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:#e77da7;color:#fff}.secondary{background:#f2e8ed;color:#382b33}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.result{margin-top:18px;padding:14px;border-radius:18px;background:#fff7fa;display:none}.result.show{display:block}.url{font-size:.8rem;word-break:break-all;color:#684c5b;background:#fff;padding:10px;border-radius:12px;margin:10px 0}.tip{font-size:.8rem}.preview{margin-top:18px;border:1px dashed #e4c8d5;border-radius:20px;padding:18px;text-align:center}.preview strong{display:block;font-size:1.1rem}.qr-placeholder{width:150px;height:150px;margin:14px auto;border-radius:14px;background:repeating-linear-gradient(45deg,#382b33 0 8px,#fff 8px 16px);display:grid;place-items:center;border:8px solid #fff;box-shadow:0 8px 24px rgba(83,53,68,.12)}.qr-placeholder span{background:#fff;padding:7px;border-radius:8px;font-size:.7rem;font-weight:800}.small{font-size:.72rem;color:#8b7782}@media print{body{background:#fff}.form-part,.result{display:none!important}.card{box-shadow:none;border:0}.preview{border:0;margin-top:0}.qr-placeholder{background:#fff;border:2px dashed #777;box-shadow:none}.qr-placeholder span{display:block}.small{display:none}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="form-part">
+        <h1>Prepara el enlace del regalo 💗</h1>
+        <p>Primero publica la carpeta. Después pega la dirección de la app y agrega los datos que quieras dejar prellenados.</p>
+        <div class="field"><label for="base">Dirección pública de la app</label><input id="base" inputmode="url" placeholder="https://tuusuario.github.io/tamagotchi/" /></div>
+        <div class="field"><label for="para">Nombre de ella</label><input id="para" maxlength="24" placeholder="Ej. Sofía" /></div>
+        <div class="field"><label for="mascota">Nombre sugerido para el perrito</label><input id="mascota" maxlength="18" placeholder="Ej. Milo" /></div>
+        <div class="field"><label for="firma">Firma</label><input id="firma" maxlength="60" placeholder="Creado con amor por Luis 💗" /></div>
+        <div class="field"><label for="nota">Nota principal</label><textarea id="nota" maxlength="220" placeholder="Contigo quiero seguir llenando páginas, fotos y años."></textarea></div>
+        <div class="buttons"><button class="primary" id="build">Crear enlace personalizado</button><a class="button secondary" href="index.html">Probar la app</a></div>
+        <div class="result" id="result">
+          <strong>Enlace listo</strong>
+          <div class="url" id="url"></div>
+          <div class="buttons"><button class="primary" id="copy">Copiar enlace</button><a class="button secondary" id="open" target="_blank" rel="noopener">Abrir</a></div>
+          <p class="tip">En Chrome para Android: abre el enlace y toca <strong>Compartir → Código QR</strong>. Luego imprime ese QR y pégalo en la tarjeta.</p>
+        </div>
+      </div>
+
+      <div class="preview">
+        <span class="small">TARJETA PARA IMPRIMIR</span>
+        <strong>Adopta a nuestro pequeño compañero</strong>
+        <p>Escanea el código, ponle nombre y cuídalo. Algunas sorpresas aparecerán mientras crece.</p>
+        <div class="qr-placeholder"><span>PEGA AQUÍ<br>EL QR</span></div>
+        <p class="small">Hecho especialmente para ti 🐶💗</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id);
+    let built = '';
+    $('build').addEventListener('click', () => {
+      const raw = $('base').value.trim();
+      if (!raw) { alert('Pega primero la dirección pública de la app.'); return; }
+      try {
+        const url = new URL(raw);
+        if (!url.pathname.endsWith('/') && !url.pathname.endsWith('.html')) url.pathname += '/';
+        const values = { para: $('para').value.trim(), mascota: $('mascota').value.trim(), firma: $('firma').value.trim(), nota: $('nota').value.trim() };
+        Object.entries(values).forEach(([key,value]) => value && url.searchParams.set(key,value));
+        built = url.toString();
+        $('url').textContent = built;
+        $('open').href = built;
+        $('result').classList.add('show');
+      } catch { alert('La dirección no parece válida. Debe empezar con https://'); }
+    });
+    $('copy').addEventListener('click', async () => {
+      if (!built) return;
+      try { await navigator.clipboard.writeText(built); $('copy').textContent='¡Copiado!'; setTimeout(()=>$('copy').textContent='Copiar enlace',1500); }
+      catch { prompt('Copia el enlace:', built); }
+    });
+  </script>
+</body>
+</html>
