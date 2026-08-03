@@ -2,8 +2,8 @@ const CACHE = 'living-pet-v3';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css',
-  './app.js',
+  './styles.css?v=3.0.0',
+  './app.js?v=3.0.0',
   './manifest.webmanifest',
   './personalizar.html',
   './assets/icon.svg'
