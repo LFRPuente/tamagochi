@@ -1,7 +1,7 @@
 {
   "name": "Milo — compañero virtual",
   "short_name": "Milo",
-  "description": "Una mascota virtual autónoma con necesidades, personalidad, entrenamiento y recuerdos.",
+  "description": "Una mascota virtual autónoma con necesidades, personalidad, entrenamiento, minijuegos y recuerdos.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

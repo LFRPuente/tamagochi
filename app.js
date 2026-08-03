@@ -93,6 +93,7 @@
     inventory: { food: 3, treat: 2, soap: 2, medicine: 1 },
     bowls: { food: 0, water: 2 },
     skills: { sit: 0, paw: 0, fetch: 0 },
+    arcade: { ballBest: 0, dodgeBest: 0, memoryBest: 0, played: 0 },
     habits: { care: 0, walk: 0, train: 0, play: 0, sleep: 0 },
     activity: { type: 'exploring', startedAt: now(), endsAt: now() + 18000 },
     isAsleep: false,
@@ -112,6 +113,27 @@
   let gameActive = false;
   let gameScore = 0;
   let gameSeconds = 15;
+  let dodgeActive = false;
+  let dodgeFrame = null;
+  let dodgeStartedAt = 0;
+  let dodgeLastFrame = 0;
+  let dodgeLastSpawn = 0;
+  let dodgeLives = 3;
+  let dodgeScore = 0;
+  let dodgePlayerPosition = { x: .5, y: .5 };
+  let dodgeHazards = [];
+  let dodgeInvulnerableUntil = 0;
+  let dodgeContext = { source: 'arcade', bonus: 0 };
+  const dodgeDirections = new Set();
+  let memoryActive = false;
+  let memoryAccepting = false;
+  let memorySequence = [];
+  let memoryPlayerIndex = 0;
+  let memoryRound = 1;
+  let memoryLives = 3;
+  let memoryScore = 0;
+  let memoryContext = { source: 'arcade', bonus: 0 };
+  let memoryTimers = [];
   let previousFocus = null;
 
   function localDateKey(date = new Date()) {
@@ -172,6 +194,7 @@
       inventory: { ...base.inventory, ...(saved.inventory || {}) },
       bowls: { ...base.bowls, ...(saved.bowls || {}) },
       skills: { ...base.skills, ...(saved.skills || {}) },
+      arcade: { ...base.arcade, ...(saved.arcade || {}) },
       habits: { ...base.habits, ...(saved.habits || {}) },
       activity: { ...base.activity, ...(saved.activity || {}) },
       day: { ...base.day, ...(saved.day || {}) }
@@ -342,7 +365,7 @@
   }
 
   function isBusy() {
-    return gameActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
+    return gameActive || dodgeActive || memoryActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
   }
 
   function resolveActivity() {
@@ -582,6 +605,17 @@
     saveState();
     render();
     closeModal('walkModal');
+    const foundEncounter = routeKey === 'adventure' || (routeKey === 'park' && Math.random() < .55);
+    if (foundEncounter) {
+      scheduleEncounter(() => openDodgeEncounter({
+        source: 'walk',
+        bonus: routeKey === 'adventure' ? 10 : 5,
+        title: routeKey === 'adventure' ? '¡Cruza el sendero!' : '¡Esquiva los charcos!',
+        description: routeKey === 'adventure'
+          ? 'Ayuda al corazón de Milo a atravesar el sendero sin tocar ramas ni piedras.'
+          : 'El parque se llenó de charcos. Muévete con las flechas, WASD o los controles táctiles.'
+      }));
+    }
   }
 
   function handleTraining(skillKey) {
@@ -619,6 +653,15 @@
     saveState();
     render();
     closeModal('trainingModal');
+    const concentrationTest = afterLevel > beforeLevel || Math.random() < .38;
+    if (concentrationTest) {
+      scheduleEncounter(() => openMemoryEncounter({
+        source: 'training',
+        bonus: afterLevel > beforeLevel ? 8 : 4,
+        title: 'Prueba lo aprendido',
+        description: `Repite las señales para ayudar a ${state.petName} a fijar el truco en su memoria.`
+      }));
+    }
   }
 
   function handleBuy(itemKey) {
@@ -668,6 +711,7 @@
   function catchBall() {
     if (!gameActive) return;
     gameScore += 1;
+    haptic(10);
     el('gameScore').textContent = String(gameScore);
     moveBall();
   }
@@ -690,6 +734,8 @@
     const coins = Math.max(2, Math.min(22, Math.round(gameScore * personalityBonus)));
     modifyStats({ energy: -Math.min(20, 6 + gameScore * .55), water: -5, food: -3, mood: Math.min(25, gameScore * 1.8 * personalityBonus), bond: 5, stress: -6 });
     state.coins += coins;
+    state.arcade.ballBest = Math.max(state.arcade.ballBest, gameScore);
+    state.arcade.played += 1;
     gainXp(8 + gameScore);
     recordHabit('play');
     setActivity('playing', 5000, { description: `Atrapaste la pelota ${gameScore} veces. ${state.petName} está feliz y agotado.` });
@@ -697,6 +743,362 @@
     el('gameMessage').textContent = `${gameScore} atrapadas · +${coins} monedas`;
     speak(gameScore >= 10 ? '¡Eres increíble! ¡Otra vez!' : '¡Esa casi se me escapa!');
     createSparkles('🎾');
+    touch();
+    saveState();
+    render();
+  }
+
+  function openArcadeGame(type) {
+    if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
+    const requiredLevel = type === 'dodge' ? 2 : type === 'memory' ? 3 : 1;
+    if (state.level < requiredLevel) return toast(`Este juego se desbloquea en el nivel ${requiredLevel}.`);
+    if (state.stats.energy < 18) return toast('Está demasiado cansado para jugar.');
+    closeModal('arcadeModal');
+    setTimeout(() => {
+      if (type === 'ball') openModal('gameModal');
+      else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Corazón valiente', description: 'Mueve el corazón y evita todos los obstáculos durante 15 segundos.' });
+      else openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Huellas de memoria', description: 'Observa la secuencia y repítela. Cada ronda será un poco más larga.' });
+    }, 230);
+  }
+
+  function scheduleEncounter(callback, attempt = 0) {
+    setTimeout(() => {
+      if (!document.querySelector('.modal-backdrop.open')) callback();
+      else if (attempt < 12) scheduleEncounter(callback, attempt + 1);
+      else toast('Milo encontró un reto especial, pero estaba ocupado. Aparecerá en otro paseo.');
+    }, attempt ? 500 : 420);
+  }
+
+  function openDodgeEncounter(context = {}) {
+    dodgeContext = { source: 'arcade', bonus: 0, ...context };
+    el('dodgeTitle').textContent = dodgeContext.title || 'Corazón valiente';
+    el('dodgeDescription').textContent = dodgeContext.description || 'Mueve el corazón y evita todos los obstáculos.';
+    el('dodgeLives').textContent = '💗💗💗';
+    el('dodgeScore').textContent = '0';
+    el('dodgeTime').textContent = '15';
+    el('dodgeMessage').hidden = false;
+    el('dodgeMessage').textContent = dodgeContext.source === 'walk' ? '¡Encuentro especial! Supera el reto para mejorar la recompensa del paseo.' : 'Sobrevive 15 segundos para ganar el premio completo.';
+    el('dodgePlayer').style.display = 'none';
+    el('startDodgeBtn').disabled = false;
+    el('startDodgeBtn').textContent = 'Comenzar reto';
+    clearDodgeHazards();
+    openModal('dodgeModal');
+  }
+
+  function startDodge() {
+    if (dodgeActive) return;
+    dodgeActive = true;
+    dodgeLives = 3;
+    dodgeScore = 0;
+    dodgePlayerPosition = { x: .5, y: .5 };
+    dodgeInvulnerableUntil = 0;
+    dodgeDirections.clear();
+    clearDodgeHazards();
+    el('dodgeLives').textContent = '💗💗💗';
+    el('dodgeScore').textContent = '0';
+    el('dodgeTime').textContent = '15';
+    el('dodgeMessage').hidden = true;
+    el('dodgePlayer').style.display = 'flex';
+    el('dodgePlayer').style.left = '50%';
+    el('dodgePlayer').style.top = '50%';
+    el('startDodgeBtn').disabled = true;
+    el('startDodgeBtn').textContent = '¡Esquiva!';
+    el('dodgeArena').focus({ preventScroll: true });
+    dodgeStartedAt = performance.now();
+    dodgeLastFrame = dodgeStartedAt;
+    dodgeLastSpawn = dodgeStartedAt - 700;
+    dodgeFrame = requestAnimationFrame(updateDodgeFrame);
+  }
+
+  function spawnDodgeHazard(elapsed) {
+    const side = Math.floor(Math.random() * 4);
+    const speed = .25 + Math.min(.16, elapsed * .008) + Math.random() * .07;
+    let x;
+    let y;
+    let vx;
+    let vy;
+    if (side === 0) { x = -.08; y = .08 + Math.random() * .84; vx = speed; vy = (Math.random() - .5) * .14; }
+    else if (side === 1) { x = 1.08; y = .08 + Math.random() * .84; vx = -speed; vy = (Math.random() - .5) * .14; }
+    else if (side === 2) { x = .08 + Math.random() * .84; y = -.08; vx = (Math.random() - .5) * .14; vy = speed; }
+    else { x = .08 + Math.random() * .84; y = 1.08; vx = (Math.random() - .5) * .14; vy = -speed; }
+    const size = 18 + Math.random() * 13;
+    const node = document.createElement('span');
+    node.className = `hazard ${pick(['purple', 'blue', 'gold'])}`;
+    node.style.width = `${size}px`;
+    node.style.height = `${size}px`;
+    el('hazardLayer').appendChild(node);
+    dodgeHazards.push({ node, x, y, vx, vy, size });
+  }
+
+  function updateDodgeFrame(timestamp) {
+    if (!dodgeActive) return;
+    const delta = Math.min(.04, Math.max(.001, (timestamp - dodgeLastFrame) / 1000));
+    const elapsed = (timestamp - dodgeStartedAt) / 1000;
+    dodgeLastFrame = timestamp;
+    const speed = .56;
+    if (dodgeDirections.has('left')) dodgePlayerPosition.x -= speed * delta;
+    if (dodgeDirections.has('right')) dodgePlayerPosition.x += speed * delta;
+    if (dodgeDirections.has('up')) dodgePlayerPosition.y -= speed * delta;
+    if (dodgeDirections.has('down')) dodgePlayerPosition.y += speed * delta;
+    dodgePlayerPosition.x = Math.max(.045, Math.min(.955, dodgePlayerPosition.x));
+    dodgePlayerPosition.y = Math.max(.06, Math.min(.94, dodgePlayerPosition.y));
+
+    const playerNode = el('dodgePlayer');
+    playerNode.style.left = `${dodgePlayerPosition.x * 100}%`;
+    playerNode.style.top = `${dodgePlayerPosition.y * 100}%`;
+    const spawnEvery = Math.max(270, 620 - elapsed * 18);
+    if (timestamp - dodgeLastSpawn >= spawnEvery) {
+      spawnDodgeHazard(elapsed);
+      if (elapsed > 9 && Math.random() < .23) spawnDodgeHazard(elapsed);
+      dodgeLastSpawn = timestamp;
+    }
+
+    const arena = el('dodgeArena');
+    const width = arena.clientWidth;
+    const height = arena.clientHeight;
+    const playerX = dodgePlayerPosition.x * width;
+    const playerY = dodgePlayerPosition.y * height;
+    dodgeHazards = dodgeHazards.filter(hazard => {
+      hazard.x += hazard.vx * delta;
+      hazard.y += hazard.vy * delta;
+      hazard.node.style.transform = `translate(${hazard.x * width - hazard.size / 2}px,${hazard.y * height - hazard.size / 2}px)`;
+      const outside = hazard.x < -.14 || hazard.x > 1.14 || hazard.y < -.14 || hazard.y > 1.14;
+      if (outside) {
+        hazard.node.remove();
+        dodgeScore += 3;
+        return false;
+      }
+      const dx = hazard.x * width - playerX;
+      const dy = hazard.y * height - playerY;
+      if (timestamp > dodgeInvulnerableUntil && Math.hypot(dx, dy) < (hazard.size + 19) * .48) {
+        dodgeLives -= 1;
+        haptic([35, 28, 35]);
+        dodgeInvulnerableUntil = timestamp + 850;
+        playerNode.classList.remove('hit');
+        void playerNode.offsetWidth;
+        playerNode.classList.add('hit');
+        el('dodgeLives').textContent = '💗'.repeat(Math.max(0, dodgeLives)) || '—';
+        hazard.node.remove();
+        if (dodgeLives <= 0) setTimeout(() => finishDodge(false, false), 0);
+        return false;
+      }
+      return true;
+    });
+    dodgeScore = Math.max(dodgeScore, Math.floor(elapsed * 7));
+    el('dodgeScore').textContent = String(dodgeScore);
+    el('dodgeTime').textContent = String(Math.max(0, Math.ceil(15 - elapsed)));
+    if (elapsed >= 15) finishDodge(false, true);
+    else if (dodgeActive) dodgeFrame = requestAnimationFrame(updateDodgeFrame);
+  }
+
+  function clearDodgeHazards() {
+    dodgeHazards.forEach(hazard => hazard.node.remove());
+    dodgeHazards = [];
+    if (el('hazardLayer')) el('hazardLayer').innerHTML = '';
+  }
+
+  function finishDodge(cancelled = false, survived = false) {
+    if (!dodgeActive && cancelled) {
+      clearDodgeHazards();
+      return;
+    }
+    cancelAnimationFrame(dodgeFrame);
+    dodgeFrame = null;
+    dodgeDirections.clear();
+    clearDodgeHazards();
+    const wasActive = dodgeActive;
+    dodgeActive = false;
+    if (!wasActive || cancelled) {
+      el('dodgePlayer').style.display = 'none';
+      return;
+    }
+    if (survived) dodgeScore += dodgeLives * 20;
+    const coins = Math.max(2, Math.floor(dodgeScore / 12) + Number(dodgeContext.bonus || 0));
+    const xp = 8 + Math.floor(dodgeScore / 8);
+    modifyStats({
+      energy: dodgeContext.source === 'walk' ? -3 : -9,
+      water: dodgeContext.source === 'walk' ? -2 : -4,
+      mood: survived ? 13 : 5,
+      bond: survived ? 5 : 2,
+      stress: survived ? -7 : 1
+    });
+    state.coins += coins;
+    state.arcade.dodgeBest = Math.max(state.arcade.dodgeBest, dodgeScore);
+    state.arcade.played += 1;
+    gainXp(xp);
+    recordHabit('play');
+    setActivity('playing', 4300, { icon: '💗', title: survived ? 'Celebrando el reto' : 'Recuperando el aliento', description: survived ? `${state.petName} confió en tus reflejos y superó el encuentro.` : 'No llegaron al final, pero practicaron juntos.' });
+    addJournal('💗', survived ? 'Corazón valiente superado' : 'Intentaron el reto de reflejos', `${survived ? 'Sobreviviste' : 'Participaste'} con ${dodgeScore} puntos y ganaste ${coins} monedas.`);
+    el('dodgeMessage').hidden = false;
+    el('dodgeMessage').textContent = survived ? `¡Superado! ${dodgeScore} puntos · +${coins} monedas` : `Buen intento · ${dodgeScore} puntos · +${coins} monedas`;
+    el('dodgePlayer').style.display = 'none';
+    el('startDodgeBtn').disabled = false;
+    el('startDodgeBtn').textContent = 'Jugar otra vez';
+    speak(survived ? '¡Lo logramos juntos!' : '¡Casi! La próxima lo lograremos.');
+    haptic(survived ? [18, 35, 55] : 25);
+    if (survived) createSparkles('💗');
+    touch();
+    saveState();
+    render();
+  }
+
+  function moveDodgePlayerToPointer(event) {
+    if (!dodgeActive) return;
+    const rect = el('dodgeArena').getBoundingClientRect();
+    dodgePlayerPosition.x = Math.max(.045, Math.min(.955, (event.clientX - rect.left) / rect.width));
+    dodgePlayerPosition.y = Math.max(.06, Math.min(.94, (event.clientY - rect.top) / rect.height));
+  }
+
+  function openMemoryEncounter(context = {}) {
+    memoryContext = { source: 'arcade', bonus: 0, ...context };
+    el('memoryTitle').textContent = memoryContext.title || 'Huellas de memoria';
+    el('memoryDescription').textContent = memoryContext.description || 'Observa la secuencia y repítela.';
+    el('memoryLives').textContent = '💗💗💗';
+    el('memoryRound').textContent = '1 / 4';
+    el('memoryScore').textContent = '0';
+    el('memoryMessage').textContent = memoryContext.source === 'training' ? '¡Encuentro especial! Completa las rondas para reforzar el entrenamiento.' : 'Mira con atención y repite el patrón.';
+    el('startMemoryBtn').disabled = false;
+    el('startMemoryBtn').textContent = 'Comenzar secuencia';
+    setMemoryPadsDisabled(true);
+    openModal('memoryModal');
+  }
+
+  function startMemory() {
+    if (memoryActive) return;
+    memoryActive = true;
+    memoryAccepting = false;
+    memorySequence = [randomMemoryPad(), randomMemoryPad(), randomMemoryPad()];
+    memoryPlayerIndex = 0;
+    memoryRound = 1;
+    memoryLives = 3;
+    memoryScore = 0;
+    el('memoryLives').textContent = '💗💗💗';
+    el('memoryRound').textContent = '1 / 4';
+    el('memoryScore').textContent = '0';
+    el('startMemoryBtn').disabled = true;
+    el('startMemoryBtn').textContent = 'En juego';
+    playMemorySequence();
+  }
+
+  function randomMemoryPad() {
+    return Math.floor(Math.random() * 4);
+  }
+
+  function memoryPads() {
+    return [...document.querySelectorAll('[data-memory-pad]')];
+  }
+
+  function setMemoryPadsDisabled(disabled) {
+    memoryPads().forEach(pad => pad.disabled = disabled);
+  }
+
+  function clearMemoryTimers() {
+    memoryTimers.forEach(timer => clearTimeout(timer));
+    memoryTimers = [];
+    memoryPads().forEach(pad => pad.classList.remove('active'));
+  }
+
+  function memoryLater(callback, delay) {
+    const timer = setTimeout(callback, delay);
+    memoryTimers.push(timer);
+  }
+
+  function playMemorySequence() {
+    if (!memoryActive) return;
+    clearMemoryTimers();
+    memoryAccepting = false;
+    memoryPlayerIndex = 0;
+    setMemoryPadsDisabled(true);
+    el('memoryMessage').textContent = 'Observa…';
+    const pads = memoryPads();
+    memorySequence.forEach((padIndex, index) => {
+      memoryLater(() => pads[padIndex]?.classList.add('active'), 350 + index * 620);
+      memoryLater(() => pads[padIndex]?.classList.remove('active'), 710 + index * 620);
+    });
+    memoryLater(() => {
+      if (!memoryActive) return;
+      setMemoryPadsDisabled(false);
+      memoryAccepting = true;
+      el('memoryMessage').textContent = 'Tu turno: repite la secuencia.';
+    }, 500 + memorySequence.length * 620);
+  }
+
+  function handleMemoryPad(index) {
+    if (!memoryActive || !memoryAccepting) return;
+    const pad = memoryPads()[index];
+    pad.classList.add('active');
+    memoryLater(() => pad.classList.remove('active'), 180);
+    if (index === memorySequence[memoryPlayerIndex]) {
+      haptic(12);
+      memoryPlayerIndex += 1;
+      memoryScore += 10 + memoryRound * 2;
+      el('memoryScore').textContent = String(memoryScore);
+      if (memoryPlayerIndex >= memorySequence.length) {
+        memoryAccepting = false;
+        setMemoryPadsDisabled(true);
+        if (memoryRound >= 4) {
+          el('memoryMessage').textContent = '¡Recordaste toda la secuencia!';
+          memoryLater(() => finishMemory(false, true), 650);
+        } else {
+          memoryRound += 1;
+          memorySequence.push(randomMemoryPad());
+          el('memoryRound').textContent = `${memoryRound} / 4`;
+          el('memoryMessage').textContent = '¡Bien! Ahora agrega una huella más.';
+          memoryLater(playMemorySequence, 850);
+        }
+      }
+      return;
+    }
+
+    memoryLives -= 1;
+    haptic([40, 25, 40]);
+    memoryAccepting = false;
+    setMemoryPadsDisabled(true);
+    el('memoryLives').textContent = '💗'.repeat(Math.max(0, memoryLives)) || '—';
+    const board = el('memoryBoard');
+    board.classList.remove('shake');
+    void board.offsetWidth;
+    board.classList.add('shake');
+    if (memoryLives <= 0) {
+      el('memoryMessage').textContent = 'Se acabaron los intentos.';
+      memoryLater(() => finishMemory(false, false), 650);
+    } else {
+      memoryPlayerIndex = 0;
+      el('memoryMessage').textContent = 'Esa no era. Mira la misma secuencia otra vez.';
+      memoryLater(playMemorySequence, 900);
+    }
+  }
+
+  function finishMemory(cancelled = false, won = false) {
+    const wasActive = memoryActive;
+    clearMemoryTimers();
+    memoryActive = false;
+    memoryAccepting = false;
+    setMemoryPadsDisabled(true);
+    if (!wasActive || cancelled) return;
+    const coins = Math.max(2, Math.floor(memoryScore / 18) + (won ? 8 : 2) + Number(memoryContext.bonus || 0));
+    modifyStats({
+      energy: memoryContext.source === 'training' ? -2 : -6,
+      food: -2,
+      mood: won ? 11 : 4,
+      bond: won ? 5 : 2,
+      stress: won ? -5 : 1
+    });
+    state.coins += coins;
+    state.arcade.memoryBest = Math.max(state.arcade.memoryBest, memoryScore);
+    state.arcade.played += 1;
+    state.traits.discipline = clamp(state.traits.discipline + (won ? 3 : 1));
+    state.traits.trust = clamp(state.traits.trust + (won ? 2 : .5));
+    gainXp(8 + Math.floor(memoryScore / 9));
+    recordHabit('play');
+    setActivity('training', 3800, { icon: '🐾', title: won ? 'Orgulloso de su memoria' : 'Practicando otra vez', description: won ? `${state.petName} siguió todas tus señales.` : 'La secuencia fue difícil, pero no se rindió.' });
+    addJournal('🐾', won ? 'Dominó Huellas de memoria' : 'Practicó su memoria', `Llegaron a la ronda ${memoryRound} con ${memoryScore} puntos y ganaron ${coins} monedas.`);
+    el('memoryMessage').textContent = won ? `¡Completado! ${memoryScore} puntos · +${coins} monedas` : `Buen intento · ${memoryScore} puntos · +${coins} monedas`;
+    el('startMemoryBtn').disabled = false;
+    el('startMemoryBtn').textContent = 'Jugar otra vez';
+    speak(won ? '¡Recordé todas las señales!' : 'Voy a practicar para la próxima.');
+    haptic(won ? [18, 32, 18, 32, 60] : 24);
+    if (won) createSparkles('🐾');
     touch();
     saveState();
     render();
@@ -870,6 +1272,16 @@
     });
   }
 
+  function renderArcade() {
+    const dodgeUnlocked = state.level >= 2;
+    const memoryUnlocked = state.level >= 3;
+    el('dodgeGameStatus').textContent = dodgeUnlocked ? (state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest}` : 'Disponible') : 'Nivel 2';
+    el('memoryGameStatus').textContent = memoryUnlocked ? (state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest}` : 'Disponible') : 'Nivel 3';
+    document.querySelector('[data-arcade="dodge"]').disabled = !dodgeUnlocked || isBusy();
+    document.querySelector('[data-arcade="memory"]').disabled = !memoryUnlocked || isBusy();
+    document.querySelector('[data-arcade="ball"]').disabled = isBusy();
+  }
+
   function renderDiary() {
     if (!state.journal.length) {
       el('diaryList').innerHTML = `<div class="diary-entry"><span class="entry-icon">🐾</span><div><strong>Su historia empieza aquí</strong><p>Las decisiones y recuerdos importantes aparecerán en este diario.</p></div></div>`;
@@ -933,6 +1345,7 @@
     renderHome();
     renderPersonality();
     renderSkills();
+    renderArcade();
     renderDiary();
     renderPhotos();
     renderActivityTimer();
@@ -957,6 +1370,10 @@
     toastEl.textContent = message;
     toastEl.classList.add('show');
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+  }
+
+  function haptic(pattern = 12) {
+    if ('vibrate' in navigator) navigator.vibrate(pattern);
   }
 
   function createSparkles(symbol) {
@@ -992,6 +1409,8 @@
     const modal = el(id);
     if (!modal || modal.hidden) return;
     if (id === 'gameModal' && gameActive) finishGame(true);
+    if (id === 'dodgeModal') finishDodge(true);
+    if (id === 'memoryModal') finishMemory(true);
     modal.classList.remove('open');
     modal.inert = true;
     const returnFocus = previousFocus;
@@ -1044,6 +1463,9 @@
     document.querySelectorAll('[data-care]').forEach(button => button.addEventListener('click', () => handleCare(button.dataset.care)));
     document.querySelectorAll('[data-walk]').forEach(button => button.addEventListener('click', () => handleWalk(button.dataset.walk)));
     document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => handleBuy(button.dataset.buy)));
+    document.querySelectorAll('[data-arcade]').forEach(button => button.addEventListener('click', () => {
+      if (!button.disabled) openArcadeGame(button.dataset.arcade);
+    }));
     el('trainingChoices').addEventListener('click', event => {
       const button = event.target.closest('[data-train]');
       if (button && !button.disabled) handleTraining(button.dataset.train);
@@ -1051,6 +1473,57 @@
     el('sleepBtn').addEventListener('click', handleSleepButton);
     el('startGameBtn').addEventListener('click', startGame);
     el('ballTarget').addEventListener('click', catchBall);
+    el('startDodgeBtn').addEventListener('click', startDodge);
+    el('startMemoryBtn').addEventListener('click', startMemory);
+    document.querySelectorAll('[data-memory-pad]').forEach(button => button.addEventListener('click', () => handleMemoryPad(Number(button.dataset.memoryPad))));
+
+    const movementKeys = {
+      ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+      w: 'up', W: 'up', s: 'down', S: 'down', a: 'left', A: 'left', d: 'right', D: 'right'
+    };
+    document.addEventListener('keydown', event => {
+      const direction = movementKeys[event.key];
+      if (!dodgeActive || !direction) return;
+      event.preventDefault();
+      dodgeDirections.add(direction);
+    });
+    document.addEventListener('keyup', event => {
+      const direction = movementKeys[event.key];
+      if (direction) dodgeDirections.delete(direction);
+    });
+    window.addEventListener('blur', () => dodgeDirections.clear());
+    document.querySelectorAll('[data-dodge-dir]').forEach(button => {
+      const direction = button.dataset.dodgeDir;
+      const press = event => {
+        if (!dodgeActive) return;
+        event.preventDefault();
+        dodgeDirections.add(direction);
+        button.classList.add('pressed');
+      };
+      const release = () => {
+        dodgeDirections.delete(direction);
+        button.classList.remove('pressed');
+      };
+      button.addEventListener('pointerdown', press);
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('pointerleave', release);
+    });
+    let dodgePointerId = null;
+    el('dodgeArena').addEventListener('pointerdown', event => {
+      if (!dodgeActive) return;
+      dodgePointerId = event.pointerId;
+      el('dodgeArena').setPointerCapture?.(event.pointerId);
+      moveDodgePlayerToPointer(event);
+    });
+    el('dodgeArena').addEventListener('pointermove', event => {
+      if (event.pointerId === dodgePointerId) moveDodgePlayerToPointer(event);
+    });
+    const endDodgePointer = event => {
+      if (event.pointerId === dodgePointerId) dodgePointerId = null;
+    };
+    el('dodgeArena').addEventListener('pointerup', endDodgePointer);
+    el('dodgeArena').addEventListener('pointercancel', endDodgePointer);
 
     el('settingsBtn').addEventListener('click', () => {
       el('settingsPartner').value = state.partnerName || '';

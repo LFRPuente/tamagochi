@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.0.0" />
+  <link rel="stylesheet" href="styles.css?v=3.1.0" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -115,7 +115,7 @@
         <button class="action-card" type="button" data-modal="careModal"><span class="action-icon coral">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
         <button class="action-card" type="button" data-modal="walkModal"><span class="action-icon green">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
         <button class="action-card" type="button" data-modal="trainingModal"><span class="action-icon purple">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
-        <button class="action-card" type="button" data-modal="gameModal"><span class="action-icon blue">🎾</span><strong>Jugar</strong><small>Atrapa la pelota</small></button>
+        <button class="action-card" type="button" data-modal="arcadeModal"><span class="action-icon blue">🕹️</span><strong>Jugar</strong><small>Tres minijuegos</small></button>
         <button class="action-card" id="sleepBtn" type="button"><span class="action-icon navy">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
         <button class="action-card" type="button" data-modal="shopModal"><span class="action-icon gold">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
       </nav>
@@ -216,6 +216,18 @@
     </section>
   </div>
 
+  <div class="modal-backdrop" id="arcadeModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="arcadeTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Tiempo juntos</p><h2 id="arcadeTitle">Arcade de Milo</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
+      <p>Cada juego entrena algo distinto. También pueden aparecer como encuentros durante paseos y entrenamientos.</p>
+      <div class="arcade-grid">
+        <button type="button" data-arcade="ball"><span>🎾</span><strong>Atrapa la pelota</strong><small>Reflejos · disponible desde el inicio</small><b>Clásico</b></button>
+        <button type="button" data-arcade="dodge"><span>💗</span><strong>Corazón valiente</strong><small>Muévete y esquiva obstáculos</small><b id="dodgeGameStatus">Nivel 2</b></button>
+        <button type="button" data-arcade="memory"><span>🐾</span><strong>Huellas de memoria</strong><small>Recuerda secuencias cada vez más largas</small><b id="memoryGameStatus">Nivel 3</b></button>
+      </div>
+    </section>
+  </div>
+
   <div class="modal-backdrop" id="gameModal" hidden inert>
     <section class="modal game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
       <div class="modal-heading"><div><p class="eyebrow">Minijuego</p><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
@@ -223,6 +235,44 @@
       <div class="game-score"><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">15</strong>s</span></div>
       <div class="game-field" id="gameField"><button id="ballTarget" type="button" aria-label="Atrapar pelota">🎾</button><div class="game-message" id="gameMessage">Milo está listo para jugar.</div></div>
       <button class="primary full-button" id="startGameBtn" type="button">Empezar partida</button>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="dodgeModal" hidden inert>
+    <section class="modal challenge-modal" role="dialog" aria-modal="true" aria-labelledby="dodgeTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Reto de reflejos</p><h2 id="dodgeTitle">Corazón valiente</h2></div><button class="close-button" type="button" data-close="dodgeModal" aria-label="Cerrar">×</button></div>
+      <p id="dodgeDescription">Arrastra el corazón o usa los botones táctiles para evitar obstáculos. También admite flechas y WASD.</p>
+      <div class="challenge-hud"><span>Vida <strong id="dodgeLives">💗💗💗</strong></span><span>Puntos <strong id="dodgeScore">0</strong></span><span>Tiempo <strong id="dodgeTime">15</strong>s</span></div>
+      <div class="dodge-arena" id="dodgeArena" tabindex="0" aria-label="Área de juego. Mueve el corazón para esquivar obstáculos.">
+        <div class="arena-grid" aria-hidden="true"></div>
+        <div class="dodge-message" id="dodgeMessage">Sobrevive 15 segundos para ganar el premio completo.</div>
+        <span class="dodge-player" id="dodgePlayer" aria-hidden="true">💗</span>
+        <div id="hazardLayer" aria-hidden="true"></div>
+      </div>
+      <div class="touch-controls" aria-label="Controles de movimiento">
+        <button type="button" data-dodge-dir="up" aria-label="Mover arriba">▲</button>
+        <span></span>
+        <button type="button" data-dodge-dir="left" aria-label="Mover a la izquierda">◀</button>
+        <button type="button" data-dodge-dir="down" aria-label="Mover abajo">▼</button>
+        <button type="button" data-dodge-dir="right" aria-label="Mover a la derecha">▶</button>
+      </div>
+      <button class="primary full-button" id="startDodgeBtn" type="button">Comenzar reto</button>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="memoryModal" hidden inert>
+    <section class="modal challenge-modal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Reto de concentración</p><h2 id="memoryTitle">Huellas de memoria</h2></div><button class="close-button" type="button" data-close="memoryModal" aria-label="Cerrar">×</button></div>
+      <p id="memoryDescription">Observa la secuencia y repítela. Cada ronda agrega una huella nueva.</p>
+      <div class="challenge-hud"><span>Intentos <strong id="memoryLives">💗💗💗</strong></span><span>Ronda <strong id="memoryRound">1 / 4</strong></span><span>Puntos <strong id="memoryScore">0</strong></span></div>
+      <div class="memory-board" id="memoryBoard" aria-label="Tablero de memoria">
+        <button type="button" data-memory-pad="0" aria-label="Huella rosa"><span>🐾</span></button>
+        <button type="button" data-memory-pad="1" aria-label="Luna morada"><span>🌙</span></button>
+        <button type="button" data-memory-pad="2" aria-label="Hueso dorado"><span>🦴</span></button>
+        <button type="button" data-memory-pad="3" aria-label="Pelota azul"><span>🎾</span></button>
+      </div>
+      <div class="memory-message" id="memoryMessage">Mira con atención y repite el patrón.</div>
+      <button class="primary full-button" id="startMemoryBtn" type="button">Comenzar secuencia</button>
     </section>
   </div>
 
@@ -251,6 +301,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.0.0" defer></script>
+  <script src="app.js?v=3.1.0" defer></script>
 </body>
 </html>

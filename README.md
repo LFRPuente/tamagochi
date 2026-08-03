@@ -15,7 +15,10 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
-- Minijuego de pelota, monedas, inventario y tienda.
+- Arcade con pelota, reto de esquivar y juego de memoria.
+- Encuentros jugables que aparecen durante paseos y entrenamientos.
+- Controles por teclado, toque, arrastre y botones táctiles.
+- Monedas, inventario y tienda.
 - Diario de actividades, incluso mientras la aplicación está cerrada.
 - Galería privada guardada únicamente en el dispositivo.
 - Personalización mediante parámetros en el enlace.
