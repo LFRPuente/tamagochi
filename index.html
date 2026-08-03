@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.3.1" />
+  <link rel="stylesheet" href="styles.css?v=3.4.1" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -222,9 +222,9 @@
       <div class="modal-heading"><div><p class="eyebrow">Encuentros retro</p><h2 id="arcadeTitle">Arcade de Milo</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
       <p>Elige acciones, supera cada turno y protege el corazón. Los encuentros también pueden aparecer durante paseos y entrenamientos.</p>
       <div class="arcade-grid">
-        <button type="button" data-arcade="ball"><span>🎾</span><strong>Duelo de pelota</strong><small>Detén la barra en el centro durante cinco turnos</small><b id="ballGameStatus">Precisión</b></button>
-        <button type="button" data-arcade="dodge"><span>💗</span><strong>Corazón valiente</strong><small>Elige una táctica y esquiva tres oleadas</small><b id="dodgeGameStatus">Nivel 2</b></button>
-        <button type="button" data-arcade="memory"><span>🐾</span><strong>Código de amistad</strong><small>Observa los comandos y repítelos por turnos</small><b id="memoryGameStatus">Nivel 3</b></button>
+        <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Duelo de pelota</strong><small>Detén la barra en el centro durante cinco turnos</small></span><b id="ballGameStatus">Energía −16</b></button>
+        <button type="button" data-arcade="dodge"><span class="arcade-icon">💗</span><span class="arcade-copy"><strong>Corazón valiente</strong><small>Elige una táctica y esquiva tres oleadas</small></span><b id="dodgeGameStatus">Nivel 2</b></button>
+        <button type="button" data-arcade="memory"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Código de amistad</strong><small>Observa los comandos y repítelos por turnos</small></span><b id="memoryGameStatus">Nivel 3</b></button>
       </div>
     </section>
   </div>
@@ -330,6 +330,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.3.1" defer></script>
+  <script src="app.js?v=3.4.1" defer></script>
 </body>
 </html>

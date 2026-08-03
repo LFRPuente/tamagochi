@@ -56,6 +56,15 @@
     adventure: { level: 3, energy: 24, water: 17, coins: 22, xp: 34, bond: 7, duration: 15000, name: 'Pequeña aventura', icon: '⛰️' }
   };
 
+  const ENERGY_COSTS = {
+    training: 9,
+    arcadeBall: 16,
+    arcadeDodge: 9,
+    arcadeMemory: 6,
+    walkDodge: 3,
+    trainingMemory: 2
+  };
+
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Sentadito', description: 'Se sentó cerca de ti para hacerte compañía.', css: 'sitting' },
     drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
@@ -668,7 +677,7 @@
     const beforeLevel = skillLevel(state.skills[skillKey]);
     state.skills[skillKey] = clamp(state.skills[skillKey] + gain);
     const afterLevel = skillLevel(state.skills[skillKey]);
-    modifyStats({ energy: -9, food: -3, water: -4, mood: hasTreat ? 5 : 2, bond: 3, stress: focus < 30 ? 3 : -1 });
+    modifyStats({ energy: -ENERGY_COSTS.training, food: -3, water: -4, mood: hasTreat ? 5 : 2, bond: 3, stress: focus < 30 ? 3 : -1 });
     state.traits.discipline = clamp(state.traits.discipline + 1.8);
     state.traits.trust = clamp(state.traits.trust + 1.1);
     state.coins += 3;
@@ -716,6 +725,25 @@
     return Math.min(5, Math.floor(clamp(progress) / 20));
   }
 
+  function energyLabel(amount) {
+    return `Energía −${amount}`;
+  }
+
+  function arcadeEnergyCost(type) {
+    if (type === 'ball') return ENERGY_COSTS.arcadeBall;
+    if (type === 'dodge') return ENERGY_COSTS.arcadeDodge;
+    if (type === 'memory') return ENERGY_COSTS.arcadeMemory;
+    return 0;
+  }
+
+  function dodgeEnergyCost() {
+    return dodgeContext.source === 'walk' ? ENERGY_COSTS.walkDodge : ENERGY_COSTS.arcadeDodge;
+  }
+
+  function memoryEnergyCost() {
+    return memoryContext.source === 'training' ? ENERGY_COSTS.trainingMemory : ENERGY_COSTS.arcadeMemory;
+  }
+
   function setBallActionsDisabled(disabled) {
     document.querySelectorAll('[data-ball-action]').forEach(button => {
       button.disabled = disabled || gameUsedActions.has(button.dataset.ballAction);
@@ -736,14 +764,14 @@
     el('strikeTrack').hidden = true;
     el('ballTarget').style.display = 'none';
     el('startGameBtn').disabled = false;
-    el('startGameBtn').textContent = 'Iniciar encuentro';
+    el('startGameBtn').textContent = `Iniciar encuentro · ${energyLabel(ENERGY_COSTS.arcadeBall)}`;
     setBallActionsDisabled(true);
   }
 
   function startGame() {
     if (gameActive) return;
     if (state.isAsleep || isBusy()) return toast(`${state.petName} no puede jugar ahora.`);
-    if (state.stats.energy < 18) return toast('Está demasiado cansado para jugar.');
+    if (state.stats.energy < ENERGY_COSTS.arcadeBall) return toast(`Necesita ${ENERGY_COSTS.arcadeBall}% de energía para jugar.`);
     gameActive = true;
     gameScore = 0;
     gameSeconds = 25;
@@ -868,7 +896,7 @@
     el('strikeTrack').hidden = true;
     setBallActionsDisabled(true);
     el('startGameBtn').disabled = false;
-    el('startGameBtn').textContent = 'Jugar otra vez';
+    el('startGameBtn').textContent = `Jugar otra vez · ${energyLabel(ENERGY_COSTS.arcadeBall)}`;
     el('gameMessage').hidden = false;
     if (cancelled) {
       el('gameMessage').textContent = '* Encuentro pausado.';
@@ -877,7 +905,7 @@
 
     const personalityBonus = PERSONALITIES[state.personality].play || 1;
     const coins = Math.max(3, Math.min(24, Math.round(gameScore * personalityBonus / 4)));
-    modifyStats({ energy: -Math.min(18, 6 + gameTurn * 2), water: -5, food: -3, mood: Math.min(24, 7 + gameScore * .18 * personalityBonus), bond: 5, stress: -6 });
+    modifyStats({ energy: -Math.min(ENERGY_COSTS.arcadeBall, 6 + gameTurn * 2), water: -5, food: -3, mood: Math.min(24, 7 + gameScore * .18 * personalityBonus), bond: 5, stress: -6 });
     state.coins += coins;
     state.arcade.ballBest = Math.max(state.arcade.ballBest, gameScore);
     state.arcade.played += 1;
@@ -898,7 +926,7 @@
     if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
     const requiredLevel = type === 'dodge' ? 2 : type === 'memory' ? 3 : 1;
     if (state.level < requiredLevel) return toast(`Este juego se desbloquea en el nivel ${requiredLevel}.`);
-    if (state.stats.energy < 18) return toast('Está demasiado cansado para jugar.');
+    if (state.stats.energy < arcadeEnergyCost(type)) return toast(`Necesita ${arcadeEnergyCost(type)}% de energía para jugar.`);
     closeModal('arcadeModal');
     setTimeout(() => {
       if (type === 'ball') {
@@ -938,7 +966,7 @@
     el('dodgeMessage').textContent = 'Elige una táctica antes de comenzar.';
     el('dodgePlayer').style.display = 'none';
     el('startDodgeBtn').disabled = false;
-    el('startDodgeBtn').textContent = 'Comenzar turno';
+    el('startDodgeBtn').textContent = `Comenzar turno · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => {
       button.disabled = false;
       button.classList.toggle('selected', button.dataset.dodgeAct === 'play');
@@ -964,6 +992,8 @@
 
   function startDodge() {
     if (dodgeActive) return;
+    const cost = dodgeEnergyCost();
+    if (state.stats.energy < cost) return toast(`Necesita ${cost}% de energía para este reto.`);
     dodgeActive = true;
     dodgeLives = dodgeAct === 'encourage' ? 4 : 3;
     dodgeScore = dodgeAct === 'encourage' ? 6 : dodgeAct === 'observe' ? 3 : 0;
@@ -1135,7 +1165,7 @@
     const coins = Math.max(2, Math.floor(dodgeScore / 12) + Number(dodgeContext.bonus || 0));
     const xp = 8 + Math.floor(dodgeScore / 8);
     modifyStats({
-      energy: dodgeContext.source === 'walk' ? -3 : -9,
+      energy: -dodgeEnergyCost(),
       water: dodgeContext.source === 'walk' ? -2 : -4,
       mood: survived ? 13 : 5,
       bond: survived ? 5 : 2,
@@ -1152,7 +1182,7 @@
     el('dodgeMessage').textContent = survived ? `¡Superado! ${dodgeScore} puntos · +${coins} monedas` : `Buen intento · ${dodgeScore} puntos · +${coins} monedas`;
     el('dodgePlayer').style.display = 'none';
     el('startDodgeBtn').disabled = false;
-    el('startDodgeBtn').textContent = 'Jugar otra vez';
+    el('startDodgeBtn').textContent = `Jugar otra vez · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = false);
     el('dodgeDialogue').textContent = survived ? '* El rival se aparta. El camino vuelve a estar libre.' : '* El rival respeta que Milo no se rindió.';
     speak(survived ? '¡Lo logramos juntos!' : '¡Casi! La próxima lo lograremos.');
@@ -1179,13 +1209,15 @@
     el('memoryScore').textContent = '0';
     el('memoryMessage').textContent = memoryContext.source === 'training' ? '* El eco apareció durante el entrenamiento. Completa sus cuatro turnos.' : '* El eco espera que recuerdes sus comandos.';
     el('startMemoryBtn').disabled = false;
-    el('startMemoryBtn').textContent = 'Iniciar encuentro';
+    el('startMemoryBtn').textContent = `Iniciar encuentro · ${energyLabel(memoryEnergyCost())}`;
     setMemoryPadsDisabled(true);
     openModal('memoryModal');
   }
 
   function startMemory() {
     if (memoryActive) return;
+    const cost = memoryEnergyCost();
+    if (state.stats.energy < cost) return toast(`Necesita ${cost}% de energía para este reto.`);
     memoryActive = true;
     memoryAccepting = false;
     memorySequence = [randomMemoryPad(), randomMemoryPad(), randomMemoryPad()];
@@ -1299,7 +1331,7 @@
     if (!wasActive || cancelled) return;
     const coins = Math.max(2, Math.floor(memoryScore / 18) + (won ? 8 : 2) + Number(memoryContext.bonus || 0));
     modifyStats({
-      energy: memoryContext.source === 'training' ? -2 : -6,
+      energy: -memoryEnergyCost(),
       food: -2,
       mood: won ? 11 : 4,
       bond: won ? 5 : 2,
@@ -1316,7 +1348,7 @@
     addJournal('🐾', won ? 'Completó el Código de amistad' : 'Practicó el Código de amistad', `Llegaron a la ronda ${memoryRound} con ${memoryScore} puntos y ganaron ${coins} monedas.`);
     el('memoryMessage').textContent = won ? `* ENCUENTRO COMPLETO · ${memoryScore} puntos · +${coins} monedas` : `* FIN DEL ENCUENTRO · ${memoryScore} puntos · +${coins} monedas`;
     el('startMemoryBtn').disabled = false;
-    el('startMemoryBtn').textContent = 'Jugar otra vez';
+    el('startMemoryBtn').textContent = `Jugar otra vez · ${energyLabel(memoryEnergyCost())}`;
     speak(won ? '¡Recordé todas las señales!' : 'Voy a practicar para la próxima.');
     haptic(won ? [18, 32, 18, 32, 60] : 24);
     if (won) createSparkles('🐾');
@@ -1488,12 +1520,13 @@
       const locked = state.level < skill.unlock;
       const level = skillLevel(state.skills[key]);
       return `<button class="training-choice" type="button" data-train="${key}" ${locked || isBusy() ? 'disabled' : ''}>
-        <span>${locked ? '🔒' : skill.icon}</span><span><strong>${skill.name}</strong><small>${locked ? `Disponible en nivel ${skill.unlock}` : `${Math.round(state.skills[key])}% aprendido · consume energía${state.inventory.treat ? ' y 1 premio' : ''}`}</small></span><b>${locked ? '' : `Nv. ${level}`}</b>
+        <span class="training-icon">${locked ? '🔒' : skill.icon}</span><span class="training-copy"><strong>${skill.name}</strong><small>${locked ? `Disponible en nivel ${skill.unlock}` : `Nv. ${level} · ${Math.round(state.skills[key])}% aprendido${state.inventory.treat ? ' · 1 premio' : ''}`}</small></span><b>${locked ? '' : energyLabel(ENERGY_COSTS.training)}</b>
       </button>`;
     }).join('');
 
     document.querySelectorAll('[data-walk]').forEach(button => {
       const route = WALK_ROUTES[button.dataset.walk];
+      button.querySelector('b').textContent = energyLabel(route.energy);
       button.disabled = state.level < route.level || isBusy();
     });
   }
@@ -1501,9 +1534,12 @@
   function renderArcade() {
     const dodgeUnlocked = state.level >= 2;
     const memoryUnlocked = state.level >= 3;
-    el('ballGameStatus').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest}` : 'Precisión';
-    el('dodgeGameStatus').textContent = dodgeUnlocked ? (state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest}` : 'Disponible') : 'Nivel 2';
-    el('memoryGameStatus').textContent = memoryUnlocked ? (state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest}` : 'Disponible') : 'Nivel 3';
+    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · precisión` : 'Detén la barra en el centro durante cinco turnos';
+    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : 'Elige una táctica y esquiva tres oleadas';
+    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : 'Observa los comandos y repítelos por turnos';
+    el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
+    el('dodgeGameStatus').textContent = dodgeUnlocked ? energyLabel(ENERGY_COSTS.arcadeDodge) : 'Nivel 2';
+    el('memoryGameStatus').textContent = memoryUnlocked ? energyLabel(ENERGY_COSTS.arcadeMemory) : 'Nivel 3';
     document.querySelector('[data-arcade="dodge"]').disabled = !dodgeUnlocked || isBusy();
     document.querySelector('[data-arcade="memory"]').disabled = !memoryUnlocked || isBusy();
     document.querySelector('[data-arcade="ball"]').disabled = isBusy();
