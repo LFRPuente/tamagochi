@@ -272,6 +272,14 @@ h2 { margin-bottom: 0; font-size: 1.2rem; line-height: 1.12; }
 @keyframes seatedBreath { 0%,100% { transform: translateY(3px) scale(1,1.08); } 50% { transform: translateY(1px) scale(1.025,1.1); } }
 @keyframes seatedLook { 0%,72%,100% { transform: rotate(0); } 80% { transform: rotate(-4deg) translateY(1px); } 89% { transform: rotate(3deg); } }
 
+.pet-wrap.night-awake { animation: drowsySway 3.8s ease-in-out infinite; }
+.pet-wrap.night-awake .head { animation: drowsyNod 3.8s ease-in-out infinite; }
+.pet-wrap.night-awake .tail { animation-duration: 1.7s; }
+.pet-wrap.night-awake .ear-left { transform: rotate(25deg) translateY(4px); }
+.pet-wrap.night-awake .ear-right { transform: scaleX(-1) rotate(25deg) translateY(4px); }
+@keyframes drowsySway { 0%,100% { transform: translateY(9px) rotate(-1deg); } 50% { transform: translateY(12px) rotate(1deg) scaleY(.98); } }
+@keyframes drowsyNod { 0%,30%,100% { transform: translateY(5px) rotate(-3deg); } 55%,72% { transform: translateY(13px) rotate(5deg); } }
+
 .pet-wrap.watching .head { animation: lookAround 5.4s ease-in-out infinite; }
 .pet-wrap.watching .tail { animation-duration: 1.15s; }
 @keyframes lookAround { 0%,18%,100% { transform: rotate(-7deg) translateX(-2px); } 38%,68% { transform: rotate(7deg) translateX(3px); } 80% { transform: rotate(0); } }

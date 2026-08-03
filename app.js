@@ -58,6 +58,7 @@
 
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Sentadito', description: 'Se sentó cerca de ti para hacerte compañía.', css: 'sitting' },
+    drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
     sitting: { icon: '🐕', title: 'Sentado junto a ti', description: 'Se acomodó y mueve la cola mientras te observa.', css: 'sitting' },
     stretching: { icon: '🧘', title: 'Estirándose', description: 'Estira las patas delanteras después de descansar.', css: 'stretching' },
     grooming: { icon: '✨', title: 'Arreglándose', description: 'Se rasca una orejita y vuelve a acomodarse.', css: 'grooming' },
@@ -386,7 +387,7 @@
   }
 
   function isBusy() {
-    return gameActive || dodgeActive || memoryActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
+    return gameActive || dodgeActive || memoryActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'drowsy', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
   }
 
   function resolveActivity() {
@@ -396,6 +397,11 @@
 
   function chooseIdleActivity() {
     const hour = new Date().getHours();
+    const nightAwake = (hour >= 22 || hour < 6) && now() < Number(state.manualAwakeUntil || 0);
+    if (nightAwake) {
+      setActivity('drowsy', 14000 + Math.floor(Math.random() * 10000));
+      return;
+    }
     const options = ['idle', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'guarding', 'toy'];
     if (state.stats.energy < 35) options.push('idle', 'sitting', 'sitting');
     if (state.personality === 'playful') options.push('toy', 'toy');
@@ -444,7 +450,7 @@
     else if (isBedtime && state.stats.energy < 62 && now() >= Number(state.manualAwakeUntil || 0) && !isBusy()) {
       beginSleep('night', 8 * 3_600_000, true);
     }
-    else if (state.stats.energy < 16 && !isBusy()) {
+    else if (state.stats.energy < 16 && now() >= Number(state.manualAwakeUntil || 0) && !isBusy()) {
       beginSleep('nap', 3 * 60_000, true);
     } else if (!isBusy() && Math.random() < .45) {
       chooseIdleActivity();
@@ -479,12 +485,16 @@
     state.isAsleep = false;
     state.sleepMode = '';
     state.sleepUntil = 0;
+    const wakeHour = new Date().getHours();
+    const wokeAtNight = byUser && (wakeHour >= 22 || wakeHour < 6);
     if (byUser) state.manualAwakeUntil = now() + 30 * 60_000;
+    if (wokeAtNight) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
     if (byUser && early) modifyStats({ mood: -3, stress: 2 });
-    setActivity('idle', 9000, { title: 'Recién despierto', description: 'Está estirando las patas y mirando a su alrededor.', icon: '🥱' });
+    if (wokeAtNight) setActivity('drowsy', 14000);
+    else setActivity('idle', 9000, { title: 'Recién despierto', description: 'Está estirando las patas y mirando a su alrededor.', icon: '🥱' });
     if (byUser) {
-      addJournal('🥱', 'Se despertó', `Descansó ${sleptMinutes || 'unos'} minutos${early ? ', aunque todavía tenía un poco de sueño.' : '.'}`);
-      speak(early ? '¿Ya es hora de levantarse?' : '¡Qué bien dormí!');
+      addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte con ${Math.round(state.stats.energy)}% de energía y seguirá despierto un rato.` : `Descansó ${sleptMinutes || 'unos'} minutos${early ? ', aunque todavía tenía un poco de sueño.' : '.'}`);
+      speak(wokeAtNight ? 'Sigo con sueño, pero quiero estar contigo…' : early ? '¿Ya es hora de levantarse?' : '¡Qué bien dormí!');
     } else {
       addJournal('☀️', 'Despertó descansado', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
     }
@@ -1401,15 +1411,17 @@
 
     const dog = el('dog');
     const average = (state.stats.food + state.stats.water + state.stats.energy + state.stats.hygiene + state.stats.health + state.mood) / 6;
+    const sceneHour = new Date().getHours();
+    const nightAwake = (sceneHour >= 22 || sceneHour < 6) && now() < Number(state.manualAwakeUntil || 0);
     dog.className = 'dog';
-    if (state.isAsleep || state.stats.energy < 22) dog.classList.add('sleepy-face');
+    if (state.isAsleep || state.stats.energy < 22 || nightAwake) dog.classList.add('sleepy-face');
     else if (state.stats.health < 40) dog.classList.add('sick-face');
     else if (average < 44 || state.stress > 70) dog.classList.add('sad-face');
     else dog.classList.add('happy-face');
     if (state.stats.hygiene < 36) dog.classList.add('dirty');
 
     el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : 'Dormir';
-    el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : 'Descanso de verdad';
+    el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : nightAwake ? 'Está despierto con sueño' : 'Descanso de verdad';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
 

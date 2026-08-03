@@ -11,6 +11,7 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 
 - Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
+- Despertar nocturno con energía baja y 30 minutos de actividad soñolienta.
 - Comida y agua en cuencos que el perrito consume por su cuenta.
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Animaciones de sentarse, estirarse, rascarse, vigilar, caminar, jugar, comer y dormir.
