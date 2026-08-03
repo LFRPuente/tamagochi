@@ -4,1283 +4,253 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7c7d9" />
-  <meta name="description" content="Un pequeño compañero virtual creado con amor." />
+  <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
   <title>Nuestro pequeño compañero</title>
-  <style>
-    :root {
-      --bg: #fff8fb;
-      --panel: rgba(255,255,255,.84);
-      --text: #382b33;
-      --muted: #7f6c77;
-      --accent: #e77da7;
-      --accent-2: #f7c7d9;
-      --good: #70b98a;
-      --warn: #e8a14b;
-      --shadow: 0 18px 55px rgba(105, 67, 87, .16);
-      --radius: 26px;
-    }
-
-    * { box-sizing: border-box; }
-    html { min-height: 100%; background: var(--bg); }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 15% 10%, rgba(247,199,217,.62), transparent 27%),
-        radial-gradient(circle at 85% 20%, rgba(229,218,255,.64), transparent 28%),
-        linear-gradient(180deg, #fffafd 0%, #fff4f8 100%);
-      overflow-x: hidden;
-    }
-
-    button, input, textarea { font: inherit; }
-    button { -webkit-tap-highlight-color: transparent; }
-
-    .app {
-      width: min(100%, 760px);
-      margin: 0 auto;
-      padding: max(18px, env(safe-area-inset-top)) 16px max(26px, env(safe-area-inset-bottom));
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .eyebrow {
-      margin: 0;
-      color: var(--accent);
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      font-size: .72rem;
-    }
-
-    h1 {
-      margin: 2px 0 0;
-      font-size: clamp(1.55rem, 5vw, 2.45rem);
-      line-height: 1.05;
-    }
-
-    .icon-button {
-      width: 44px;
-      height: 44px;
-      border: 0;
-      border-radius: 15px;
-      background: rgba(255,255,255,.76);
-      box-shadow: 0 8px 24px rgba(83,53,68,.10);
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      font-size: 1.15rem;
-      color: var(--text);
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.92);
-      border-radius: 32px;
-      box-shadow: var(--shadow);
-      padding: 20px;
-      backdrop-filter: blur(14px);
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      pointer-events: none;
-      opacity: .65;
-    }
-    .hero::before { width: 150px; height: 150px; background: #ffe8f1; top: -62px; right: -36px; }
-    .hero::after { width: 110px; height: 110px; background: #eee8ff; left: -42px; bottom: -44px; }
-
-    .pet-headline {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 14px;
-    }
-
-    .pet-name {
-      margin: 0;
-      font-size: 1.45rem;
-      font-weight: 850;
-    }
-
-    .subtitle {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: .94rem;
-    }
-
-    .level-pill {
-      white-space: nowrap;
-      padding: 8px 11px;
-      border-radius: 999px;
-      background: #fff;
-      color: var(--accent);
-      font-weight: 800;
-      font-size: .82rem;
-      box-shadow: 0 7px 18px rgba(91,54,72,.09);
-    }
-
-    .scene {
-      position: relative;
-      z-index: 1;
-      min-height: 285px;
-      display: grid;
-      place-items: center;
-      margin: 2px 0 6px;
-    }
-
-    .floor {
-      position: absolute;
-      width: 82%;
-      height: 35px;
-      bottom: 34px;
-      border-radius: 50%;
-      background: radial-gradient(ellipse, rgba(82,46,65,.18) 0%, rgba(82,46,65,.04) 58%, transparent 72%);
-      filter: blur(3px);
-    }
-
-    .pet-wrap {
-      position: relative;
-      width: 240px;
-      height: 235px;
-      display: grid;
-      place-items: center;
-      animation: float 3.2s ease-in-out infinite;
-      transform-origin: 50% 90%;
-    }
-
-    .pet-wrap.bounce { animation: bounce .58s ease both; }
-    .pet-wrap.sleeping { animation: sleepy 3.5s ease-in-out infinite; }
-
-    @keyframes float { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-7px) rotate(1deg); } }
-    @keyframes bounce { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-28px) scale(1.04,.96); } 65% { transform: translateY(2px) scale(.98,1.02); } 100% { transform: translateY(0) scale(1); } }
-    @keyframes sleepy { 0%,100% { transform: translateY(4px) rotate(-1.5deg); } 50% { transform: translateY(9px) rotate(1deg); } }
-
-    .sparkles { position: absolute; inset: 0; pointer-events: none; }
-    .sparkle {
-      position: absolute;
-      font-size: 1.1rem;
-      animation: pop 1s ease forwards;
-    }
-    @keyframes pop { 0% { opacity: 0; transform: scale(.3) translateY(0); } 35% { opacity: 1; } 100% { opacity: 0; transform: scale(1.4) translateY(-45px); } }
-
-    .speech {
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 88%;
-      padding: 10px 14px;
-      border-radius: 18px 18px 18px 5px;
-      background: #fff;
-      box-shadow: 0 10px 28px rgba(79,49,64,.12);
-      color: var(--text);
-      font-weight: 700;
-      text-align: center;
-      font-size: .9rem;
-      opacity: 0;
-      transition: opacity .2s ease, transform .2s ease;
-      pointer-events: none;
-    }
-    .speech.show { opacity: 1; transform: translate(-50%, -3px); }
-
-    .dog {
-      position: relative;
-      width: 190px;
-      height: 190px;
-    }
-
-    .ear {
-      position: absolute;
-      top: 28px;
-      width: 63px;
-      height: 91px;
-      background: #9f6a45;
-      border-radius: 60% 55% 55% 65%;
-      z-index: 0;
-      box-shadow: inset 0 -10px 0 rgba(73,43,25,.08);
-    }
-    .ear.left { left: 11px; transform: rotate(18deg); }
-    .ear.right { right: 11px; transform: scaleX(-1) rotate(18deg); }
-
-    .head {
-      position: absolute;
-      left: 26px;
-      top: 27px;
-      width: 138px;
-      height: 132px;
-      background: linear-gradient(145deg, #dba77b 0%, #c98b5f 100%);
-      border-radius: 48% 48% 45% 45%;
-      z-index: 2;
-      box-shadow: inset 8px -8px 0 rgba(102,61,33,.07), 0 14px 25px rgba(90,51,30,.16);
-    }
-
-    .spot {
-      position: absolute;
-      width: 46px;
-      height: 60px;
-      top: 5px;
-      left: 14px;
-      background: rgba(255,240,219,.5);
-      border-radius: 58% 42% 55% 45%;
-      transform: rotate(12deg);
-    }
-
-    .eye {
-      position: absolute;
-      top: 47px;
-      width: 18px;
-      height: 23px;
-      background: #35231d;
-      border-radius: 50%;
-      transition: .25s ease;
-    }
-    .eye::after {
-      content: "";
-      position: absolute;
-      width: 5px;
-      height: 7px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.9);
-      top: 3px;
-      left: 4px;
-    }
-    .eye.left { left: 34px; }
-    .eye.right { right: 34px; }
-
-    .dog.sleepy-face .eye { height: 4px; border-radius: 999px; top: 58px; }
-    .dog.sleepy-face .eye::after { display: none; }
-    .dog.sad-face .eye { transform: rotate(8deg); }
-    .dog.sad-face .eye.right { transform: rotate(-8deg); }
-
-    .muzzle {
-      position: absolute;
-      left: 34px;
-      bottom: 18px;
-      width: 70px;
-      height: 54px;
-      background: #efd2b2;
-      border-radius: 50% 50% 46% 46%;
-    }
-    .nose {
-      position: absolute;
-      width: 24px;
-      height: 18px;
-      background: #34221d;
-      border-radius: 50% 50% 48% 48%;
-      top: 8px;
-      left: 23px;
-    }
-    .mouth {
-      position: absolute;
-      width: 28px;
-      height: 15px;
-      left: 21px;
-      top: 24px;
-      border-bottom: 3px solid #6a4035;
-      border-radius: 0 0 50% 50%;
-      transition: .2s ease;
-    }
-    .sad-face .mouth { border-bottom: 0; border-top: 3px solid #6a4035; border-radius: 50% 50% 0 0; top: 31px; }
-    .tongue {
-      position: absolute;
-      display: none;
-      width: 20px;
-      height: 19px;
-      left: 25px;
-      top: 34px;
-      border-radius: 0 0 50% 50%;
-      background: #e98aa1;
-    }
-    .happy-face .tongue { display: block; }
-
-    .body {
-      position: absolute;
-      left: 55px;
-      bottom: 0;
-      width: 80px;
-      height: 75px;
-      background: linear-gradient(145deg, #d59b6f, #bd7c52);
-      border-radius: 42% 42% 34% 34%;
-      z-index: 1;
-    }
-    .paw {
-      position: absolute;
-      bottom: -3px;
-      width: 37px;
-      height: 22px;
-      background: #e2ad82;
-      border-radius: 50%;
-      z-index: 3;
-    }
-    .paw.left { left: 47px; }
-    .paw.right { right: 47px; }
-    .tail {
-      position: absolute;
-      right: 25px;
-      bottom: 45px;
-      width: 58px;
-      height: 23px;
-      background: #bd7c52;
-      border-radius: 999px;
-      transform: rotate(-30deg);
-      transform-origin: left center;
-      z-index: 0;
-      animation: wag .42s ease-in-out infinite alternate;
-    }
-    @keyframes wag { from { transform: rotate(-18deg); } to { transform: rotate(-48deg); } }
-    .sleepy-face + .body ~ .tail, .dog.sleepy-face .tail { animation-duration: 1.3s; }
-
-    .dirt {
-      position: absolute;
-      z-index: 5;
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .dirt.one { left: 39px; top: 84px; }
-    .dirt.two { right: 37px; top: 118px; }
-    .dog.dirty .dirt { opacity: .62; }
-
-    .zzz {
-      position: absolute;
-      top: 48px;
-      right: 7px;
-      color: #8f80b7;
-      font-weight: 900;
-      opacity: 0;
-    }
-    .dog.sleepy-face .zzz { opacity: 1; animation: zzz 2s ease-in-out infinite; }
-    @keyframes zzz { 0% { transform: translate(0,10px) scale(.7); opacity: 0; } 40% { opacity: 1; } 100% { transform: translate(18px,-18px) scale(1.2); opacity: 0; } }
-
-    .xp-row {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .xp-track {
-      height: 8px;
-      background: #f0e4e9;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-    .xp-fill {
-      height: 100%;
-      width: 0;
-      background: linear-gradient(90deg, var(--accent), #b992e8);
-      border-radius: inherit;
-      transition: width .45s ease;
-    }
-    .xp-label { color: var(--muted); font-size: .76rem; font-weight: 700; }
-
-    .stats {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .stat {
-      padding: 11px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.74);
-      border: 1px solid rgba(252,249,251,.95);
-    }
-    .stat-line {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 7px;
-      font-size: .78rem;
-      font-weight: 800;
-    }
-    .meter {
-      height: 8px;
-      border-radius: 999px;
-      background: #eee4e8;
-      overflow: hidden;
-    }
-    .meter > span {
-      display: block;
-      height: 100%;
-      width: 50%;
-      border-radius: inherit;
-      background: var(--good);
-      transition: width .35s ease, background .35s ease;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: 9px;
-      margin: 14px 0;
-    }
-    .action {
-      border: 0;
-      border-radius: 20px;
-      min-height: 82px;
-      background: rgba(255,255,255,.86);
-      box-shadow: 0 9px 24px rgba(83,53,68,.10);
-      cursor: pointer;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      font-weight: 800;
-      font-size: .76rem;
-      transition: transform .14s ease, box-shadow .14s ease;
-    }
-    .action:active { transform: translateY(2px) scale(.98); box-shadow: 0 4px 12px rgba(83,53,68,.08); }
-    .action .emoji { font-size: 1.55rem; }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid rgba(255,255,255,.9);
-      border-radius: var(--radius);
-      box-shadow: 0 12px 34px rgba(83,53,68,.11);
-      padding: 17px;
-      backdrop-filter: blur(13px);
-    }
-    .card h2 {
-      margin: 0 0 6px;
-      font-size: 1.05rem;
-    }
-    .card p { color: var(--muted); margin: 0; font-size: .85rem; line-height: 1.45; }
-
-    .note-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 165px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .note-card::after {
-      content: "💌";
-      position: absolute;
-      right: 12px;
-      bottom: -12px;
-      font-size: 4.5rem;
-      opacity: .10;
-      transform: rotate(-10deg);
-    }
-    .daily-note {
-      margin-top: 14px !important;
-      color: var(--text) !important;
-      font-size: 1rem !important;
-      font-weight: 760;
-      line-height: 1.5 !important;
-      position: relative;
-      z-index: 1;
-    }
-
-    .streak {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(87,56,72,.09);
-      font-size: .78rem;
-      color: var(--muted);
-      position: relative;
-      z-index: 1;
-    }
-    .streak strong { color: var(--text); }
-
-    .unlock-list { margin-top: 12px; display: grid; gap: 8px; }
-    .unlock {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.7);
-    }
-    .unlock.locked { opacity: .55; filter: grayscale(.65); }
-    .unlock-icon { width: 34px; height: 34px; border-radius: 12px; background: #fff; display: grid; place-items: center; }
-    .unlock-copy { min-width: 0; }
-    .unlock-copy strong { display: block; font-size: .79rem; }
-    .unlock-copy span { color: var(--muted); font-size: .72rem; }
-
-    .memory-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .memory {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      border-radius: 15px;
-      overflow: hidden;
-      background: linear-gradient(135deg, #f8dce8, #eee6ff);
-      display: grid;
-      place-items: center;
-      color: rgba(76,53,66,.45);
-      font-size: 1.35rem;
-    }
-    .memory img { width: 100%; height: 100%; object-fit: cover; }
-    .memory button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 25px;
-      height: 25px;
-      border: 0;
-      border-radius: 50%;
-      background: rgba(40,25,33,.62);
-      color: white;
-      cursor: pointer;
-    }
-    .upload {
-      border: 0;
-      width: 100%;
-      margin-top: 10px;
-      padding: 11px 13px;
-      border-radius: 15px;
-      background: #fff;
-      color: var(--accent);
-      font-weight: 850;
-      cursor: pointer;
-    }
-
-    .footer-note {
-      text-align: center;
-      color: var(--muted);
-      font-size: .72rem;
-      margin: 18px 0 0;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(42,28,36,.36);
-      backdrop-filter: blur(8px);
-      display: grid;
-      place-items: center;
-      padding: 18px;
-      z-index: 50;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s ease;
-    }
-    .modal-backdrop.open { opacity: 1; pointer-events: auto; }
-    .modal {
-      width: min(100%, 520px);
-      max-height: 92vh;
-      overflow: auto;
-      border-radius: 28px;
-      padding: 22px;
-      background: #fffafc;
-      box-shadow: 0 24px 80px rgba(54,34,44,.28);
-      transform: translateY(12px) scale(.98);
-      transition: transform .2s ease;
-    }
-    .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
-    .modal h2 { margin: 0 0 7px; font-size: 1.35rem; }
-    .modal p { margin: 0 0 16px; color: var(--muted); line-height: 1.45; }
-    .field { margin-bottom: 12px; }
-    .field label { display: block; font-size: .78rem; font-weight: 800; margin-bottom: 5px; }
-    .field input, .field textarea {
-      width: 100%;
-      border: 1px solid #ebdfe5;
-      background: white;
-      border-radius: 14px;
-      padding: 12px 13px;
-      outline: none;
-      color: var(--text);
-    }
-    .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(231,125,167,.12); }
-    .field textarea { min-height: 76px; resize: vertical; }
-    .modal-actions { display: flex; gap: 9px; justify-content: flex-end; margin-top: 14px; }
-    .primary, .secondary, .danger {
-      border: 0;
-      border-radius: 15px;
-      padding: 11px 15px;
-      cursor: pointer;
-      font-weight: 850;
-    }
-    .primary { background: var(--accent); color: white; }
-    .secondary { background: #f2e8ed; color: var(--text); }
-    .danger { background: #fde8eb; color: #a94a5a; }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: calc(20px + env(safe-area-inset-bottom));
-      transform: translate(-50%, 18px);
-      background: rgba(48,32,40,.92);
-      color: white;
-      padding: 11px 15px;
-      border-radius: 999px;
-      font-size: .82rem;
-      font-weight: 750;
-      opacity: 0;
-      pointer-events: none;
-      transition: .22s ease;
-      z-index: 80;
-      max-width: calc(100vw - 34px);
-      text-align: center;
-    }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-    .confetti-piece {
-      position: fixed;
-      top: -12px;
-      width: 9px;
-      height: 14px;
-      border-radius: 2px;
-      z-index: 100;
-      animation: confetti-fall 2.4s linear forwards;
-      pointer-events: none;
-    }
-    @keyframes confetti-fall { to { transform: translate3d(var(--drift), 110vh, 0) rotate(720deg); opacity: .9; } }
-
-    @media (max-width: 620px) {
-      .grid { grid-template-columns: 1fr; }
-      .actions { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .action { min-height: 72px; flex-direction: row; font-size: .82rem; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .hero { padding: 17px 14px; }
-      .scene { min-height: 270px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
-    }
-  </style>
 </head>
 <body>
-  <main class="app">
+  <div class="app-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Hecho especialmente para ti</p>
+        <p class="eyebrow">Un compañero con vida propia</p>
         <h1>Nuestro pequeño compañero</h1>
       </div>
-      <button class="icon-button" id="settingsBtn" aria-label="Configuración">⚙️</button>
+      <button class="icon-button" id="settingsBtn" type="button" aria-label="Abrir configuración">⚙️</button>
     </header>
 
-    <section class="hero">
-      <div class="pet-headline">
-        <div>
-          <p class="pet-name" id="petName">Milo</p>
-          <p class="subtitle" id="petSubtitle">Un cachorro feliz de estar contigo</p>
-        </div>
-        <span class="level-pill" id="levelPill">Nivel 1</span>
-      </div>
+    <div class="world-meta" aria-label="Estado del mundo">
+      <span class="meta-pill" id="clockPill">☀️ 10:30</span>
+      <span class="meta-pill" id="weatherPill">🌤️ Templado</span>
+      <span class="meta-pill coins">🪙 <strong id="coinValue">25</strong></span>
+    </div>
 
-      <div class="scene">
-        <div class="speech" id="speech">¡Hola! 💗</div>
-        <div class="floor"></div>
-        <div class="pet-wrap" id="petWrap" role="img" aria-label="Perrito virtual">
-          <div class="sparkles" id="sparkles"></div>
-          <div class="dog happy-face" id="dog">
-            <div class="ear left"></div>
-            <div class="ear right"></div>
-            <div class="head">
-              <div class="spot"></div>
-              <div class="eye left"></div>
-              <div class="eye right"></div>
-              <div class="muzzle">
-                <div class="nose"></div>
-                <div class="mouth"></div>
-                <div class="tongue"></div>
+    <main>
+      <section class="scene-card" id="sceneCard" aria-labelledby="petName">
+        <div class="room room-day" id="room" aria-hidden="true">
+          <div class="window"><span class="sky-orb"></span><i></i><i></i><i></i></div>
+          <div class="wall-art">♡</div>
+          <div class="plant"><span></span><span></span><span></span><b></b></div>
+          <div class="bed"><span></span></div>
+          <div class="rug"></div>
+          <div class="bowl food-bowl"><span id="sceneFoodBowl">🍖</span></div>
+          <div class="bowl water-bowl"><span id="sceneWaterBowl">💧</span></div>
+        </div>
+
+        <div class="scene-head">
+          <div>
+            <div class="pet-title-line">
+              <h2 id="petName">Milo</h2>
+              <span class="personality-chip" id="personalityChip">Curioso</span>
+            </div>
+            <p id="petStage">Cachorro recién adoptado</p>
+          </div>
+          <span class="level-pill" id="levelPill">Nivel 1</span>
+        </div>
+
+        <div class="speech" id="speech" role="status">Estoy conociendo mi nuevo hogar…</div>
+
+        <div class="pet-zone">
+          <div class="activity-float" id="activityFloat">Explorando la casa</div>
+          <div class="pet-wrap" id="petWrap" role="img" aria-label="Perrito virtual">
+            <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
+            <div class="sparkles" id="sparkles" aria-hidden="true"></div>
+            <div class="dog happy-face" id="dog">
+              <div class="tail"></div>
+              <div class="body"><span class="chest"></span></div>
+              <div class="paw paw-left"></div>
+              <div class="paw paw-right"></div>
+              <div class="ear ear-left"></div>
+              <div class="ear ear-right"></div>
+              <div class="head">
+                <span class="spot"></span>
+                <span class="eye eye-left"></span>
+                <span class="eye eye-right"></span>
+                <span class="brow brow-left"></span>
+                <span class="brow brow-right"></span>
+                <div class="muzzle"><span class="nose"></span><span class="mouth"></span><span class="tongue"></span></div>
+                <span class="dirt dirt-one">●</span><span class="dirt dirt-two">●</span>
               </div>
             </div>
-            <div class="body"></div>
-            <div class="paw left"></div>
-            <div class="paw right"></div>
-            <div class="tail"></div>
-            <span class="dirt one">✦</span>
-            <span class="dirt two">✦</span>
-            <span class="zzz">Zzz</span>
           </div>
         </div>
-      </div>
 
-      <div class="xp-row">
-        <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
-        <span class="xp-label" id="xpLabel">0 / 80 amor</span>
-      </div>
-
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-line"><span>🍓 Comida</span><span id="foodValue">82%</span></div>
-          <div class="meter"><span id="foodBar"></span></div>
+        <div class="now-card">
+          <div class="now-icon" id="nowIcon">🐾</div>
+          <div>
+            <span>Ahora mismo</span>
+            <strong id="nowTitle">Explorando</strong>
+            <p id="nowDescription">Milo está aprendiendo dónde está cada cosa.</p>
+          </div>
+          <div class="activity-timer" id="activityTimer" aria-label="Tiempo restante"></div>
         </div>
-        <div class="stat">
-          <div class="stat-line"><span>🎾 Felicidad</span><span id="happyValue">88%</span></div>
-          <div class="meter"><span id="happyBar"></span></div>
+      </section>
+
+      <section class="needs-panel" aria-labelledby="needsTitle">
+        <div class="section-heading compact-heading">
+          <div>
+            <p class="eyebrow">Necesidades reales</p>
+            <h2 id="needsTitle">¿Cómo se siente?</h2>
+          </div>
+          <span class="overall-badge" id="overallBadge">Todo bien</span>
         </div>
-        <div class="stat">
-          <div class="stat-line"><span>🌙 Energía</span><span id="energyValue">75%</span></div>
-          <div class="meter"><span id="energyBar"></span></div>
+
+        <div class="needs-grid">
+          <div class="need" data-stat="food"><div class="need-line"><span>🍲 Saciedad</span><strong id="foodValue">82%</strong></div><div class="meter"><i id="foodBar"></i></div></div>
+          <div class="need" data-stat="water"><div class="need-line"><span>💧 Hidratación</span><strong id="waterValue">86%</strong></div><div class="meter"><i id="waterBar"></i></div></div>
+          <div class="need" data-stat="energy"><div class="need-line"><span>🌙 Energía</span><strong id="energyValue">78%</strong></div><div class="meter"><i id="energyBar"></i></div></div>
+          <div class="need" data-stat="hygiene"><div class="need-line"><span>🫧 Higiene</span><strong id="hygieneValue">90%</strong></div><div class="meter"><i id="hygieneBar"></i></div></div>
+          <div class="need" data-stat="health"><div class="need-line"><span>❤️ Salud</span><strong id="healthValue">100%</strong></div><div class="meter"><i id="healthBar"></i></div></div>
+          <div class="need" data-stat="bond"><div class="need-line"><span>💗 Vínculo</span><strong id="bondValue">18%</strong></div><div class="meter"><i id="bondBar"></i></div></div>
         </div>
-        <div class="stat">
-          <div class="stat-line"><span>🫧 Limpieza</span><span id="cleanValue">90%</span></div>
-          <div class="meter"><span id="cleanBar"></span></div>
+
+        <div class="xp-row">
+          <div><span>Experiencia de cuidado</span><strong id="xpLabel">0 / 100</strong></div>
+          <div class="xp-track"><i id="xpBar"></i></div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="actions" aria-label="Acciones">
-      <button class="action" data-action="feed"><span class="emoji">🍓</span><span>Alimentar</span></button>
-      <button class="action" data-action="play"><span class="emoji">🎾</span><span>Jugar</span></button>
-      <button class="action" data-action="clean"><span class="emoji">🫧</span><span>Bañar</span></button>
-      <button class="action" data-action="sleep"><span class="emoji">🌙</span><span>Dormir</span></button>
-    </section>
+      <nav class="action-grid" aria-label="Actividades con tu compañero">
+        <button class="action-card" type="button" data-modal="careModal"><span class="action-icon coral">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
+        <button class="action-card" type="button" data-modal="walkModal"><span class="action-icon green">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
+        <button class="action-card" type="button" data-modal="trainingModal"><span class="action-icon purple">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
+        <button class="action-card" type="button" data-modal="gameModal"><span class="action-icon blue">🎾</span><strong>Jugar</strong><small>Atrapa la pelota</small></button>
+        <button class="action-card" id="sleepBtn" type="button"><span class="action-icon navy">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
+        <button class="action-card" type="button" data-modal="shopModal"><span class="action-icon gold">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
+      </nav>
 
-    <section class="grid">
-      <article class="card note-card">
-        <div>
-          <h2>Una nota para ti</h2>
-          <p>Cambia cada día para recordarte lo especial que eres.</p>
-          <p class="daily-note" id="dailyNote">“Contigo, incluso los días normales se vuelven recuerdos bonitos.”</p>
+      <section class="dashboard-grid">
+        <article class="panel home-panel">
+          <div class="section-heading">
+            <div><p class="eyebrow">Su hogar</p><h2>Cuencos e inventario</h2></div>
+            <span class="status-dot" id="homeStatusDot"></span>
+          </div>
+          <div class="bowl-status-grid">
+            <div><span>🍲 Comida servida</span><strong id="foodBowlValue">Vacío</strong></div>
+            <div><span>💧 Agua disponible</span><strong id="waterBowlValue">2 porciones</strong></div>
+          </div>
+          <div class="inventory" id="inventoryList" aria-label="Inventario"></div>
+          <p class="helper-copy">Milo come y bebe por su cuenta cuando lo necesita, siempre que dejes algo en sus cuencos.</p>
+        </article>
+
+        <article class="panel personality-panel">
+          <div class="section-heading"><div><p class="eyebrow">Su forma de ser</p><h2 id="personalityTitle">Curioso</h2></div><span class="big-emoji" id="personalityEmoji">🔎</span></div>
+          <p id="personalityDescription">Le gusta explorar y aprende un poco más rápido durante los paseos.</p>
+          <div class="trait-bars">
+            <div><span>Confianza</span><div class="mini-meter"><i id="trustBar"></i></div><strong id="trustValue">10</strong></div>
+            <div><span>Disciplina</span><div class="mini-meter"><i id="disciplineBar"></i></div><strong id="disciplineValue">5</strong></div>
+          </div>
+          <div class="favorite-line"><span>Actividad favorita</span><strong id="favoriteAction">Todavía no decide</strong></div>
+        </article>
+
+        <article class="panel training-panel">
+          <div class="section-heading"><div><p class="eyebrow">Aprendizaje</p><h2>Trucos</h2></div><button class="text-button" type="button" data-modal="trainingModal">Entrenar</button></div>
+          <div class="skill-list" id="skillList"></div>
+        </article>
+
+        <article class="panel diary-panel">
+          <div class="section-heading"><div><p class="eyebrow">Lo que recuerda</p><h2>Diario de Milo</h2></div><span class="big-emoji">📖</span></div>
+          <div class="diary-list" id="diaryList" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <section class="panel memories-panel">
+        <div class="section-heading">
+          <div><p class="eyebrow">Su vida contigo</p><h2>Nuestros recuerdos</h2></div>
+          <button class="text-button" id="uploadBtn" type="button">＋ Agregar foto</button>
         </div>
-        <div class="streak"><span>🔥 Racha de cariño</span><strong id="streakValue">1 día</strong></div>
-      </article>
+        <p class="helper-copy">Las fotos se quedan únicamente en este dispositivo.</p>
+        <div class="memory-grid" id="memoryGrid"></div>
+        <input type="file" id="photoInput" accept="image/*" hidden />
+      </section>
+    </main>
 
-      <article class="card">
-        <h2>Sorpresas</h2>
-        <p>Cuida a tu compañero para ir desbloqueándolas.</p>
-        <div class="unlock-list" id="unlockList"></div>
-      </article>
-    </section>
-
-    <section class="card" style="margin-top:14px">
-      <h2>Nuestros recuerdos</h2>
-      <p>Puedes guardar aquí algunas fotos especiales. Permanecen únicamente en este dispositivo.</p>
-      <div class="memory-grid" id="memoryGrid"></div>
-      <button class="upload" id="uploadBtn">＋ Agregar una foto</button>
-      <input type="file" id="photoInput" accept="image/*" hidden />
-    </section>
-
-    <p class="footer-note" id="signature">Creado con amor para ti 💗</p>
-  </main>
-
-  <div class="modal-backdrop" id="welcomeModal">
-    <div class="modal">
-      <h2>Tu pequeño compañero llegó 🐶</h2>
-      <p>Ponle nombre y empieza a cuidarlo. Nunca se irá: solo necesitará un poquito de cariño de vez en cuando.</p>
-      <div class="field">
-        <label for="partnerInput">Tu nombre</label>
-        <input id="partnerInput" maxlength="24" placeholder="Ej. Sofía" />
-      </div>
-      <div class="field">
-        <label for="petInput">Nombre del perrito</label>
-        <input id="petInput" maxlength="18" placeholder="Ej. Milo" />
-      </div>
-      <div class="modal-actions">
-        <button class="primary" id="startBtn">Adoptarlo 💗</button>
-      </div>
-    </div>
+    <footer><p id="signature">Creado con amor para ti 💗</p><span>El progreso se guarda en este dispositivo.</span></footer>
   </div>
 
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal">
-      <h2>Personalizar regalo</h2>
-      <p>Estos cambios se guardan en este dispositivo. Antes de entregarlo, también puedes editar los textos directamente en el archivo.</p>
-      <div class="field">
-        <label for="settingsPartner">Nombre de ella</label>
-        <input id="settingsPartner" maxlength="24" />
-      </div>
-      <div class="field">
-        <label for="settingsPet">Nombre del perrito</label>
-        <input id="settingsPet" maxlength="18" />
-      </div>
-      <div class="field">
-        <label for="settingsSignature">Firma</label>
-        <input id="settingsSignature" maxlength="60" placeholder="Creado con amor por Luis 💗" />
-      </div>
-      <div class="field">
-        <label for="settingsNote">Nota principal</label>
-        <textarea id="settingsNote" maxlength="220"></textarea>
-      </div>
-      <div class="modal-actions" style="justify-content:space-between; flex-wrap:wrap">
-        <button class="danger" id="resetBtn">Reiniciar juego</button>
-        <div style="display:flex; gap:8px">
-          <button class="secondary" id="closeSettingsBtn">Cerrar</button>
-          <button class="primary" id="saveSettingsBtn">Guardar</button>
-        </div>
-      </div>
-    </div>
+  <div class="modal-backdrop" id="welcomeModal" hidden inert>
+    <section class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+      <div class="welcome-paw">🐾</div>
+      <p class="eyebrow">Una adopción para recordar</p>
+      <h2 id="welcomeTitle">Tu compañero ya está esperando</h2>
+      <p>No será solo una mascota de botones. Tendrá horarios, personalidad, recuerdos y necesidades propias.</p>
+      <label class="field"><span>Tu nombre</span><input id="partnerInput" maxlength="24" placeholder="Ej. Sofía" autocomplete="name" /></label>
+      <label class="field"><span>Nombre del perrito</span><input id="petInput" maxlength="18" placeholder="Ej. Milo" value="Milo" /></label>
+      <button class="primary full-button" id="startBtn" type="button">Adoptarlo 💗</button>
+    </section>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="modal-backdrop" id="careModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="careTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Cuidados</p><h2 id="careTitle">¿Qué necesita?</h2></div><button class="close-button" type="button" data-close="careModal" aria-label="Cerrar">×</button></div>
+      <p>Milo reaccionará según lo que sienta; no todas las acciones funcionan igual en todo momento.</p>
+      <div class="choice-grid care-choice-grid">
+        <button type="button" data-care="serveFood"><span>🍲</span><strong>Servir comida</strong><small id="careFoodCount">3 porciones</small></button>
+        <button type="button" data-care="giveTreat"><span>🦴</span><strong>Dar premio</strong><small id="careTreatCount">2 premios</small></button>
+        <button type="button" data-care="fillWater"><span>💧</span><strong>Llenar agua</strong><small>El agua es ilimitada</small></button>
+        <button type="button" data-care="brush"><span>🪮</span><strong>Cepillar</strong><small>Tranquilo y cuidadoso</small></button>
+        <button type="button" data-care="bath"><span>🛁</span><strong>Dar un baño</strong><small id="careSoapCount">2 jabones</small></button>
+        <button type="button" data-care="medicine"><span>🩹</span><strong>Dar medicina</strong><small id="careMedicineCount">1 dosis</small></button>
+      </div>
+    </section>
+  </div>
 
-  <script>
-    (() => {
-      'use strict';
+  <div class="modal-backdrop" id="walkModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="walkTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Salir de casa</p><h2 id="walkTitle">Elige un paseo</h2></div><button class="close-button" type="button" data-close="walkModal" aria-label="Cerrar">×</button></div>
+      <p>Los paseos consumen energía y agua. El clima y la personalidad pueden cambiar el resultado.</p>
+      <div class="route-list">
+        <button type="button" data-walk="block"><span class="route-icon">🏘️</span><span><strong>Vuelta a la cuadra</strong><small>5 min · tranquila · +6 monedas</small></span><b>Energía −6</b></button>
+        <button type="button" data-walk="park"><span class="route-icon">🌳</span><span><strong>Visitar el parque</strong><small>12 min · eventos · +12 monedas</small></span><b>Energía −14</b></button>
+        <button type="button" data-walk="adventure"><span class="route-icon">⛰️</span><span><strong>Pequeña aventura</strong><small>20 min · exige nivel 3 · +22 monedas</small></span><b>Energía −24</b></button>
+      </div>
+    </section>
+  </div>
 
-      const STORAGE_KEY = 'romantic-pet-v1';
-      const MAX_PHOTOS = 6;
-      const statDecayPerHour = { food: 2.2, happy: 1.3, energy: 1.6, clean: 1.0 };
-      const levels = [80, 130, 190, 260, 340, 430, 530, 640];
+  <div class="modal-backdrop" id="trainingModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="trainingTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Paciencia y vínculo</p><h2 id="trainingTitle">Entrenamiento</h2></div><button class="close-button" type="button" data-close="trainingModal" aria-label="Cerrar">×</button></div>
+      <p>Aprende mejor con energía, buen ánimo y premios disponibles.</p>
+      <div class="training-choices" id="trainingChoices"></div>
+    </section>
+  </div>
 
-      const defaultState = () => ({
-        initialized: false,
-        partnerName: '',
-        petName: 'Milo',
-        signature: 'Creado con amor para ti 💗',
-        customNote: '',
-        stats: { food: 84, happy: 88, energy: 78, clean: 91 },
-        xp: 0,
-        level: 1,
-        interactions: 0,
-        createdAt: Date.now(),
-        lastUpdated: Date.now(),
-        lastVisitDate: '',
-        streak: 1,
-        photos: [],
-        unlocked: []
-      });
+  <div class="modal-backdrop" id="gameModal" hidden inert>
+    <section class="modal game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Minijuego</p><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
+      <p>Toca la pelota tantas veces como puedas antes de que termine el tiempo.</p>
+      <div class="game-score"><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">15</strong>s</span></div>
+      <div class="game-field" id="gameField"><button id="ballTarget" type="button" aria-label="Atrapar pelota">🎾</button><div class="game-message" id="gameMessage">Milo está listo para jugar.</div></div>
+      <button class="primary full-button" id="startGameBtn" type="button">Empezar partida</button>
+    </section>
+  </div>
 
-      const loveNotes = [
-        'Contigo, incluso los días normales se vuelven recuerdos bonitos.',
-        'Gracias por existir y por hacer mi vida más bonita.',
-        'Mi lugar favorito siempre será donde pueda estar contigo.',
-        'No quiero una vida perfecta; quiero una vida llena de momentos contigo.',
-        'Eres una de las decisiones más bonitas que ha tomado mi corazón.',
-        'Ojalá nunca dejemos de reírnos por cosas que solo nosotros entendemos.',
-        'Quiero seguir llenando páginas, fotos y años a tu lado.',
-        'Tú haces que el futuro se sienta como un lugar al que sí quiero llegar.',
-        'Te elegiría una y otra vez, incluso en nuestros días más simples.',
-        'Lo mejor de mis recuerdos es que muchos llevan tu sonrisa.'
-      ];
+  <div class="modal-backdrop" id="shopModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Usa tus monedas</p><h2 id="shopTitle">Tienda del barrio</h2></div><button class="close-button" type="button" data-close="shopModal" aria-label="Cerrar">×</button></div>
+      <p>Tienes <strong><span id="shopCoinValue">25</span> monedas</strong>. Los paseos, juegos y cuidados constantes dan más.</p>
+      <div class="shop-grid">
+        <button type="button" data-buy="food"><span>🥫</span><strong>Comida ×2</strong><small>Para llenar el cuenco</small><b>10 🪙</b></button>
+        <button type="button" data-buy="treat"><span>🦴</span><strong>Premio ×2</strong><small>Ayuda al entrenamiento</small><b>12 🪙</b></button>
+        <button type="button" data-buy="soap"><span>🧼</span><strong>Jabón ×1</strong><small>Para un baño completo</small><b>8 🪙</b></button>
+        <button type="button" data-buy="medicine"><span>🩹</span><strong>Medicina ×1</strong><small>Recupera salud</small><b>20 🪙</b></button>
+      </div>
+    </section>
+  </div>
 
-      const unlockables = [
-        { level: 2, icon: '💌', title: 'Primer mensaje', text: 'Una sorpresa escrita especialmente para ti.' },
-        { level: 3, icon: '📸', title: 'Nuestro recuerdo', text: 'Momento perfecto para guardar una foto juntos.' },
-        { level: 5, icon: '🌹', title: 'Cita desbloqueada', text: 'Vale por una salida elegida entre los dos.' },
-        { level: 7, icon: '🏡', title: 'Nuestro futuro', text: 'Una promesa para seguir construyendo juntos.' }
-      ];
+  <div class="modal-backdrop" id="settingsModal" hidden inert>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Personalización</p><h2 id="settingsTitle">Ajustes del compañero</h2></div><button class="close-button" type="button" data-close="settingsModal" aria-label="Cerrar">×</button></div>
+      <label class="field"><span>Tu nombre</span><input id="settingsPartner" maxlength="24" /></label>
+      <label class="field"><span>Nombre del perrito</span><input id="settingsPet" maxlength="18" /></label>
+      <label class="field"><span>Firma</span><input id="settingsSignature" maxlength="60" placeholder="Creado con amor por Luis 💗" /></label>
+      <label class="field"><span>Mensaje especial</span><textarea id="settingsNote" maxlength="220"></textarea></label>
+      <div class="settings-actions"><button class="danger" id="resetBtn" type="button">Reiniciar adopción</button><button class="primary" id="saveSettingsBtn" type="button">Guardar cambios</button></div>
+    </section>
+  </div>
 
-      let state = loadState();
-      const giftParams = new URLSearchParams(location.search);
-      if (!state.initialized) {
-        state.partnerName = giftParams.get('para')?.trim().slice(0, 24) || state.partnerName;
-        state.petName = giftParams.get('mascota')?.trim().slice(0, 18) || state.petName;
-        state.signature = giftParams.get('firma')?.trim().slice(0, 60) || state.signature;
-        state.customNote = giftParams.get('nota')?.trim().slice(0, 220) || state.customNote;
-      }
-      let speechTimer = null;
-      let toastTimer = null;
-
-      const el = id => document.getElementById(id);
-      const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
-      const todayKey = () => new Date().toISOString().slice(0, 10);
-
-      function loadState() {
-        try {
-          const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          return { ...defaultState(), ...(parsed || {}), stats: { ...defaultState().stats, ...((parsed || {}).stats || {}) } };
-        } catch (_) {
-          return defaultState();
-        }
-      }
-
-      function saveState() {
-        state.lastUpdated = Date.now();
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (error) {
-          if (String(error).toLowerCase().includes('quota')) {
-            toast('No queda espacio para más fotos en este dispositivo.');
-          }
-        }
-      }
-
-      function applyElapsedTime() {
-        const now = Date.now();
-        const elapsedHours = Math.min((now - (state.lastUpdated || now)) / 3_600_000, 72);
-        Object.entries(statDecayPerHour).forEach(([key, rate]) => {
-          state.stats[key] = clamp(state.stats[key] - elapsedHours * rate);
-        });
-
-        const today = todayKey();
-        if (!state.lastVisitDate) {
-          state.lastVisitDate = today;
-        } else if (state.lastVisitDate !== today) {
-          const previous = new Date(state.lastVisitDate + 'T12:00:00');
-          const current = new Date(today + 'T12:00:00');
-          const days = Math.round((current - previous) / 86_400_000);
-          state.streak = days === 1 ? (state.streak || 1) + 1 : 1;
-          state.lastVisitDate = today;
-        }
-        saveState();
-      }
-
-      function statColor(value) {
-        if (value < 25) return '#d95c72';
-        if (value < 50) return '#e8a14b';
-        return '#70b98a';
-      }
-
-      function currentStage() {
-        if (state.level >= 7) return 'Tu compañero inseparable';
-        if (state.level >= 4) return 'Un perrito lleno de amor';
-        return 'Un cachorro feliz de estar contigo';
-      }
-
-      function render() {
-        el('petName').textContent = state.petName || 'Milo';
-        el('petSubtitle').textContent = currentStage();
-        el('levelPill').textContent = `Nivel ${state.level}`;
-        el('signature').textContent = state.signature || 'Creado con amor para ti 💗';
-        el('streakValue').textContent = `${state.streak || 1} ${(state.streak || 1) === 1 ? 'día' : 'días'}`;
-
-        const noteIndex = Math.abs(hashCode(todayKey() + (state.partnerName || 'amor'))) % loveNotes.length;
-        const note = state.customNote?.trim() || loveNotes[noteIndex];
-        el('dailyNote').textContent = `“${note}”`;
-
-        ['food', 'happy', 'energy', 'clean'].forEach(key => {
-          const value = Math.round(state.stats[key]);
-          el(`${key}Value`).textContent = `${value}%`;
-          const bar = el(`${key}Bar`);
-          bar.style.width = `${value}%`;
-          bar.style.background = statColor(value);
-        });
-
-        const levelTarget = levels[state.level - 1] || 760;
-        const previousTarget = state.level > 1 ? (levels[state.level - 2] || 0) : 0;
-        const progress = clamp(((state.xp - previousTarget) / Math.max(1, levelTarget - previousTarget)) * 100);
-        el('xpFill').style.width = `${progress}%`;
-        el('xpLabel').textContent = `${Math.max(0, state.xp - previousTarget)} / ${levelTarget - previousTarget} amor`;
-
-        updateMood();
-        renderUnlocks();
-        renderPhotos();
-      }
-
-      function updateMood() {
-        const dog = el('dog');
-        const wrap = el('petWrap');
-        dog.className = 'dog';
-        wrap.classList.remove('sleeping');
-
-        const avg = Object.values(state.stats).reduce((a, b) => a + b, 0) / 4;
-        if (state.stats.energy < 25) {
-          dog.classList.add('sleepy-face');
-          wrap.classList.add('sleeping');
-        } else if (avg < 38 || state.stats.food < 20) {
-          dog.classList.add('sad-face');
-        } else {
-          dog.classList.add('happy-face');
-        }
-        if (state.stats.clean < 35) dog.classList.add('dirty');
-      }
-
-      function renderUnlocks() {
-        const container = el('unlockList');
-        container.innerHTML = '';
-        unlockables.forEach(item => {
-          const open = state.level >= item.level;
-          if (open && !state.unlocked.includes(item.level)) state.unlocked.push(item.level);
-          const div = document.createElement('div');
-          div.className = `unlock${open ? '' : ' locked'}`;
-          div.innerHTML = `
-            <div class="unlock-icon">${open ? item.icon : '🔒'}</div>
-            <div class="unlock-copy">
-              <strong>${open ? item.title : `Nivel ${item.level}`}</strong>
-              <span>${open ? item.text : 'Sigue cuidándolo para descubrirlo.'}</span>
-            </div>`;
-          container.appendChild(div);
-        });
-      }
-
-      function renderPhotos() {
-        const grid = el('memoryGrid');
-        grid.innerHTML = '';
-        for (let i = 0; i < MAX_PHOTOS; i++) {
-          const item = document.createElement('div');
-          item.className = 'memory';
-          if (state.photos[i]) {
-            const img = document.createElement('img');
-            img.src = state.photos[i];
-            img.alt = `Recuerdo ${i + 1}`;
-            item.appendChild(img);
-            const remove = document.createElement('button');
-            remove.type = 'button';
-            remove.textContent = '×';
-            remove.setAttribute('aria-label', 'Eliminar foto');
-            remove.addEventListener('click', () => {
-              state.photos.splice(i, 1);
-              saveState();
-              renderPhotos();
-            });
-            item.appendChild(remove);
-          } else {
-            item.textContent = '♡';
-          }
-          grid.appendChild(item);
-        }
-      }
-
-      function doAction(action) {
-        const actions = {
-          feed: {
-            changes: { food: 22, happy: 3, clean: -3 },
-            xp: 12,
-            messages: ['¡Qué rico! 🍓', 'Eso estaba delicioso.', 'Gracias por cuidarme.']
-          },
-          play: {
-            changes: { happy: 24, energy: -8, food: -4 },
-            xp: 15,
-            messages: ['¡Otra vez! 🎾', 'Me encanta jugar contigo.', '¡Eres mi persona favorita!']
-          },
-          clean: {
-            changes: { clean: 30, happy: 4 },
-            xp: 11,
-            messages: ['¡Quedé guapísimo! 🫧', 'Ahora huelo muy bonito.', 'Gracias por el baño.']
-          },
-          sleep: {
-            changes: { energy: 34, food: -3 },
-            xp: 10,
-            messages: ['Dormiré pensando en ti. 🌙', 'Zzz… te quiero.', 'Cinco minutitos más…']
-          }
-        };
-        const data = actions[action];
-        if (!data) return;
-
-        Object.entries(data.changes).forEach(([key, change]) => {
-          state.stats[key] = clamp(state.stats[key] + change);
-        });
-        state.xp += data.xp;
-        state.interactions += 1;
-
-        const oldLevel = state.level;
-        while (state.level <= levels.length && state.xp >= levels[state.level - 1]) state.level += 1;
-        if (state.level > oldLevel) {
-          confetti();
-          toast(`¡${state.petName} llegó al nivel ${state.level}!`);
-        }
-
-        saveState();
-        render();
-        animatePet(action);
-        speak(data.messages[Math.floor(Math.random() * data.messages.length)]);
-      }
-
-      function animatePet(action) {
-        const wrap = el('petWrap');
-        wrap.classList.remove('bounce');
-        void wrap.offsetWidth;
-        wrap.classList.add('bounce');
-        createSparkles(action === 'clean' ? '🫧' : action === 'feed' ? '💗' : action === 'sleep' ? '✨' : '⭐');
-      }
-
-      function createSparkles(symbol) {
-        const container = el('sparkles');
-        for (let i = 0; i < 7; i++) {
-          const s = document.createElement('span');
-          s.className = 'sparkle';
-          s.textContent = symbol;
-          s.style.left = `${26 + Math.random() * 50}%`;
-          s.style.top = `${42 + Math.random() * 28}%`;
-          s.style.animationDelay = `${Math.random() * .18}s`;
-          container.appendChild(s);
-          setTimeout(() => s.remove(), 1300);
-        }
-      }
-
-      function speak(message) {
-        const speech = el('speech');
-        clearTimeout(speechTimer);
-        speech.textContent = message;
-        speech.classList.add('show');
-        speechTimer = setTimeout(() => speech.classList.remove('show'), 2200);
-      }
-
-      function toast(message) {
-        const t = el('toast');
-        clearTimeout(toastTimer);
-        t.textContent = message;
-        t.classList.add('show');
-        toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-      }
-
-      function confetti() {
-        const colors = ['#e77da7','#f2bd56','#9f8ce6','#70b98a','#6ab8d9'];
-        for (let i = 0; i < 34; i++) {
-          const piece = document.createElement('i');
-          piece.className = 'confetti-piece';
-          piece.style.left = `${Math.random() * 100}vw`;
-          piece.style.background = colors[i % colors.length];
-          piece.style.setProperty('--drift', `${-120 + Math.random() * 240}px`);
-          piece.style.animationDelay = `${Math.random() * .45}s`;
-          document.body.appendChild(piece);
-          setTimeout(() => piece.remove(), 3200);
-        }
-      }
-
-      function openModal(id) { el(id).classList.add('open'); }
-      function closeModal(id) { el(id).classList.remove('open'); }
-
-      function resizeImage(file, maxSize = 720, quality = .78) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onerror = reject;
-          reader.onload = () => {
-            const img = new Image();
-            img.onerror = reject;
-            img.onload = () => {
-              let { width, height } = img;
-              const scale = Math.min(1, maxSize / Math.max(width, height));
-              width = Math.round(width * scale);
-              height = Math.round(height * scale);
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.src = reader.result;
-          };
-          reader.readAsDataURL(file);
-        });
-      }
-
-      function hashCode(value) {
-        let hash = 0;
-        for (let i = 0; i < value.length; i++) hash = ((hash << 5) - hash) + value.charCodeAt(i) | 0;
-        return hash;
-      }
-
-      document.querySelectorAll('[data-action]').forEach(button => {
-        button.addEventListener('click', () => doAction(button.dataset.action));
-      });
-
-      el('settingsBtn').addEventListener('click', () => {
-        el('settingsPartner').value = state.partnerName || '';
-        el('settingsPet').value = state.petName || '';
-        el('settingsSignature').value = state.signature || '';
-        el('settingsNote').value = state.customNote || '';
-        openModal('settingsModal');
-      });
-
-      el('closeSettingsBtn').addEventListener('click', () => closeModal('settingsModal'));
-      el('saveSettingsBtn').addEventListener('click', () => {
-        state.partnerName = el('settingsPartner').value.trim();
-        state.petName = el('settingsPet').value.trim() || 'Milo';
-        state.signature = el('settingsSignature').value.trim() || 'Creado con amor para ti 💗';
-        state.customNote = el('settingsNote').value.trim();
-        saveState();
-        render();
-        closeModal('settingsModal');
-        toast('Personalización guardada 💗');
-      });
-
-      el('resetBtn').addEventListener('click', () => {
-        const okay = confirm('¿Seguro que quieres reiniciar todo el progreso y las fotos?');
-        if (!okay) return;
-        state = defaultState();
-        localStorage.removeItem(STORAGE_KEY);
-        closeModal('settingsModal');
-        render();
-        openModal('welcomeModal');
-      });
-
-      el('startBtn').addEventListener('click', () => {
-        const partner = el('partnerInput').value.trim();
-        const pet = el('petInput').value.trim();
-        state.initialized = true;
-        state.partnerName = partner;
-        state.petName = pet || 'Milo';
-        state.createdAt = Date.now();
-        state.lastUpdated = Date.now();
-        state.lastVisitDate = todayKey();
-        saveState();
-        render();
-        closeModal('welcomeModal');
-        confetti();
-        speak(`¡Hola${partner ? ', ' + partner : ''}! Soy ${state.petName}.`);
-      });
-
-      el('uploadBtn').addEventListener('click', () => {
-        if (state.photos.length >= MAX_PHOTOS) {
-          toast('Ya llenaste los seis espacios de recuerdos.');
-          return;
-        }
-        el('photoInput').click();
-      });
-
-      el('photoInput').addEventListener('change', async event => {
-        const file = event.target.files?.[0];
-        event.target.value = '';
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-          toast('Selecciona una imagen válida.');
-          return;
-        }
-        try {
-          const encoded = await resizeImage(file);
-          state.photos.push(encoded);
-          saveState();
-          renderPhotos();
-          toast('Recuerdo guardado 📸');
-        } catch (_) {
-          toast('No pude guardar esa foto. Intenta con otra.');
-        }
-      });
-
-      [el('welcomeModal'), el('settingsModal')].forEach(backdrop => {
-        backdrop.addEventListener('click', event => {
-          if (event.target === backdrop && backdrop.id !== 'welcomeModal') closeModal(backdrop.id);
-        });
-      });
-
-      applyElapsedTime();
-      render();
-      if (!state.initialized) {
-        el('partnerInput').value = state.partnerName || '';
-        el('petInput').value = state.petName || '';
-        openModal('welcomeModal');
-      }
-      else setTimeout(() => speak(`¡Qué bueno que volviste${state.partnerName ? ', ' + state.partnerName : ''}!`), 450);
-
-      setInterval(() => {
-        Object.entries(statDecayPerHour).forEach(([key, rate]) => {
-          state.stats[key] = clamp(state.stats[key] - rate / 60);
-        });
-        saveState();
-        render();
-      }, 60_000);
-
-      if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
-      }
-    })();
-  </script>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
 </body>
 </html>

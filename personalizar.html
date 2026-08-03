@@ -13,8 +13,8 @@
     <section class="card">
       <div class="form-part">
         <h1>Prepara el enlace del regalo 💗</h1>
-        <p>Primero publica la carpeta. Después pega la dirección de la app y agrega los datos que quieras dejar prellenados.</p>
-        <div class="field"><label for="base">Dirección pública de la app</label><input id="base" inputmode="url" placeholder="https://tuusuario.github.io/tamagotchi/" /></div>
+        <p>Agrega los datos que quieras dejar prellenados. La personalidad del perrito se elegirá al momento de adoptarlo.</p>
+        <div class="field"><label for="base">Dirección pública de la app</label><input id="base" inputmode="url" placeholder="https://tuusuario.github.io/tamagochi/" /></div>
         <div class="field"><label for="para">Nombre de ella</label><input id="para" maxlength="24" placeholder="Ej. Sofía" /></div>
         <div class="field"><label for="mascota">Nombre sugerido para el perrito</label><input id="mascota" maxlength="18" placeholder="Ej. Milo" /></div>
         <div class="field"><label for="firma">Firma</label><input id="firma" maxlength="60" placeholder="Creado con amor por Luis 💗" /></div>
@@ -31,7 +31,7 @@
       <div class="preview">
         <span class="small">TARJETA PARA IMPRIMIR</span>
         <strong>Adopta a nuestro pequeño compañero</strong>
-        <p>Escanea el código, ponle nombre y cuídalo. Algunas sorpresas aparecerán mientras crece.</p>
+        <p>Escanea el código, ponle nombre y acompáñalo. Tendrá su propia personalidad, hábitos y recuerdos.</p>
         <div class="qr-placeholder"><span>PEGA AQUÍ<br>EL QR</span></div>
         <p class="small">Hecho especialmente para ti 🐶💗</p>
       </div>
@@ -40,6 +40,7 @@
   <script>
     const $ = id => document.getElementById(id);
     let built = '';
+    if (location.protocol.startsWith('http')) $('base').value = new URL('./', location.href).href.replace(/personalizar\.html.*$/, '');
     $('build').addEventListener('click', () => {
       const raw = $('base').value.trim();
       if (!raw) { alert('Pega primero la dirección pública de la app.'); return; }

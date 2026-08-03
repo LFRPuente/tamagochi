@@ -1,24 +1,28 @@
 # Tamagochi romántico 🐶💗
 
-Mini aplicación web para cuidar un perrito virtual y desbloquear recuerdos románticos.
+Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma decisiones según sus necesidades, su personalidad, la hora y los recursos que encuentre en casa.
 
 ## Sitio publicado
 
 - App: https://lfrpuente.github.io/tamagochi/
 - Personalizador: https://lfrpuente.github.io/tamagochi/personalizar.html
 
-## Funciones
+## Mecánicas
 
-- Hambre, felicidad, energía y limpieza.
-- Acciones para alimentar, jugar, bañar y dormir.
-- Niveles, racha diaria y sorpresas desbloqueables.
-- Galería privada para fotos guardadas en el dispositivo.
+- Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
+- Ciclo local de día y noche, sueño prolongado y siestas autónomas.
+- Comida y agua en cuencos que el perrito consume por su cuenta.
+- Personalidades distintas y hábitos que cambian con el cuidado.
+- Paseos con rutas, clima y eventos aleatorios.
+- Entrenamiento progresivo de varios trucos.
+- Minijuego de pelota, monedas, inventario y tienda.
+- Diario de actividades, incluso mientras la aplicación está cerrada.
+- Galería privada guardada únicamente en el dispositivo.
 - Personalización mediante parámetros en el enlace.
-- Progreso guardado localmente en el navegador.
-- Compatible con instalación como aplicación web.
+- Instalación como aplicación web y funcionamiento sin conexión.
 
 ## Crear el enlace para el QR
 
 Abre `personalizar.html`, introduce los nombres y el mensaje, y genera el enlace personalizado. Después conviértelo en un código QR.
 
-> Los datos y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.
+> El progreso y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.

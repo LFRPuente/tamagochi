@@ -1,11 +1,12 @@
 {
-  "name": "Nuestro pequeño compañero",
-  "short_name": "Compañero",
-  "description": "Un pequeño compañero virtual creado con amor.",
+  "name": "Milo — compañero virtual",
+  "short_name": "Milo",
+  "description": "Una mascota virtual autónoma con necesidades, personalidad, entrenamiento y recuerdos.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff8fb",
+  "orientation": "portrait-primary",
+  "background_color": "#fff7fb",
   "theme_color": "#f7c7d9",
   "icons": [
     { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
