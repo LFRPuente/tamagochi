@@ -13,6 +13,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
 - Comida y agua en cuencos que el perrito consume por su cuenta.
 - Personalidades distintas y hábitos que cambian con el cuidado.
+- Animaciones de sentarse, estirarse, rascarse, vigilar, caminar, jugar, comer y dormir.
+- Caricias táctiles con reacciones, expresiones y vibración en celular.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
 - Arcade con pelota, reto de esquivar y juego de memoria.
