@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.4.1" />
+  <link rel="stylesheet" href="styles.css?v=3.4.3" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -77,6 +77,15 @@
           <span class="pet-touch-hint" id="petTouchHint" aria-hidden="true">Tócalo para acariciarlo</span>
         </div>
 
+        <nav class="action-grid" aria-label="Actividades con tu compañero">
+          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar"><span class="action-icon coral" aria-hidden="true">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
+          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear"><span class="action-icon green" aria-hidden="true">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
+          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar"><span class="action-icon purple" aria-hidden="true">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
+          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar"><span class="action-icon blue" aria-hidden="true">🕹️</span><strong>Jugar</strong><small>Encuentros retro</small></button>
+          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir"><span class="action-icon navy" aria-hidden="true">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
+          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda"><span class="action-icon gold" aria-hidden="true">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
+        </nav>
+
         <div class="now-card">
           <div class="now-icon" id="nowIcon">🐾</div>
           <div>
@@ -111,15 +120,6 @@
           <div class="xp-track"><i id="xpBar"></i></div>
         </div>
       </section>
-
-      <nav class="action-grid" aria-label="Actividades con tu compañero">
-        <button class="action-card" type="button" data-modal="careModal"><span class="action-icon coral">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
-        <button class="action-card" type="button" data-modal="walkModal"><span class="action-icon green">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
-        <button class="action-card" type="button" data-modal="trainingModal"><span class="action-icon purple">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
-        <button class="action-card" type="button" data-modal="arcadeModal"><span class="action-icon blue">🕹️</span><strong>Jugar</strong><small>Encuentros retro</small></button>
-        <button class="action-card" id="sleepBtn" type="button"><span class="action-icon navy">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
-        <button class="action-card" type="button" data-modal="shopModal"><span class="action-icon gold">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
-      </nav>
 
       <section class="dashboard-grid">
         <article class="panel home-panel">
@@ -330,6 +330,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.4.1" defer></script>
+  <script src="app.js?v=3.4.3" defer></script>
 </body>
 </html>

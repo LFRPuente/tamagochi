@@ -1453,6 +1453,7 @@
     if (state.stats.hygiene < 36) dog.classList.add('dirty');
 
     el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : 'Dormir';
+    el('sleepBtn').dataset.label = state.isAsleep ? 'Despertar' : 'Dormir';
     el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : nightAwake ? 'Está despierto con sueño' : 'Descanso de verdad';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
