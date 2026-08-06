@@ -508,7 +508,11 @@ h2 { margin-bottom: 0; font-size: 1.2rem; line-height: 1.12; }
 .now-card span { display: block; color: var(--muted); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
 .now-card strong { display: block; margin-top: 2px; font-size: .86rem; }
 .now-card p { margin: 2px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.35; }
-.activity-timer { color: var(--accent-dark); font-size: .75rem; font-weight: 900; }
+.activity-timer { color: var(--accent-dark); font-size: .75rem; font-weight: 900; white-space: nowrap; }
+.activity-timer.sleep-progress { position: relative; min-width: 92px; padding-bottom: 7px; text-align: right; }
+.activity-timer.sleep-progress::before, .activity-timer.sleep-progress::after { content: ""; position: absolute; right: 0; bottom: 0; height: 4px; border-radius: 999px; }
+.activity-timer.sleep-progress::before { left: 0; background: rgba(111,87,164,.14); }
+.activity-timer.sleep-progress::after { width: var(--sleep-progress,0%); max-width: 100%; background: var(--purple); transition: width .5s ease; }
 
 .needs-panel, .panel { border: 1px solid rgba(255,255,255,.94); background: var(--surface); box-shadow: var(--shadow-small); backdrop-filter: blur(14px); }
 .needs-panel { margin-top: 14px; padding: 18px; border-radius: 28px; }

@@ -115,6 +115,7 @@
     activity: { type: 'exploring', startedAt: now(), endsAt: now() + 18000 },
     isAsleep: false,
     sleepMode: '',
+    sleepProgress: 0,
     sleepStartedAt: 0,
     sleepUntil: 0,
     manualAwakeUntil: 0,
@@ -237,11 +238,20 @@
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
     if (!PERSONALITIES[normalized.personality]) normalized.personality = 'curious';
     Object.keys(normalized.stats).forEach(key => normalized.stats[key] = clamp(normalized.stats[key]));
-    if (normalized.isAsleep && normalized.sleepMode !== 'nap') {
+    normalized.sleepProgress = clamp(normalized.sleepProgress);
+    if (normalized.isAsleep) {
       const startedAt = Number(normalized.sleepStartedAt) || now();
-      const fullSleepUntil = startedAt + FULL_SLEEP_DURATION;
+      const savedAt = Math.max(startedAt, Number(normalized.lastUpdated) || startedAt);
+      if (saved.sleepProgress == null) {
+        const elapsedAtSave = Math.max(0, Math.min(savedAt, Number(normalized.sleepUntil) || savedAt) - startedAt);
+        normalized.sleepProgress = clamp(elapsedAtSave / FULL_SLEEP_DURATION * 100);
+      }
       normalized.sleepStartedAt = startedAt;
-      normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || fullSleepUntil, fullSleepUntil);
+      if (normalized.sleepMode !== 'nap') {
+        const remainingSleep = FULL_SLEEP_DURATION * (1 - normalized.sleepProgress / 100);
+        const fullSleepUntil = savedAt + remainingSleep;
+        normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || fullSleepUntil, fullSleepUntil);
+      }
     }
     return normalized;
   }
@@ -300,18 +310,39 @@
     state.stress = clamp(state.stress - recovery);
   }
 
+  function currentSleepProgress(current = now()) {
+    const savedProgress = clamp(state.sleepProgress);
+    if (!state.isAsleep) return savedProgress;
+    const previous = Number(state.lastUpdated) || current;
+    const endOfSleep = Math.min(current, Number(state.sleepUntil) || current);
+    const elapsed = Math.max(0, endOfSleep - previous);
+    return clamp(savedProgress + elapsed / FULL_SLEEP_DURATION * 100);
+  }
+
+  function sleepDurationFromProgress(progress = state.sleepProgress) {
+    return Math.max(0, FULL_SLEEP_DURATION * (1 - clamp(progress) / 100));
+  }
+
   function advanceSimulation(current = now()) {
     if (!state.initialized) return 0;
     const previous = Number(state.lastUpdated) || current;
     const elapsedHours = Math.min(72, Math.max(0, (current - previous) / 3_600_000));
-    if (elapsedHours < .0002) return elapsedHours;
+    if (elapsedHours < .0002) {
+      if (state.isAsleep && current >= Number(state.sleepUntil)) {
+        if (state.sleepMode !== 'nap') state.sleepProgress = 100;
+        wakePet(false);
+      }
+      return elapsedHours;
+    }
 
     if (state.isAsleep) {
       const endOfSleep = Math.min(current, Number(state.sleepUntil) || current);
       const sleepHours = Math.max(0, (endOfSleep - previous) / 3_600_000);
       applySleepRecovery(Math.min(elapsedHours, sleepHours));
+      state.sleepProgress = clamp(state.sleepProgress + sleepHours * 3_600_000 / FULL_SLEEP_DURATION * 100);
       const awakeHours = Math.max(0, elapsedHours - sleepHours);
-      if (current >= state.sleepUntil) wakePet(false);
+      if (current >= state.sleepUntil && state.sleepMode !== 'nap') state.sleepProgress = 100;
+      if (state.sleepProgress >= 99.999 || current >= state.sleepUntil) wakePet(false);
       applyAwakeDecay(awakeHours);
     } else {
       applyAwakeDecay(elapsedHours);
@@ -480,14 +511,17 @@
   function beginSleep(mode = 'night', duration = FULL_SLEEP_DURATION, automatic = false) {
     if (state.isAsleep) return;
     if (!automatic) state.manualAwakeUntil = 0;
+    if (state.sleepProgress >= 99.999) state.sleepProgress = 0;
+    const resumedProgress = Math.floor(state.sleepProgress);
+    duration = Math.max(1000, Math.min(duration, sleepDurationFromProgress()));
     state.isAsleep = true;
     state.sleepMode = mode;
     state.sleepStartedAt = now();
     state.sleepUntil = now() + duration;
     setActivity('sleeping');
     recordHabit('sleep');
-    addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
-    if (!automatic) speak('Dormiré hasta sentirme al cien… zzz.');
+    addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : resumedProgress ? 'Retomó su descanso' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : resumedProgress ? `Continuará desde el ${resumedProgress}% hasta completar su descanso.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
+    if (!automatic) speak(resumedProgress ? `Seguiré desde el ${resumedProgress}%… zzz.` : 'Dormiré hasta sentirme al cien… zzz.');
     touch();
     saveState();
     render();
@@ -495,17 +529,23 @@
 
   function wakePet(byUser = true) {
     if (!state.isAsleep) return;
-    if (byUser) advanceSimulation();
+    if (byUser) {
+      advanceSimulation();
+      if (!state.isAsleep) return;
+    }
     const sleptMinutes = Math.max(0, Math.round((now() - state.sleepStartedAt) / 60000));
     const early = state.sleepUntil > now() + 60000;
-    const completedFullSleep = !byUser && state.sleepMode !== 'nap';
+    const completedFullSleep = !byUser && state.sleepProgress >= 99.999;
     if (completedFullSleep) {
       SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = 100);
       state.mood = 100;
       state.stress = 0;
+      state.sleepProgress = 100;
     }
+    const savedProgress = Math.min(100, Math.floor(state.sleepProgress));
     state.isAsleep = false;
     state.sleepMode = '';
+    state.sleepStartedAt = 0;
     state.sleepUntil = 0;
     const wakeHour = new Date().getHours();
     const wokeAtNight = byUser && (wakeHour >= 22 || wakeHour < 6);
@@ -515,8 +555,8 @@
     if (wokeAtNight) setActivity('drowsy', 14000);
     else setActivity('idle', 9000, { title: 'Recién despierto', description: 'Está estirando las patas y mirando a su alrededor.', icon: '🥱' });
     if (byUser) {
-      addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte con ${Math.round(state.stats.energy)}% de energía y seguirá despierto un rato.` : `Descansó ${sleptMinutes || 'unos'} minutos${early ? ', aunque todavía tenía un poco de sueño.' : '.'}`);
-      speak(wokeAtNight ? 'Sigo con sueño, pero quiero estar contigo…' : early ? '¿Ya es hora de levantarse?' : '¡Qué bien dormí!');
+      addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.` : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`);
+      speak(savedProgress < 100 ? `Voy en ${savedProgress}%. Luego seguiré desde aquí.` : '¡Qué bien dormí!');
     } else {
       addJournal('☀️', 'Despertó descansado', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
     }
@@ -1481,9 +1521,11 @@
     else dog.classList.add('happy-face');
     if (state.stats.hygiene < 36) dog.classList.add('dirty');
 
-    el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : 'Dormir';
-    el('sleepBtn').dataset.label = state.isAsleep ? 'Despertar' : 'Dormir';
-    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : 'Dormir');
+    const savedSleepProgress = Math.floor(state.sleepProgress);
+    const sleepLabel = !state.isAsleep && savedSleepProgress > 0 && savedSleepProgress < 100 ? `Dormir · ${savedSleepProgress}%` : 'Dormir';
+    el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : sleepLabel;
+    el('sleepBtn').dataset.label = state.isAsleep ? 'Despertar' : sleepLabel;
+    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : sleepLabel);
     el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : nightAwake ? 'Está despierto con sueño' : 'Descanso de verdad';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
@@ -1620,18 +1662,38 @@
   function renderActivityTimer() {
     const target = state.isAsleep ? state.sleepUntil : state.activity.endsAt;
     const timer = el('activityTimer');
-    if (!target || target <= now()) {
+    const current = now();
+    timer.classList.toggle('sleep-progress', state.isAsleep);
+    if (!target) {
       timer.textContent = '';
+      timer.style.removeProperty('--sleep-progress');
+      timer.setAttribute('aria-label', 'Tiempo restante');
       return;
     }
-    const remaining = Math.max(0, target - now());
+    const remaining = Math.max(0, target - current);
+    let timeText = '';
     if (remaining >= 3_600_000) {
       const totalMinutes = Math.ceil(remaining / 60_000);
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      timer.textContent = `${hours}h ${minutes}m`;
-    } else if (remaining >= 60_000) timer.textContent = `${Math.ceil(remaining / 60_000)} min`;
-    else timer.textContent = `${Math.ceil(remaining / 1000)} s`;
+      timeText = `${hours}h ${minutes}m`;
+    } else if (remaining >= 60_000) timeText = `${Math.ceil(remaining / 60_000)} min`;
+    else timeText = `${Math.ceil(remaining / 1000)} s`;
+    if (state.isAsleep) {
+      const progress = currentSleepProgress(current);
+      const percentage = Math.min(100, Math.floor(progress));
+      timer.style.setProperty('--sleep-progress', `${progress}%`);
+      timer.textContent = `${percentage}% · ${timeText}`;
+      timer.setAttribute('aria-label', `Descanso ${percentage}%, faltan ${timeText}`);
+    } else if (target <= current) {
+      timer.textContent = '';
+      timer.style.removeProperty('--sleep-progress');
+      timer.setAttribute('aria-label', 'Tiempo restante');
+    } else {
+      timer.textContent = timeText;
+      timer.style.removeProperty('--sleep-progress');
+      timer.setAttribute('aria-label', `Tiempo restante: ${timeText}`);
+    }
   }
 
   function render() {
