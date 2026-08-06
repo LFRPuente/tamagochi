@@ -1656,21 +1656,40 @@
     }
   }
 
+  function pettingNeedMessage(pet) {
+    const needs = [
+      { value: pet.stats.health, threshold: 48, message: 'Gracias por acariciarme, pero no me siento bien.' },
+      { value: pet.stats.food, threshold: 48, message: 'Gracias por acariciarme, pero tengo hambre.' },
+      { value: pet.stats.water, threshold: 48, message: 'Gracias por acariciarme, pero tengo sed.' },
+      { value: pet.stats.energy, threshold: 48, message: 'Gracias por acariciarme, pero estoy cansado.' },
+      { value: pet.stats.hygiene, threshold: 48, message: 'Gracias por acariciarme, pero me siento sucio.' },
+      { value: 100 - pet.stress, threshold: 35, message: 'Gracias por acariciarme, pero estoy un poco nervioso.' },
+      { value: pet.mood, threshold: 44, message: 'Gracias por acariciarme, pero me siento triste.' }
+    ];
+    const urgentNeed = needs
+      .filter(need => need.value < need.threshold)
+      .sort((a, b) => (a.value / a.threshold) - (b.value / b.threshold))[0];
+    return urgentNeed?.message || '';
+  }
+
   function triggerPetReaction() {
     clearTimeout(petReactionTimer);
     const current = now();
 
     if (state.isAsleep) {
       petReaction = 'reaction-sleepy-pat';
-      speak(pick(['Mmm… cinco minutos más…', 'Zzz… sentí tu caricia.', 'Qué calientita está tu mano…']));
+      speak(pick(['Gracias por la caricia… todavía tengo sueño.', 'Zzz… gracias por acariciarme.', 'Gracias… qué calientita está tu mano.']));
       createSparkles('💤');
       haptic(8);
     } else {
-      const reaction = pick([
-        { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12] },
-        { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14 },
-        { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10] }
-      ]);
+      const needMessage = pettingNeedMessage(state);
+      const reaction = needMessage
+        ? { css: 'reaction-cuddle', message: needMessage, symbol: '💗', haptic: [12, 30, 12] }
+        : pick([
+          { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12] },
+          { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14 },
+          { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10] }
+        ]);
       petReaction = reaction.css;
       speak(reaction.message);
       createSparkles(reaction.symbol);
