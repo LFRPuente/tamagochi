@@ -65,6 +65,10 @@
     trainingMemory: 2
   };
 
+  const FULL_SLEEP_DURATION = 2 * 3_600_000;
+  const SLEEP_RECOVERY_PER_HOUR = 50;
+  const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
+
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Sentadito', description: 'Se sentó cerca de ti para hacerte compañía.', css: 'sitting' },
     drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
@@ -77,7 +81,7 @@
     guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como todo un guardián.', css: 'sitting alert' },
     eating: { icon: '🍲', title: 'Comiendo', description: 'Decidió comer lo que dejaste en su cuenco.', css: 'eating' },
     drinking: { icon: '💧', title: 'Bebiendo agua', description: 'Fue a hidratarse por su cuenta.', css: 'drinking' },
-    sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Está recuperando energía. Puedes dejarlo descansar o despertarlo.', css: 'sleeping' },
+    sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Está recuperando todas sus necesidades. En un máximo de 2 horas estará al 100%.', css: 'sleeping' },
     walking: { icon: '🦮', title: 'De paseo', description: 'Está explorando y olfateando todo a su alrededor.', css: 'walking' },
     training: { icon: '🎓', title: 'Entrenando', description: 'Está concentrado en aprender algo nuevo.', css: 'training' },
     playing: { icon: '🎾', title: 'Jugando contigo', description: 'Corre detrás de la pelota con toda su energía.', css: 'playing' },
@@ -233,6 +237,12 @@
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
     if (!PERSONALITIES[normalized.personality]) normalized.personality = 'curious';
     Object.keys(normalized.stats).forEach(key => normalized.stats[key] = clamp(normalized.stats[key]));
+    if (normalized.isAsleep && normalized.sleepMode !== 'nap') {
+      const startedAt = Number(normalized.sleepStartedAt) || now();
+      const fullSleepUntil = startedAt + FULL_SLEEP_DURATION;
+      normalized.sleepStartedAt = startedAt;
+      normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || fullSleepUntil, fullSleepUntil);
+    }
     return normalized;
   }
 
@@ -284,13 +294,10 @@
 
   function applySleepRecovery(hours) {
     if (hours <= 0) return;
-    const personality = PERSONALITIES[state.personality];
-    state.stats.energy = clamp(state.stats.energy + hours * 12 * (personality.rest || 1));
-    state.stats.food = clamp(state.stats.food - hours * 1.5);
-    state.stats.water = clamp(state.stats.water - hours * 1.8);
-    state.stats.hygiene = clamp(state.stats.hygiene - hours * .35);
-    state.stress = clamp(state.stress - hours * 4.2);
-    if (state.stats.health < 100) state.stats.health = clamp(state.stats.health + hours * .65);
+    const recovery = hours * SLEEP_RECOVERY_PER_HOUR;
+    SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = clamp(state.stats[key] + recovery));
+    state.mood = clamp(state.mood + recovery);
+    state.stress = clamp(state.stress - recovery);
   }
 
   function advanceSimulation(current = now()) {
@@ -457,7 +464,7 @@
     if (state.stats.food < 34 && state.bowls.food > 0 && !isBusy()) consumeBowlFood(true);
     else if (state.stats.water < 39 && state.bowls.water > 0 && !isBusy()) consumeBowlWater(true);
     else if (isBedtime && state.stats.energy < 62 && now() >= Number(state.manualAwakeUntil || 0) && !isBusy()) {
-      beginSleep('night', 8 * 3_600_000, true);
+      beginSleep('night', FULL_SLEEP_DURATION, true);
     }
     else if (state.stats.energy < 16 && now() >= Number(state.manualAwakeUntil || 0) && !isBusy()) {
       beginSleep('nap', 3 * 60_000, true);
@@ -470,7 +477,7 @@
     render();
   }
 
-  function beginSleep(mode = 'night', duration = 8 * 3_600_000, automatic = false) {
+  function beginSleep(mode = 'night', duration = FULL_SLEEP_DURATION, automatic = false) {
     if (state.isAsleep) return;
     if (!automatic) state.manualAwakeUntil = 0;
     state.isAsleep = true;
@@ -479,8 +486,8 @@
     state.sleepUntil = now() + duration;
     setActivity('sleeping');
     recordHabit('sleep');
-    addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : `Lo arropaste para que recupere toda su energía.`);
-    if (!automatic) speak('Dormiré un rato… zzz.');
+    addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
+    if (!automatic) speak('Dormiré hasta sentirme al cien… zzz.');
     touch();
     saveState();
     render();
@@ -491,6 +498,12 @@
     if (byUser) advanceSimulation();
     const sleptMinutes = Math.max(0, Math.round((now() - state.sleepStartedAt) / 60000));
     const early = state.sleepUntil > now() + 60000;
+    const completedFullSleep = !byUser && state.sleepMode !== 'nap';
+    if (completedFullSleep) {
+      SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = 100);
+      state.mood = 100;
+      state.stress = 0;
+    }
     state.isAsleep = false;
     state.sleepMode = '';
     state.sleepUntil = 0;
@@ -1613,8 +1626,9 @@
     }
     const remaining = Math.max(0, target - now());
     if (remaining >= 3_600_000) {
-      const hours = Math.floor(remaining / 3_600_000);
-      const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+      const totalMinutes = Math.ceil(remaining / 60_000);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
       timer.textContent = `${hours}h ${minutes}m`;
     } else if (remaining >= 60_000) timer.textContent = `${Math.ceil(remaining / 60_000)} min`;
     else timer.textContent = `${Math.ceil(remaining / 1000)} s`;
