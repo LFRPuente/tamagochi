@@ -18,8 +18,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Caricias táctiles con reacciones, expresiones y vibración en celular.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
-- Arcade retro con decisiones por turnos, precisión, oleadas de esquiva y comandos de memoria.
-- Encuentros jugables que aparecen durante paseos y entrenamientos.
+- Tres minijuegos luminosos de coordinación, agilidad y memoria.
+- Retos jugables que también pueden aparecer durante paseos y entrenamientos.
 - Controles por teclado, toque, arrastre y botones táctiles.
 - Monedas, inventario y tienda.
 - Diario de actividades, incluso mientras la aplicación está cerrada.

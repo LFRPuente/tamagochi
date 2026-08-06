@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.4.3" />
+  <link rel="stylesheet" href="styles.css?v=3.5.0" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -78,12 +78,12 @@
         </div>
 
         <nav class="action-grid" aria-label="Actividades con tu compañero">
-          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar"><span class="action-icon coral" aria-hidden="true">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
-          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear"><span class="action-icon green" aria-hidden="true">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
-          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar"><span class="action-icon purple" aria-hidden="true">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
-          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar"><span class="action-icon blue" aria-hidden="true">🕹️</span><strong>Jugar</strong><small>Encuentros retro</small></button>
-          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir"><span class="action-icon navy" aria-hidden="true">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
-          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda"><span class="action-icon gold" aria-hidden="true">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
+          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
+          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear" aria-label="Pasear"><span class="action-icon green" aria-hidden="true">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
+          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar" aria-label="Entrenar"><span class="action-icon purple" aria-hidden="true">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
+          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar" aria-label="Jugar"><span class="action-icon blue" aria-hidden="true">🕹️</span><strong>Jugar</strong><small>Juegos del parque</small></button>
+          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir" aria-label="Dormir"><span class="action-icon navy" aria-hidden="true">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
+          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda" aria-label="Tienda"><span class="action-icon gold" aria-hidden="true">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
         </nav>
 
         <div class="now-card">
@@ -219,60 +219,60 @@
 
   <div class="modal-backdrop" id="arcadeModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="arcadeTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Encuentros retro</p><h2 id="arcadeTitle">Arcade de Milo</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
-      <p>Elige acciones, supera cada turno y protege el corazón. Los encuentros también pueden aparecer durante paseos y entrenamientos.</p>
+      <div class="modal-heading"><div><p class="eyebrow">Juegos del parque</p><h2 id="arcadeTitle">Juega con Milo</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
+      <p>Elige una actividad corta para practicar coordinación, reflejos o memoria junto a tu compañero.</p>
       <div class="arcade-grid">
-        <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Duelo de pelota</strong><small>Detén la barra en el centro durante cinco turnos</small></span><b id="ballGameStatus">Energía −16</b></button>
-        <button type="button" data-arcade="dodge"><span class="arcade-icon">💗</span><span class="arcade-copy"><strong>Corazón valiente</strong><small>Elige una táctica y esquiva tres oleadas</small></span><b id="dodgeGameStatus">Nivel 2</b></button>
-        <button type="button" data-arcade="memory"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Código de amistad</strong><small>Observa los comandos y repítelos por turnos</small></span><b id="memoryGameStatus">Nivel 3</b></button>
+        <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Atrapa la pelota</strong><small>Acerca la marca a la zona verde durante cinco rondas</small></span><b id="ballGameStatus">Energía −16</b></button>
+        <button type="button" data-arcade="dodge"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Pista de reflejos</strong><small>Guía la huella entre hojas, gotitas y conos</small></span><b id="dodgeGameStatus">Nivel 2</b></button>
+        <button type="button" data-arcade="memory"><span class="arcade-icon">🎨</span><span class="arcade-copy"><strong>Secuencia de señales</strong><small>Observa las señales y repítelas en el mismo orden</small></span><b id="memoryGameStatus">Nivel 3</b></button>
       </div>
     </section>
   </div>
 
   <div class="modal-backdrop" id="gameModal" hidden inert>
-    <section class="modal challenge-modal retro-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Encuentro de precisión</p><h2 id="gameTitle">Duelo de pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
-      <p>Elige una acción y toca «¡Ahora!» cuando la línea cruce el centro. Tienes cinco turnos.</p>
-      <div class="retro-stage">
-        <div class="retro-opponent"><span class="pixel-creature ball-creature" aria-hidden="true">🎾</span><div><strong>PELOTA INQUIETA</strong><small>Rebota con determinación.</small></div></div>
-        <div class="retro-dialogue" id="gameDialogue">* Una pelota inquieta desafía a tu compañero.</div>
-        <div class="challenge-hud retro-hud"><span><b class="battle-pet-name">MILO</b></span><span>Turno <strong id="gameTurn">0 / 5</strong></span><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">25</strong>s</span></div>
-        <div class="game-field retro-box" id="gameField">
+    <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Juego de coordinación</p><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
+      <p>Elige una ayuda y toca «¡Atrapa!» cuando la marca pase por la zona verde. Son cinco rondas.</p>
+      <div class="play-stage">
+        <div class="play-mascot"><span class="play-icon ball-creature" aria-hidden="true">🎾</span><div><strong>Pelota saltarina</strong><small>Milo sigue cada rebote.</small></div></div>
+        <div class="play-tip" id="gameDialogue">La pelota está lista para el primer lanzamiento.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Ronda <strong id="gameTurn">0 / 5</strong></span><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">25</strong>s</span></div>
+        <div class="game-field play-surface" id="gameField">
           <div class="strike-track" id="strikeTrack" hidden aria-hidden="true"><span class="strike-center"></span><i id="strikeCursor"></i></div>
-          <button id="ballTarget" type="button" aria-label="Detener la barra de precisión">¡AHORA!</button>
-          <div class="game-message" id="gameMessage">* Milo espera tu señal para comenzar.</div>
+          <button id="ballTarget" type="button" aria-label="Atrapar la pelota en la zona verde">¡Atrapa!</button>
+          <div class="game-message" id="gameMessage">Milo espera tu señal para comenzar.</div>
         </div>
-        <div class="retro-actions" id="ballActions" aria-label="Acciones del encuentro">
-          <button type="button" data-ball-action="throw"><span>🎾</span> LANZAR</button>
-          <button type="button" data-ball-action="encourage"><span>💬</span> ANIMAR</button>
-          <button type="button" data-ball-action="treat"><span>🦴</span> PREMIO</button>
-          <button type="button" data-ball-action="calm"><span>🌿</span> CALMAR</button>
+        <div class="play-actions" id="ballActions" aria-label="Acciones para atrapar la pelota">
+          <button type="button" data-ball-action="throw"><span>🎾</span> Lanzar</button>
+          <button type="button" data-ball-action="encourage"><span>💬</span> Animar</button>
+          <button type="button" data-ball-action="treat"><span>🦴</span> Premio</button>
+          <button type="button" data-ball-action="calm"><span>🌿</span> Respirar</button>
         </div>
       </div>
-      <button class="primary full-button" id="startGameBtn" type="button">Iniciar encuentro</button>
+      <button class="primary full-button" id="startGameBtn" type="button">Empezar juego</button>
     </section>
   </div>
 
   <div class="modal-backdrop" id="dodgeModal" hidden inert>
-    <section class="modal challenge-modal retro-modal" role="dialog" aria-modal="true" aria-labelledby="dodgeTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Encuentro de esquiva</p><h2 id="dodgeTitle">Corazón valiente</h2></div><button class="close-button" type="button" data-close="dodgeModal" aria-label="Cerrar">×</button></div>
-      <p id="dodgeDescription">Arrastra el corazón o usa los botones táctiles. Sobrevive a tres patrones diferentes.</p>
-      <div class="retro-stage">
-        <div class="retro-opponent"><span class="pixel-creature" id="dodgeEnemy" aria-hidden="true">🌧️</span><div><strong id="dodgeEnemyName">TORMENTA JUGUETONA</strong><small id="dodgeEnemyMood">Parece querer jugar.</small></div></div>
-        <div class="retro-dialogue" id="dodgeDialogue">* La tormenta bloquea el camino de Milo.</div>
-        <div class="challenge-hud retro-hud"><span><b class="battle-pet-name">MILO</b></span><span>Vida <strong id="dodgeLives">💗💗💗</strong></span><span>Puntos <strong id="dodgeScore">0</strong></span><span>Tiempo <strong id="dodgeTime">15</strong>s</span></div>
-        <div class="dodge-arena" id="dodgeArena" tabindex="0" aria-label="Área de juego. Mueve el corazón para esquivar obstáculos.">
+    <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="dodgeTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Juego de agilidad</p><h2 id="dodgeTitle">Pista de reflejos</h2></div><button class="close-button" type="button" data-close="dodgeModal" aria-label="Cerrar">×</button></div>
+      <p id="dodgeDescription">Arrastra la huella o usa los botones táctiles durante tres tramos cortos.</p>
+      <div class="play-stage">
+        <div class="play-mascot"><span class="play-icon" id="dodgeEnemy" aria-hidden="true">🏁</span><div><strong id="dodgeEnemyName">Pista sorpresa</strong><small id="dodgeEnemyMood">Hojas, gotas y conos se cruzan.</small></div></div>
+        <div class="play-tip" id="dodgeDialogue">Milo observa la pista y espera tu señal.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Intentos <strong id="dodgeLives">🐾🐾🐾</strong></span><span>Puntos <strong id="dodgeScore">0</strong></span><span>Tiempo <strong id="dodgeTime">15</strong>s</span></div>
+        <div class="dodge-arena" id="dodgeArena" tabindex="0" aria-label="Área de juego. Mueve la huella para evitar los obstáculos.">
           <div class="arena-grid" aria-hidden="true"></div>
-          <div class="wave-label" id="dodgeWave" aria-hidden="true">OLEADA 1</div>
-          <div class="dodge-message" id="dodgeMessage">Elige una táctica antes de comenzar.</div>
-          <span class="dodge-player" id="dodgePlayer" aria-hidden="true">♥</span>
+          <div class="wave-label" id="dodgeWave" aria-hidden="true">Tramo 1 · Hojas</div>
+          <div class="dodge-message" id="dodgeMessage">Elige cómo recorrer la pista.</div>
+          <span class="dodge-player" id="dodgePlayer" aria-hidden="true">🐾</span>
           <div id="hazardLayer" aria-hidden="true"></div>
         </div>
-        <div class="retro-actions dodge-actions" id="dodgeActions" aria-label="Táctica para el encuentro">
-          <button type="button" data-dodge-act="play" class="selected"><span>🎮</span> JUGAR</button>
-          <button type="button" data-dodge-act="encourage"><span>💬</span> ANIMAR</button>
-          <button type="button" data-dodge-act="observe"><span>👁️</span> OBSERVAR</button>
-          <button type="button" data-dodge-act="calm"><span>🌿</span> CALMAR</button>
+        <div class="play-actions dodge-actions" id="dodgeActions" aria-label="Forma de recorrer la pista">
+          <button type="button" data-dodge-act="play" class="selected"><span>🐕</span> A tu ritmo</button>
+          <button type="button" data-dodge-act="encourage"><span>💬</span> Animar</button>
+          <button type="button" data-dodge-act="observe"><span>👀</span> Mirar</button>
+          <button type="button" data-dodge-act="calm"><span>🌿</span> Respirar</button>
         </div>
       </div>
       <div class="touch-controls" aria-label="Controles de movimiento">
@@ -282,26 +282,26 @@
         <button type="button" data-dodge-dir="down" aria-label="Mover abajo">▼</button>
         <button type="button" data-dodge-dir="right" aria-label="Mover a la derecha">▶</button>
       </div>
-      <button class="primary full-button" id="startDodgeBtn" type="button">Comenzar turno</button>
+      <button class="primary full-button" id="startDodgeBtn" type="button">Empezar recorrido</button>
     </section>
   </div>
 
   <div class="modal-backdrop" id="memoryModal" hidden inert>
-    <section class="modal challenge-modal retro-modal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Encuentro de comandos</p><h2 id="memoryTitle">Código de amistad</h2></div><button class="close-button" type="button" data-close="memoryModal" aria-label="Cerrar">×</button></div>
-      <p id="memoryDescription">Observa los comandos del eco y respóndelos en el mismo orden.</p>
-      <div class="retro-stage">
-        <div class="retro-opponent"><span class="pixel-creature echo-creature" aria-hidden="true">🐾</span><div><strong>ECO DE HUELLAS</strong><small>Imita todo lo que ve.</small></div></div>
-        <div class="memory-message retro-dialogue" id="memoryMessage">* El eco espera que recuerdes sus comandos.</div>
-        <div class="challenge-hud retro-hud"><span><b class="battle-pet-name">MILO</b></span><span>Intentos <strong id="memoryLives">💗💗💗</strong></span><span>Ronda <strong id="memoryRound">1 / 4</strong></span><span>Puntos <strong id="memoryScore">0</strong></span></div>
-        <div class="memory-board retro-box" id="memoryBoard" aria-label="Comandos de amistad">
-          <button type="button" data-memory-pad="0" aria-label="Comando ánimo"><span>💗</span><strong>ÁNIMO</strong></button>
-          <button type="button" data-memory-pad="1" aria-label="Comando calma"><span>🌙</span><strong>CALMA</strong></button>
-          <button type="button" data-memory-pad="2" aria-label="Comando premio"><span>🦴</span><strong>PREMIO</strong></button>
-          <button type="button" data-memory-pad="3" aria-label="Comando juego"><span>🎾</span><strong>JUEGO</strong></button>
+    <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
+      <div class="modal-heading"><div><p class="eyebrow">Juego de memoria</p><h2 id="memoryTitle">Secuencia de señales</h2></div><button class="close-button" type="button" data-close="memoryModal" aria-label="Cerrar">×</button></div>
+      <p id="memoryDescription">Observa las señales que usa Milo y repítelas en el mismo orden.</p>
+      <div class="play-stage">
+        <div class="play-mascot"><span class="play-icon echo-creature" aria-hidden="true">🎨</span><div><strong>Rueda de señales</strong><small>Se ilumina en un orden nuevo.</small></div></div>
+        <div class="memory-message play-tip" id="memoryMessage">Mira la secuencia y trata de recordarla.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Intentos <strong id="memoryLives">🐾🐾🐾</strong></span><span>Ronda <strong id="memoryRound">1 / 4</strong></span><span>Puntos <strong id="memoryScore">0</strong></span></div>
+        <div class="memory-board play-surface" id="memoryBoard" aria-label="Secuencia de señales">
+          <button type="button" data-memory-pad="0" aria-label="Señal cariño"><span>💗</span><strong>Cariño</strong></button>
+          <button type="button" data-memory-pad="1" aria-label="Señal descanso"><span>🌙</span><strong>Descanso</strong></button>
+          <button type="button" data-memory-pad="2" aria-label="Señal premio"><span>🦴</span><strong>Premio</strong></button>
+          <button type="button" data-memory-pad="3" aria-label="Señal pelota"><span>🎾</span><strong>Pelota</strong></button>
         </div>
       </div>
-      <button class="primary full-button" id="startMemoryBtn" type="button">Iniciar encuentro</button>
+      <button class="primary full-button" id="startMemoryBtn" type="button">Empezar secuencia</button>
     </section>
   </div>
 
@@ -330,6 +330,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.4.3" defer></script>
+  <script src="app.js?v=3.5.0" defer></script>
 </body>
 </html>

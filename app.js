@@ -655,7 +655,7 @@
         bonus: routeKey === 'adventure' ? 10 : 5,
         title: routeKey === 'adventure' ? '¡Cruza el sendero!' : '¡Esquiva los charcos!',
         description: routeKey === 'adventure'
-          ? 'Ayuda al corazón de Milo a atravesar el sendero sin tocar ramas ni piedras.'
+          ? 'Guía la huella de Milo por el sendero sin tocar ramas ni piedras.'
           : 'El parque se llenó de charcos. Muévete con las flechas, WASD o los controles táctiles.'
       }));
     }
@@ -758,13 +758,13 @@
     el('gameScore').textContent = '0';
     el('gameTurn').textContent = '0 / 5';
     el('gameTime').textContent = '25';
-    el('gameDialogue').textContent = '* Una pelota inquieta desafía a tu compañero.';
+    el('gameDialogue').textContent = 'La pelota saltarina está lista para jugar.';
     el('gameMessage').hidden = false;
-    el('gameMessage').textContent = `* ${state.petName} espera tu señal para comenzar.`;
+    el('gameMessage').textContent = `${state.petName} espera tu señal para comenzar.`;
     el('strikeTrack').hidden = true;
     el('ballTarget').style.display = 'none';
     el('startGameBtn').disabled = false;
-    el('startGameBtn').textContent = `Iniciar encuentro · ${energyLabel(ENERGY_COSTS.arcadeBall)}`;
+    el('startGameBtn').textContent = `Empezar juego · ${energyLabel(ENERGY_COSTS.arcadeBall)}`;
     setBallActionsDisabled(true);
   }
 
@@ -782,11 +782,11 @@
     el('gameScore').textContent = '0';
     el('gameTurn').textContent = '0 / 5';
     el('gameTime').textContent = '25';
-    el('gameDialogue').textContent = '* La pelota salta de un lado a otro. Elige una acción.';
+    el('gameDialogue').textContent = 'La pelota rebota de un lado a otro. Elige una ayuda.';
     el('gameMessage').hidden = false;
-    el('gameMessage').textContent = '* Elige LANZAR cuando estés listo.';
+    el('gameMessage').textContent = 'Elige Lanzar cuando estés listo.';
     el('startGameBtn').disabled = true;
-    el('startGameBtn').textContent = 'EN ENCUENTRO';
+    el('startGameBtn').textContent = 'Juego en curso';
     setBallActionsDisabled(false);
     gameInterval = setInterval(() => {
       gameSeconds -= 1;
@@ -805,19 +805,19 @@
 
     if (action === 'encourage') {
       gameFocusBonus += 5;
-      el('gameDialogue').textContent = `* Animaste a ${state.petName}. Su próxima jugada tendrá más fuerza.`;
+      el('gameDialogue').textContent = `Animaste a ${state.petName}. Su próxima jugada tendrá más fuerza.`;
       createSparkles('💬');
     } else if (action === 'treat') {
       if (state.inventory.treat <= 0) return toast('No tienes premios en el inventario.');
       state.inventory.treat -= 1;
       gameFocusBonus += 10;
-      el('gameDialogue').textContent = `* ${state.petName} recibió un premio. ¡Está totalmente concentrado!`;
+      el('gameDialogue').textContent = `${state.petName} recibió un premio. ¡Está totalmente concentrado!`;
       touch();
       saveState();
       renderHome();
     } else if (action === 'calm') {
       gameSpeedMultiplier = .7;
-      el('gameDialogue').textContent = '* Respiraron juntos. La línea irá más despacio en el próximo tiro.';
+      el('gameDialogue').textContent = 'Respiraron juntos. La marca irá más despacio en el próximo tiro.';
     }
     gameUsedActions.add(action);
     haptic(12);
@@ -834,7 +834,7 @@
     el('strikeTrack').hidden = false;
     el('ballTarget').style.display = 'block';
     el('gameMessage').hidden = true;
-    el('gameDialogue').textContent = '* ¡Detén la línea lo más cerca posible del centro!';
+    el('gameDialogue').textContent = 'Toca ¡Atrapa! cuando la huella esté dentro de la zona verde.';
     setBallActionsDisabled(true);
     gameStrikeFrame = requestAnimationFrame(updateBallStrike);
   }
@@ -872,15 +872,15 @@
     el('strikeTrack').hidden = true;
     el('ballTarget').style.display = 'none';
     el('gameMessage').hidden = false;
-    const verdict = accuracy >= 92 ? '¡CENTRO PERFECTO!' : accuracy >= 75 ? '¡Gran lanzamiento!' : accuracy >= 50 ? 'Buen intento.' : 'La pelota escapó por poco.';
-    el('gameMessage').textContent = `* ${verdict} Precisión ${accuracy}% · +${earned} puntos`;
-    el('gameDialogue').textContent = accuracy >= 92 ? '* La pelota quedó impresionada por su coordinación.' : '* La pelota se prepara para el siguiente turno.';
+    const verdict = accuracy >= 92 ? '¡Centro perfecto!' : accuracy >= 75 ? '¡Gran lanzamiento!' : accuracy >= 50 ? 'Buen intento.' : 'La pelota escapó por poco.';
+    el('gameMessage').textContent = `${verdict} Precisión ${accuracy}% · +${earned} puntos`;
+    el('gameDialogue').textContent = accuracy >= 92 ? 'Milo atrapó la pelota con una coordinación perfecta.' : 'La pelota se prepara para la siguiente ronda.';
     haptic(accuracy >= 92 ? [14, 28, 40] : 12);
     if (gameTurn >= 5) setTimeout(() => finishGame(false), 750);
     else setTimeout(() => {
       if (!gameActive) return;
       setBallActionsDisabled(false);
-      el('gameDialogue').textContent = `* Turno ${gameTurn + 1}. Elige tu siguiente acción.`;
+      el('gameDialogue').textContent = `Ronda ${gameTurn + 1}. Elige tu siguiente ayuda.`;
     }, 620);
   }
 
@@ -899,7 +899,7 @@
     el('startGameBtn').textContent = `Jugar otra vez · ${energyLabel(ENERGY_COSTS.arcadeBall)}`;
     el('gameMessage').hidden = false;
     if (cancelled) {
-      el('gameMessage').textContent = '* Encuentro pausado.';
+      el('gameMessage').textContent = 'Juego pausado.';
       return;
     }
 
@@ -911,10 +911,10 @@
     state.arcade.played += 1;
     gainXp(8 + Math.floor(gameScore / 3));
     recordHabit('play');
-    setActivity('playing', 5000, { description: `Completaron ${gameTurn} turnos de precisión y lograron ${gameScore} puntos.` });
-    addJournal('🎾', 'Duelo de pelota', `Completaron ${gameTurn} turnos, lograron ${gameScore} puntos y ganaron ${coins} monedas.`);
-    el('gameDialogue').textContent = gameTurn >= 5 ? '* La pelota acepta la amistad de Milo.' : '* La pelota se retira hasta el próximo encuentro.';
-    el('gameMessage').textContent = `* FIN DEL ENCUENTRO · ${gameScore} puntos · +${coins} monedas`;
+    setActivity('playing', 5000, { description: `Completaron ${gameTurn} rondas de precisión y lograron ${gameScore} puntos.` });
+    addJournal('🎾', 'Atrapa la pelota', `Completaron ${gameTurn} rondas, lograron ${gameScore} puntos y ganaron ${coins} monedas.`);
+    el('gameDialogue').textContent = gameTurn >= 5 ? 'Milo terminó feliz después de tantos lanzamientos.' : 'La pelota descansa hasta la próxima partida.';
+    el('gameMessage').textContent = `Juego terminado · ${gameScore} puntos · +${coins} monedas`;
     speak(gameScore >= 60 ? '¡Nuestra coordinación fue perfecta!' : '¡Cada vez lo hacemos mejor!');
     createSparkles('🎾');
     touch();
@@ -933,8 +933,8 @@
         prepareBallEncounter();
         openModal('gameModal');
       }
-      else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Corazón valiente', description: 'Mueve el corazón y evita todos los obstáculos durante 15 segundos.' });
-      else openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Código de amistad', description: 'Observa los comandos y repítelos. Cada ronda será un poco más larga.' });
+      else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Pista de reflejos', description: 'Mueve la huella y evita hojas, gotitas y conos durante 15 segundos.' });
+      else openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Secuencia de señales', description: 'Observa las señales y repítelas. Cada ronda será un poco más larga.' });
     }, 230);
   }
 
@@ -950,23 +950,23 @@
     dodgeContext = { source: 'arcade', bonus: 0, ...context };
     dodgeAct = 'play';
     dodgeCurrentWave = 0;
-    el('dodgeTitle').textContent = dodgeContext.title || 'Corazón valiente';
-    el('dodgeDescription').textContent = dodgeContext.description || 'Mueve el corazón y evita todos los obstáculos.';
+    el('dodgeTitle').textContent = dodgeContext.title || 'Pista de reflejos';
+    el('dodgeDescription').textContent = dodgeContext.description || 'Mueve la huella y evita todos los obstáculos.';
     const isAdventure = /sendero|aventura|ramas/i.test(`${dodgeContext.title || ''} ${dodgeContext.description || ''}`);
     const isWalk = dodgeContext.source === 'walk';
-    el('dodgeEnemy').textContent = isAdventure ? '🌲' : isWalk ? '🌧️' : '✦';
-    el('dodgeEnemyName').textContent = isAdventure ? 'SENDERO INQUIETO' : isWalk ? 'TORMENTA JUGUETONA' : 'FIGURA CAMBIANTE';
-    el('dodgeEnemyMood').textContent = isAdventure ? 'Las ramas cierran el camino.' : isWalk ? 'Los charcos saltan sin parar.' : 'Cambia su patrón cada turno.';
-    el('dodgeDialogue').textContent = isAdventure ? '* El sendero quiere poner a prueba el valor de Milo.' : isWalk ? '* Una tormenta juguetona bloquea el paseo.' : '* Una figura cambiante se acerca al corazón.';
-    el('dodgeLives').textContent = '💗💗💗';
+    el('dodgeEnemy').textContent = isAdventure ? '🌿' : isWalk ? '💦' : '🏁';
+    el('dodgeEnemyName').textContent = isAdventure ? 'Sendero inquieto' : isWalk ? 'Charcos juguetones' : 'Pista sorpresa';
+    el('dodgeEnemyMood').textContent = isAdventure ? 'Las ramas se cruzan en el camino.' : isWalk ? 'Las gotas saltan sin parar.' : 'Hojas, gotas y conos se cruzan.';
+    el('dodgeDialogue').textContent = isAdventure ? 'Milo mira el sendero y busca el mejor paso.' : isWalk ? 'Ayuda a Milo a encontrar un camino seco.' : 'Milo observa la pista y espera tu señal.';
+    el('dodgeLives').textContent = '🐾🐾🐾';
     el('dodgeScore').textContent = '0';
     el('dodgeTime').textContent = '15';
-    el('dodgeWave').textContent = 'OLEADA 1 · ESTRELLAS';
+    el('dodgeWave').textContent = 'Tramo 1 · Hojas';
     el('dodgeMessage').hidden = false;
-    el('dodgeMessage').textContent = 'Elige una táctica antes de comenzar.';
+    el('dodgeMessage').textContent = 'Elige cómo recorrer la pista.';
     el('dodgePlayer').style.display = 'none';
     el('startDodgeBtn').disabled = false;
-    el('startDodgeBtn').textContent = `Comenzar turno · ${energyLabel(dodgeEnergyCost())}`;
+    el('startDodgeBtn').textContent = `Empezar recorrido · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => {
       button.disabled = false;
       button.classList.toggle('selected', button.dataset.dodgeAct === 'play');
@@ -978,10 +978,10 @@
   function selectDodgeAct(action) {
     if (dodgeActive) return;
     const actions = {
-      play: '* JUGAR: patrón normal y recompensa equilibrada.',
-      encourage: `* ANIMAR: ${state.petName} comienza con un corazón extra, pero las oleadas aceleran.`,
-      observe: '* OBSERVAR: después de estudiar al rival, los golpes dan más tiempo de recuperación.',
-      calm: '* CALMAR: los obstáculos se mueven más despacio.'
+      play: 'A tu ritmo: velocidad normal y recompensa equilibrada.',
+      encourage: `Animar: ${state.petName} comienza con un intento extra, pero la pista acelera un poco.`,
+      observe: 'Mirar: después de estudiar la pista, tendrás más tiempo para recuperarte.',
+      calm: 'Respirar: los obstáculos se moverán más despacio.'
     };
     if (!actions[action]) return;
     dodgeAct = action;
@@ -1004,17 +1004,17 @@
     dodgeInvulnerableUntil = 0;
     dodgeDirections.clear();
     clearDodgeHazards();
-    el('dodgeLives').textContent = '💗'.repeat(dodgeLives);
+    el('dodgeLives').textContent = '🐾'.repeat(dodgeLives);
     el('dodgeScore').textContent = String(dodgeScore);
     el('dodgeTime').textContent = '15';
-    el('dodgeWave').textContent = 'OLEADA 1 · ESTRELLAS';
-    el('dodgeDialogue').textContent = `* ${state.petName} eligió ${dodgeAct === 'play' ? 'JUGAR' : dodgeAct === 'encourage' ? 'ANIMAR' : dodgeAct === 'observe' ? 'OBSERVAR' : 'CALMAR'}. ¡Comienza el turno!`;
+    el('dodgeWave').textContent = 'Tramo 1 · Hojas';
+    el('dodgeDialogue').textContent = `${state.petName} eligió ${dodgeAct === 'play' ? 'ir a su ritmo' : dodgeAct === 'encourage' ? 'recibir ánimos' : dodgeAct === 'observe' ? 'mirar la pista' : 'respirar'}. ¡Comienza el recorrido!`;
     el('dodgeMessage').hidden = true;
     el('dodgePlayer').style.display = 'flex';
     el('dodgePlayer').style.left = '50%';
     el('dodgePlayer').style.top = '50%';
     el('startDodgeBtn').disabled = true;
-    el('startDodgeBtn').textContent = '¡Esquiva!';
+    el('startDodgeBtn').textContent = 'En movimiento';
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = true);
     el('dodgeArena').focus({ preventScroll: true });
     dodgeStartedAt = performance.now();
@@ -1046,13 +1046,13 @@
       else if (side === 1) { x = 1.08; y = .08 + Math.random() * .84; vx = -baseSpeed; vy = (Math.random() - .5) * .12; }
       else if (side === 2) { x = .08 + Math.random() * .84; y = -.08; vx = (Math.random() - .5) * .12; vy = baseSpeed; }
       else { x = .08 + Math.random() * .84; y = 1.08; vx = (Math.random() - .5) * .12; vy = -baseSpeed; }
-      createDodgeHazard({ x, y, vx, vy, size: 18 + Math.random() * 10, style: 'gold', symbol: '✦' });
+      createDodgeHazard({ x, y, vx, vy, size: 18 + Math.random() * 10, style: 'leaf', symbol: '🍂' });
       return;
     }
     if (wave === 1) {
       const count = Math.random() < .35 ? 2 : 1;
       for (let i = 0; i < count; i++) {
-        createDodgeHazard({ x: .06 + Math.random() * .88, y: -.08 - i * .12, vx: (Math.random() - .5) * .04, vy: baseSpeed * 1.18, size: 17 + Math.random() * 7, style: 'blue' });
+        createDodgeHazard({ x: .06 + Math.random() * .88, y: -.08 - i * .12, vx: (Math.random() - .5) * .04, vy: baseSpeed * 1.18, size: 17 + Math.random() * 7, style: 'drop', symbol: '💧' });
       }
       return;
     }
@@ -1066,7 +1066,8 @@
         vx: fromLeft ? baseSpeed * .94 : -baseSpeed * .94,
         vy: 0,
         size: 28,
-        style: 'bone'
+        style: 'cone',
+        symbol: '🔶'
       });
     }
   }
@@ -1090,9 +1091,9 @@
     const wave = Math.min(2, Math.floor(elapsed / 5));
     if (wave !== dodgeCurrentWave) {
       dodgeCurrentWave = wave;
-      const waveNames = ['ESTRELLAS', 'LLUVIA', 'MURO DE HUESOS'];
-      el('dodgeWave').textContent = `OLEADA ${wave + 1} · ${waveNames[wave]}`;
-      el('dodgeDialogue').textContent = wave === 1 ? '* El patrón cambió: ahora todo cae desde arriba.' : '* Última oleada: encuentra el hueco entre los huesos.';
+      const waveNames = ['Hojas', 'Gotitas', 'Conos'];
+      el('dodgeWave').textContent = `Tramo ${wave + 1} · ${waveNames[wave]}`;
+      el('dodgeDialogue').textContent = wave === 1 ? 'Ahora caen gotitas desde arriba. Busca los espacios libres.' : 'Último tramo: encuentra el hueco entre los conos.';
       haptic([10, 22, 10]);
     }
     const spawnEvery = wave === 2 ? 1120 : wave === 1 ? 360 : Math.max(300, 610 - elapsed * 13);
@@ -1125,7 +1126,7 @@
         playerNode.classList.remove('hit');
         void playerNode.offsetWidth;
         playerNode.classList.add('hit');
-        el('dodgeLives').textContent = '💗'.repeat(Math.max(0, dodgeLives)) || '—';
+        el('dodgeLives').textContent = '🐾'.repeat(Math.max(0, dodgeLives)) || '—';
         hazard.node.remove();
         if (dodgeLives <= 0) setTimeout(() => finishDodge(false, false), 0);
         return false;
@@ -1176,18 +1177,18 @@
     state.arcade.played += 1;
     gainXp(xp);
     recordHabit('play');
-    setActivity('playing', 4300, { icon: '💗', title: survived ? 'Celebrando el reto' : 'Recuperando el aliento', description: survived ? `${state.petName} confió en tus reflejos y superó el encuentro.` : 'No llegaron al final, pero practicaron juntos.' });
-    addJournal('💗', survived ? 'Corazón valiente superado' : 'Intentaron el reto de reflejos', `${survived ? 'Sobreviviste' : 'Participaste'} con ${dodgeScore} puntos y ganaste ${coins} monedas.`);
+    setActivity('playing', 4300, { icon: '🐾', title: survived ? 'Celebrando la pista' : 'Recuperando el aliento', description: survived ? `${state.petName} confió en tus reflejos y completó el recorrido.` : 'No llegaron al final, pero practicaron juntos.' });
+    addJournal('🐾', survived ? 'Completó la Pista de reflejos' : 'Practicó en la Pista de reflejos', `${survived ? 'Completaste' : 'Intentaste'} el recorrido con ${dodgeScore} puntos y ganaste ${coins} monedas.`);
     el('dodgeMessage').hidden = false;
     el('dodgeMessage').textContent = survived ? `¡Superado! ${dodgeScore} puntos · +${coins} monedas` : `Buen intento · ${dodgeScore} puntos · +${coins} monedas`;
     el('dodgePlayer').style.display = 'none';
     el('startDodgeBtn').disabled = false;
     el('startDodgeBtn').textContent = `Jugar otra vez · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = false);
-    el('dodgeDialogue').textContent = survived ? '* El rival se aparta. El camino vuelve a estar libre.' : '* El rival respeta que Milo no se rindió.';
+    el('dodgeDialogue').textContent = survived ? 'La pista quedó libre. Milo mueve la cola, orgulloso.' : 'Milo descansó un momento y ya quiere intentarlo otra vez.';
     speak(survived ? '¡Lo logramos juntos!' : '¡Casi! La próxima lo lograremos.');
     haptic(survived ? [18, 35, 55] : 25);
-    if (survived) createSparkles('💗');
+    if (survived) createSparkles('🐾');
     touch();
     saveState();
     render();
@@ -1202,14 +1203,14 @@
 
   function openMemoryEncounter(context = {}) {
     memoryContext = { source: 'arcade', bonus: 0, ...context };
-    el('memoryTitle').textContent = memoryContext.title || 'Código de amistad';
-    el('memoryDescription').textContent = memoryContext.description || 'Observa los comandos y respóndelos en el mismo orden.';
-    el('memoryLives').textContent = '💗💗💗';
+    el('memoryTitle').textContent = memoryContext.title || 'Secuencia de señales';
+    el('memoryDescription').textContent = memoryContext.description || 'Observa las señales y repítelas en el mismo orden.';
+    el('memoryLives').textContent = '🐾🐾🐾';
     el('memoryRound').textContent = '1 / 4';
     el('memoryScore').textContent = '0';
-    el('memoryMessage').textContent = memoryContext.source === 'training' ? '* El eco apareció durante el entrenamiento. Completa sus cuatro turnos.' : '* El eco espera que recuerdes sus comandos.';
+    el('memoryMessage').textContent = memoryContext.source === 'training' ? 'Usa la secuencia para reforzar lo aprendido durante cuatro rondas.' : 'Mira con atención la primera secuencia.';
     el('startMemoryBtn').disabled = false;
-    el('startMemoryBtn').textContent = `Iniciar encuentro · ${energyLabel(memoryEnergyCost())}`;
+    el('startMemoryBtn').textContent = `Empezar secuencia · ${energyLabel(memoryEnergyCost())}`;
     setMemoryPadsDisabled(true);
     openModal('memoryModal');
   }
@@ -1225,7 +1226,7 @@
     memoryRound = 1;
     memoryLives = 3;
     memoryScore = 0;
-    el('memoryLives').textContent = '💗💗💗';
+    el('memoryLives').textContent = '🐾🐾🐾';
     el('memoryRound').textContent = '1 / 4';
     el('memoryScore').textContent = '0';
     el('startMemoryBtn').disabled = true;
@@ -1262,7 +1263,7 @@
     memoryAccepting = false;
     memoryPlayerIndex = 0;
     setMemoryPadsDisabled(true);
-    el('memoryMessage').textContent = '* Turno del eco: observa sus comandos…';
+    el('memoryMessage').textContent = 'Mira las señales mientras se iluminan…';
     const pads = memoryPads();
     memorySequence.forEach((padIndex, index) => {
       memoryLater(() => pads[padIndex]?.classList.add('active'), 350 + index * 620);
@@ -1272,7 +1273,7 @@
       if (!memoryActive) return;
       setMemoryPadsDisabled(false);
       memoryAccepting = true;
-      el('memoryMessage').textContent = '* Tu turno: responde con los mismos comandos.';
+      el('memoryMessage').textContent = 'Ahora tú: toca las señales en el mismo orden.';
     }, 500 + memorySequence.length * 620);
   }
 
@@ -1290,13 +1291,13 @@
         memoryAccepting = false;
         setMemoryPadsDisabled(true);
         if (memoryRound >= 4) {
-          el('memoryMessage').textContent = '* ¡El código está completo! El eco sonríe.';
+          el('memoryMessage').textContent = '¡Secuencia completa! Milo recordó todas las señales.';
           memoryLater(() => finishMemory(false, true), 650);
         } else {
           memoryRound += 1;
           memorySequence.push(randomMemoryPad());
           el('memoryRound').textContent = `${memoryRound} / 4`;
-          el('memoryMessage').textContent = '* ¡Respuesta correcta! El eco agrega un comando.';
+          el('memoryMessage').textContent = '¡Muy bien! La siguiente ronda agrega una señal.';
           memoryLater(playMemorySequence, 850);
         }
       }
@@ -1307,17 +1308,17 @@
     haptic([40, 25, 40]);
     memoryAccepting = false;
     setMemoryPadsDisabled(true);
-    el('memoryLives').textContent = '💗'.repeat(Math.max(0, memoryLives)) || '—';
+    el('memoryLives').textContent = '🐾'.repeat(Math.max(0, memoryLives)) || '—';
     const board = el('memoryBoard');
     board.classList.remove('shake');
     void board.offsetWidth;
     board.classList.add('shake');
     if (memoryLives <= 0) {
-      el('memoryMessage').textContent = '* El corazón perdió sus intentos por este encuentro.';
+      el('memoryMessage').textContent = 'Se terminaron los intentos de esta partida.';
       memoryLater(() => finishMemory(false, false), 650);
     } else {
       memoryPlayerIndex = 0;
-      el('memoryMessage').textContent = '* Ese comando no era. El eco repetirá su turno.';
+      el('memoryMessage').textContent = 'Esa no era la señal. La secuencia se repetirá.';
       memoryLater(playMemorySequence, 900);
     }
   }
@@ -1345,8 +1346,8 @@
     gainXp(8 + Math.floor(memoryScore / 9));
     recordHabit('play');
     setActivity('training', 3800, { icon: '🐾', title: won ? 'Orgulloso de su memoria' : 'Practicando otra vez', description: won ? `${state.petName} siguió todas tus señales.` : 'La secuencia fue difícil, pero no se rindió.' });
-    addJournal('🐾', won ? 'Completó el Código de amistad' : 'Practicó el Código de amistad', `Llegaron a la ronda ${memoryRound} con ${memoryScore} puntos y ganaron ${coins} monedas.`);
-    el('memoryMessage').textContent = won ? `* ENCUENTRO COMPLETO · ${memoryScore} puntos · +${coins} monedas` : `* FIN DEL ENCUENTRO · ${memoryScore} puntos · +${coins} monedas`;
+    addJournal('🎨', won ? 'Completó la Secuencia de señales' : 'Practicó la Secuencia de señales', `Llegaron a la ronda ${memoryRound} con ${memoryScore} puntos y ganaron ${coins} monedas.`);
+    el('memoryMessage').textContent = won ? `Secuencia completa · ${memoryScore} puntos · +${coins} monedas` : `Partida terminada · ${memoryScore} puntos · +${coins} monedas`;
     el('startMemoryBtn').disabled = false;
     el('startMemoryBtn').textContent = `Jugar otra vez · ${energyLabel(memoryEnergyCost())}`;
     speak(won ? '¡Recordé todas las señales!' : 'Voy a practicar para la próxima.');
@@ -1425,7 +1426,7 @@
 
   function renderScene() {
     el('petName').textContent = state.petName || 'Milo';
-    document.querySelectorAll('.battle-pet-name').forEach(label => label.textContent = (state.petName || 'Milo').toLocaleUpperCase('es-MX'));
+    document.querySelectorAll('.game-pet-name').forEach(label => label.textContent = state.petName || 'Milo');
     el('levelPill').textContent = `Nivel ${state.level}`;
     const personality = PERSONALITIES[state.personality];
     el('personalityChip').textContent = personality.name;
@@ -1454,6 +1455,7 @@
 
     el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : 'Dormir';
     el('sleepBtn').dataset.label = state.isAsleep ? 'Despertar' : 'Dormir';
+    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : 'Dormir');
     el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : nightAwake ? 'Está despierto con sueño' : 'Descanso de verdad';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
@@ -1535,9 +1537,9 @@
   function renderArcade() {
     const dodgeUnlocked = state.level >= 2;
     const memoryUnlocked = state.level >= 3;
-    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · precisión` : 'Detén la barra en el centro durante cinco turnos';
-    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : 'Elige una táctica y esquiva tres oleadas';
-    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : 'Observa los comandos y repítelos por turnos';
+    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · precisión` : 'Acerca la marca a la zona verde durante cinco rondas';
+    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : 'Guía la huella entre hojas, gotitas y conos';
+    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : 'Observa las señales y repítelas en el mismo orden';
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
     el('dodgeGameStatus').textContent = dodgeUnlocked ? energyLabel(ENERGY_COSTS.arcadeDodge) : 'Nivel 2';
     el('memoryGameStatus').textContent = memoryUnlocked ? energyLabel(ENERGY_COSTS.arcadeMemory) : 'Nivel 3';
