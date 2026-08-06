@@ -1478,6 +1478,7 @@
   function renderHome() {
     el('coinValue').textContent = String(state.coins);
     el('shopCoinValue').textContent = String(state.coins);
+    el('shopBalance').setAttribute('aria-label', `Tu saldo: ${state.coins} monedas`);
     el('foodBowlValue').textContent = state.bowls.food ? `${state.bowls.food} ${state.bowls.food === 1 ? 'porción' : 'porciones'}` : 'Vacío';
     el('waterBowlValue').textContent = state.bowls.water ? `${state.bowls.water} ${state.bowls.water === 1 ? 'porción' : 'porciones'}` : 'Vacío';
     el('sceneFoodBowl').textContent = state.bowls.food ? '🍖' : '';

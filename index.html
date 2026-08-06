@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.7.0" />
+  <link rel="stylesheet" href="styles.css?v=3.8.0" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -108,12 +108,12 @@
         </div>
 
         <nav class="action-grid" aria-label="Actividades con tu compañero">
-          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true">🍽️</span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
-          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear" aria-label="Pasear"><span class="action-icon green" aria-hidden="true">🦮</span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
-          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar" aria-label="Entrenar"><span class="action-icon purple" aria-hidden="true">🎓</span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
-          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar" aria-label="Jugar"><span class="action-icon blue" aria-hidden="true">🕹️</span><strong>Jugar</strong><small>Juegos del parque</small></button>
-          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir" aria-label="Dormir"><span class="action-icon navy" aria-hidden="true">🌙</span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
-          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda" aria-label="Tienda"><span class="action-icon gold" aria-hidden="true">🛍️</span><strong>Tienda</strong><small>Comida y objetos</small></button>
+          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true"><span class="action-glyph">🍽️</span></span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
+          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear" aria-label="Pasear"><span class="action-icon green" aria-hidden="true"><span class="action-glyph">🦮</span></span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
+          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar" aria-label="Entrenar"><span class="action-icon purple" aria-hidden="true"><span class="action-glyph">🎓</span></span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
+          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar" aria-label="Jugar"><span class="action-icon blue" aria-hidden="true"><span class="action-glyph">🕹️</span></span><strong>Jugar</strong><small>Juegos del parque</small></button>
+          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir" aria-label="Dormir"><span class="action-icon navy" aria-hidden="true"><span class="action-glyph">🌙</span></span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
+          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda" aria-label="Tienda"><span class="action-icon gold" aria-hidden="true"><span class="action-glyph">🛍️</span></span><strong>Tienda</strong><small>Comida y objetos</small></button>
         </nav>
 
         <div class="now-card">
@@ -338,7 +338,11 @@
   <div class="modal-backdrop" id="shopModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
       <div class="modal-heading"><div><p class="eyebrow">Usa tus monedas</p><h2 id="shopTitle">Tienda del barrio</h2></div><button class="close-button" type="button" data-close="shopModal" aria-label="Cerrar">×</button></div>
-      <p>Tienes <strong><span id="shopCoinValue">25</span> monedas</strong>. Los paseos, juegos y cuidados constantes dan más.</p>
+      <div class="shop-balance" id="shopBalance" role="status" aria-live="polite" aria-label="Tu saldo: 25 monedas">
+        <span class="shop-balance-icon" aria-hidden="true">🪙</span>
+        <span class="shop-balance-copy"><small>Tu saldo</small><strong><span id="shopCoinValue">25</span> monedas</strong></span>
+      </div>
+      <p class="shop-helper">Los paseos, juegos y cuidados constantes te dan más monedas.</p>
       <div class="shop-grid">
         <button type="button" data-buy="food"><span>🥫</span><strong>Comida ×2</strong><small>Para llenar el cuenco</small><b>10 🪙</b></button>
         <button type="button" data-buy="treat"><span>🦴</span><strong>Premio ×2</strong><small>Ayuda al entrenamiento</small><b>12 🪙</b></button>
@@ -360,6 +364,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.7.0" defer></script>
+  <script src="app.js?v=3.8.0" defer></script>
 </body>
 </html>
