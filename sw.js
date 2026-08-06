@@ -1,9 +1,9 @@
-const CACHE = 'living-pet-v15';
+const CACHE = 'living-pet-v16';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=3.6.1',
-  './app.js?v=3.6.1',
+  './styles.css?v=3.7.0',
+  './app.js?v=3.7.0',
   './manifest.webmanifest',
   './personalizar.html',
   './assets/icon.svg'

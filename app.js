@@ -1657,17 +1657,25 @@
     if ('vibrate' in navigator) navigator.vibrate(pattern);
   }
 
-  function createSparkles(symbol) {
+  function createSparkles(symbol, count = 8) {
     const container = el('sparkles');
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < count; i++) {
       const sparkle = document.createElement('span');
+      const duration = 1.2 + Math.random() * .5;
+      const delay = Math.random() * .24;
       sparkle.className = 'sparkle';
       sparkle.textContent = symbol;
-      sparkle.style.left = `${14 + Math.random() * 72}%`;
-      sparkle.style.top = `${34 + Math.random() * 45}%`;
-      sparkle.style.animationDelay = `${Math.random() * .22}s`;
+      sparkle.style.left = `${18 + Math.random() * 64}%`;
+      sparkle.style.top = `${38 + Math.random() * 38}%`;
+      sparkle.style.fontSize = `${.78 + Math.random() * .42}rem`;
+      sparkle.style.animationDelay = `${delay}s`;
+      sparkle.style.animationDuration = `${duration}s`;
+      sparkle.style.setProperty('--sparkle-x', `${Math.round(-44 + Math.random() * 88)}px`);
+      sparkle.style.setProperty('--sparkle-y', `${Math.round(-78 - Math.random() * 42)}px`);
+      sparkle.style.setProperty('--sparkle-rotate', `${Math.round(-38 + Math.random() * 76)}deg`);
+      sparkle.style.setProperty('--sparkle-scale', `${(.9 + Math.random() * .55).toFixed(2)}`);
       container.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 1500);
+      setTimeout(() => sparkle.remove(), (duration + delay) * 1000 + 120);
     }
   }
 
@@ -1690,24 +1698,27 @@
   function triggerPetReaction() {
     clearTimeout(petReactionTimer);
     const current = now();
+    let reactionDuration = 1550;
 
     if (state.isAsleep) {
       petReaction = 'reaction-sleepy-pat';
+      reactionDuration = 1450;
       speak(pick(['Gracias por la caricia… todavía tengo sueño.', 'Zzz… gracias por acariciarme.', 'Gracias… qué calientita está tu mano.']));
-      createSparkles('💤');
+      createSparkles('💤', 6);
       haptic(8);
     } else {
       const needMessage = pettingNeedMessage(state);
       const reaction = needMessage
-        ? { css: 'reaction-cuddle', message: needMessage, symbol: '💗', haptic: [12, 30, 12] }
+        ? { css: 'reaction-comfort', message: needMessage, symbol: '💗', haptic: [10, 38, 10], duration: 1850, sparkles: 7 }
         : pick([
-          { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12] },
-          { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14 },
-          { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10] }
+          { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12], duration: 1700, sparkles: 10 },
+          { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14, duration: 1150, sparkles: 7 },
+          { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10], duration: 1900, sparkles: 12 }
         ]);
       petReaction = reaction.css;
+      reactionDuration = reaction.duration;
       speak(reaction.message);
-      createSparkles(reaction.symbol);
+      createSparkles(reaction.symbol, reaction.sparkles);
       haptic(reaction.haptic);
 
       if (state.initialized && current - lastAffectionRewardAt > 30_000) {
@@ -1722,7 +1733,7 @@
     petReactionTimer = setTimeout(() => {
       petReaction = '';
       renderScene();
-    }, state.isAsleep ? 1250 : 1550);
+    }, reactionDuration);
   }
 
   function openModal(id) {
