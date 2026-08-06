@@ -1404,18 +1404,33 @@
       valueEl.textContent = `${value}%`;
       bar.style.width = `${value}%`;
       bar.style.background = key === 'bond' ? '#e56f9f' : statColor(value);
-      valueEl.closest('.need')?.classList.toggle('urgent', value < 25);
+      valueEl.closest('.need')?.classList.toggle('urgent', key !== 'bond' && value < 25);
+
+      const sceneNeed = document.querySelector(`[data-scene-stat="${key}"]`);
+      if (sceneNeed) {
+        sceneNeed.querySelector('.scene-need-value').textContent = `${value}%`;
+        const sceneBar = sceneNeed.querySelector('.scene-need-meter i');
+        sceneBar.style.width = `${value}%`;
+        sceneBar.style.background = key === 'bond' ? '#e56f9f' : statColor(value);
+        sceneNeed.classList.toggle('warning', key !== 'bond' && value < 48 && value >= 25);
+        sceneNeed.classList.toggle('critical', key !== 'bond' && value < 25);
+        sceneNeed.setAttribute('aria-label', `${sceneNeed.dataset.label}: ${value}%`);
+      }
     });
     const minimum = Math.min(state.stats.food, state.stats.water, state.stats.energy, state.stats.hygiene, state.stats.health);
-    const badge = el('overallBadge');
-    badge.className = 'overall-badge';
+    let badgeText = 'Todo bien';
+    let badgeState = '';
     if (minimum < 25) {
-      badge.textContent = 'Necesita ayuda';
-      badge.classList.add('critical');
+      badgeText = 'Necesita ayuda';
+      badgeState = 'critical';
     } else if (minimum < 48) {
-      badge.textContent = 'Ponle atención';
-      badge.classList.add('warning');
-    } else badge.textContent = 'Todo bien';
+      badgeText = 'Ponle atención';
+      badgeState = 'warning';
+    }
+    [el('overallBadge'), el('sceneOverallBadge')].forEach(badge => {
+      badge.className = `overall-badge${badgeState ? ` ${badgeState}` : ''}`;
+      badge.textContent = badgeText;
+    });
 
     const previous = state.level > 1 ? LEVELS[state.level - 2] || 0 : 0;
     const target = LEVELS[state.level - 1] || LEVELS.at(-1) + 600;

@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.5.1" />
+  <link rel="stylesheet" href="styles.css?v=3.6.1" />
   <title>Nuestro pequeño compañero</title>
 </head>
 <body>
@@ -46,7 +46,10 @@
             </div>
             <p id="petStage">Cachorro recién adoptado</p>
           </div>
-          <span class="level-pill" id="levelPill">Nivel 1</span>
+          <div class="scene-head-status">
+            <span class="level-pill" id="levelPill">Nivel 1</span>
+            <span class="overall-badge" id="sceneOverallBadge">Todo bien</span>
+          </div>
         </div>
 
         <div class="speech" id="speech" role="status">Estoy conociendo mi nuevo hogar…</div>
@@ -75,6 +78,33 @@
             </div>
           </div>
           <span class="pet-touch-hint" id="petTouchHint" aria-hidden="true">Tócalo para acariciarlo</span>
+        </div>
+
+        <div class="scene-needs-dock" aria-label="Necesidades actuales del perrito">
+          <div class="scene-need" data-scene-stat="food" data-label="Comida" aria-label="Comida: 82%">
+            <div><span aria-hidden="true">🍲</span><strong class="scene-need-value">82%</strong></div>
+            <span class="scene-need-name">Comida</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <div class="scene-need" data-scene-stat="water" data-label="Agua" aria-label="Agua: 86%">
+            <div><span aria-hidden="true">💧</span><strong class="scene-need-value">86%</strong></div>
+            <span class="scene-need-name">Agua</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <div class="scene-need" data-scene-stat="energy" data-label="Energía" aria-label="Energía: 78%">
+            <div><span aria-hidden="true">🌙</span><strong class="scene-need-value">78%</strong></div>
+            <span class="scene-need-name">Energía</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <div class="scene-need" data-scene-stat="hygiene" data-label="Higiene" aria-label="Higiene: 90%">
+            <div><span aria-hidden="true">🫧</span><strong class="scene-need-value">90%</strong></div>
+            <span class="scene-need-name">Higiene</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <div class="scene-need" data-scene-stat="health" data-label="Salud" aria-label="Salud: 100%">
+            <div><span aria-hidden="true">❤️</span><strong class="scene-need-value">100%</strong></div>
+            <span class="scene-need-name">Salud</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
+          <div class="scene-need bond" data-scene-stat="bond" data-label="Vínculo" aria-label="Vínculo: 18%">
+            <div><span aria-hidden="true">💗</span><strong class="scene-need-value">18%</strong></div>
+            <span class="scene-need-name">Vínculo</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+          </div>
         </div>
 
         <nav class="action-grid" aria-label="Actividades con tu compañero">
@@ -330,6 +360,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.5.1" defer></script>
+  <script src="app.js?v=3.6.1" defer></script>
 </body>
 </html>
