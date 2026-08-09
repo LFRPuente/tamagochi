@@ -16,6 +16,9 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Animaciones de sentarse, estirarse, rascarse, vigilar, caminar, jugar, comer y dormir.
 - Caricias táctiles con reacciones, expresiones y vibración en celular.
+- Pantalla principal móvil con recomendaciones contextuales y acciones siempre etiquetadas.
+- Rincones compactos de Casa, Crecer y Momentos, sin repetir las necesidades.
+- Un momento narrativo diario donde el perrito pregunta, eliges cómo acompañarlo y recuerda la respuesta.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
 - Tres minijuegos luminosos de coordinación, agilidad y memoria.

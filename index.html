@@ -7,15 +7,18 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.10.0" />
-  <title>Nuestro pequeño compañero</title>
+  <link rel="stylesheet" href="styles.css?v=3.11.0" />
+  <title>La casita de Milo</title>
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Un compañero con vida propia</p>
-        <h1>Nuestro pequeño compañero</h1>
+      <div class="pet-hud">
+        <span class="brand-paw" aria-hidden="true">🐾</span>
+        <div>
+          <h1 id="petName">Milo</h1>
+          <p id="petStage">Cachorro recién adoptado</p>
+        </div>
       </div>
       <button class="icon-button" id="settingsBtn" type="button" aria-label="Abrir configuración">⚙️</button>
     </header>
@@ -23,11 +26,11 @@
     <div class="world-meta" aria-label="Estado del mundo">
       <span class="meta-pill" id="clockPill">☀️ 10:30</span>
       <span class="meta-pill" id="weatherPill">🌤️ Templado</span>
-      <span class="meta-pill coins">🪙 <strong id="coinValue">25</strong></span>
+      <button class="meta-pill coins coin-button" id="coinPill" type="button" data-modal="shopModal" aria-label="Abrir tienda: 25 monedas">🪙 <strong id="coinValue">25</strong></button>
     </div>
 
     <main>
-      <section class="scene-card" id="sceneCard" aria-labelledby="petName">
+      <section class="scene-card" id="sceneCard" aria-label="Habitación de Milo">
         <div class="room room-day" id="room" aria-hidden="true">
           <div class="window"><span class="sky-orb"></span><i></i><i></i><i></i></div>
           <div class="wall-art">♡</div>
@@ -39,12 +42,8 @@
         </div>
 
         <div class="scene-head">
-          <div>
-            <div class="pet-title-line">
-              <h2 id="petName">Milo</h2>
-              <span class="personality-chip" id="personalityChip">Curioso</span>
-            </div>
-            <p id="petStage">Cachorro recién adoptado</p>
+          <div class="pet-title-line">
+            <span class="personality-chip" id="personalityChip">Curioso</span>
           </div>
           <div class="scene-head-status">
             <span class="level-pill" id="levelPill">Nivel 1</span>
@@ -55,7 +54,6 @@
         <div class="speech" id="speech" role="status">Estoy conociendo mi nuevo hogar…</div>
 
         <div class="pet-zone">
-          <div class="activity-float" id="activityFloat">Explorando la casa</div>
           <div class="pet-wrap" id="petWrap" role="button" tabindex="0" aria-label="Acariciar al perrito virtual">
             <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
             <div class="sparkles" id="sparkles" aria-hidden="true"></div>
@@ -93,30 +91,21 @@
             <div><span aria-hidden="true">🌙</span><strong class="scene-need-value">78%</strong></div>
             <span class="scene-need-name">Energía</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
           </div>
-          <div class="scene-need" data-scene-stat="hygiene" data-label="Higiene" aria-label="Higiene: 90%">
+          <div class="scene-need" data-scene-stat="hygiene" data-label="Limpieza" aria-label="Limpieza: 90%">
             <div><span aria-hidden="true">🫧</span><strong class="scene-need-value">90%</strong></div>
-            <span class="scene-need-name">Higiene</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+            <span class="scene-need-name">Limpieza</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
           </div>
           <div class="scene-need" data-scene-stat="health" data-label="Salud" aria-label="Salud: 100%">
             <div><span aria-hidden="true">❤️</span><strong class="scene-need-value">100%</strong></div>
             <span class="scene-need-name">Salud</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
           </div>
-          <div class="scene-need bond" data-scene-stat="bond" data-label="Vínculo" aria-label="Vínculo: 18%">
+          <div class="scene-need bond" data-scene-stat="bond" data-label="Cariño" aria-label="Cariño: 18%">
             <div><span aria-hidden="true">💗</span><strong class="scene-need-value">18%</strong></div>
-            <span class="scene-need-name">Vínculo</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
+            <span class="scene-need-name">Cariño</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
           </div>
         </div>
 
-        <nav class="action-grid" aria-label="Actividades con tu compañero">
-          <button class="action-card" type="button" data-modal="careModal" data-label="Cuidar" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true"><span class="action-glyph">🍽️</span></span><strong>Cuidar</strong><small>Comida, agua y aseo</small></button>
-          <button class="action-card" type="button" data-modal="walkModal" data-label="Pasear" aria-label="Pasear"><span class="action-icon green" aria-hidden="true"><span class="action-glyph">🦮</span></span><strong>Pasear</strong><small>Explora y encuentra cosas</small></button>
-          <button class="action-card" type="button" data-modal="trainingModal" data-label="Entrenar" aria-label="Entrenar"><span class="action-icon purple" aria-hidden="true"><span class="action-glyph">🎓</span></span><strong>Entrenar</strong><small>Enséñale trucos</small></button>
-          <button class="action-card" type="button" data-modal="arcadeModal" data-label="Jugar" aria-label="Jugar"><span class="action-icon blue" aria-hidden="true"><span class="action-glyph">🕹️</span></span><strong>Jugar</strong><small>Juegos del parque</small></button>
-          <button class="action-card" id="sleepBtn" type="button" data-label="Dormir" aria-label="Dormir"><span class="action-icon navy" aria-hidden="true"><span class="action-glyph">🌙</span></span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Descanso de verdad</small></button>
-          <button class="action-card" type="button" data-modal="shopModal" data-label="Tienda" aria-label="Tienda"><span class="action-icon gold" aria-hidden="true"><span class="action-glyph">🛍️</span></span><strong>Tienda</strong><small>Comida y objetos</small></button>
-        </nav>
-
-        <div class="now-card">
+        <div class="now-card" id="nowCard">
           <div class="now-icon" id="nowIcon">🐾</div>
           <div>
             <span>Ahora mismo</span>
@@ -127,74 +116,100 @@
         </div>
       </section>
 
-      <section class="needs-panel" aria-labelledby="needsTitle">
-        <div class="section-heading compact-heading">
-          <div>
-            <p class="eyebrow">Necesidades reales</p>
-            <h2 id="needsTitle">¿Cómo se siente?</h2>
+      <section class="play-deck" aria-label="Qué hacer con Milo">
+        <nav class="action-grid" aria-label="Acciones principales">
+          <button class="action-card" type="button" data-modal="careModal" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true"><span class="action-glyph">🍽️</span></span><strong>Cuidar</strong><small>Comida, agua y mimos</small></button>
+          <button class="action-card" type="button" data-modal="walkModal" aria-label="Pasear"><span class="action-icon green" aria-hidden="true"><span class="action-glyph">🦮</span></span><strong>Pasear</strong><small>Salgan a explorar</small></button>
+          <button class="action-card" type="button" data-modal="arcadeModal" aria-label="Jugar"><span class="action-icon blue" aria-hidden="true"><span class="action-glyph">🕹️</span></span><strong>Jugar</strong><small>Retos y monedas</small></button>
+          <button class="action-card" id="sleepBtn" type="button" aria-label="Dormir"><span class="action-icon navy" aria-hidden="true"><span class="action-glyph" id="sleepActionIcon">🌙</span></span><strong id="sleepActionTitle">Dormir</strong><small id="sleepActionCopy">Recupera fuerzas</small></button>
+        </nav>
+
+        <div class="companion-nudge" id="companionNudge">
+          <span class="nudge-icon" id="nudgeIcon" aria-hidden="true">💗</span>
+          <div class="nudge-copy">
+            <span id="nudgeKicker">Milo quiere estar contigo</span>
+            <strong id="nudgeTitle">¿Qué hacemos ahora?</strong>
+            <p id="nudgeText">Puedes cuidarlo, salir o jugar un rato.</p>
           </div>
-          <span class="overall-badge" id="overallBadge">Todo bien</span>
-        </div>
-
-        <div class="needs-grid">
-          <div class="need" data-stat="food"><div class="need-line"><span>🍲 Saciedad</span><strong id="foodValue">82%</strong></div><div class="meter"><i id="foodBar"></i></div></div>
-          <div class="need" data-stat="water"><div class="need-line"><span>💧 Hidratación</span><strong id="waterValue">86%</strong></div><div class="meter"><i id="waterBar"></i></div></div>
-          <div class="need" data-stat="energy"><div class="need-line"><span>🌙 Energía</span><strong id="energyValue">78%</strong></div><div class="meter"><i id="energyBar"></i></div></div>
-          <div class="need" data-stat="hygiene"><div class="need-line"><span>🫧 Higiene</span><strong id="hygieneValue">90%</strong></div><div class="meter"><i id="hygieneBar"></i></div></div>
-          <div class="need" data-stat="health"><div class="need-line"><span>❤️ Salud</span><strong id="healthValue">100%</strong></div><div class="meter"><i id="healthBar"></i></div></div>
-          <div class="need" data-stat="bond"><div class="need-line"><span>💗 Vínculo</span><strong id="bondValue">18%</strong></div><div class="meter"><i id="bondBar"></i></div></div>
-        </div>
-
-        <div class="xp-row">
-          <div><span>Experiencia de cuidado</span><strong id="xpLabel">0 / 100</strong></div>
-          <div class="xp-track"><i id="xpBar"></i></div>
+          <button class="nudge-action" id="nudgeAction" type="button">Jugar</button>
         </div>
       </section>
 
-      <section class="dashboard-grid">
-        <article class="panel home-panel">
-          <div class="section-heading">
-            <div><p class="eyebrow">Su hogar</p><h2>Cuencos e inventario</h2></div>
-            <span class="status-dot" id="homeStatusDot"></span>
-          </div>
-          <div class="bowl-status-grid">
-            <div><span>🍲 Comida servida</span><strong id="foodBowlValue">Vacío</strong></div>
-            <div><span>💧 Agua disponible</span><strong id="waterBowlValue">2 porciones</strong></div>
-          </div>
-          <div class="inventory" id="inventoryList" aria-label="Inventario"></div>
-          <p class="helper-copy">Milo come y bebe por su cuenta cuando lo necesita, siempre que dejes algo en sus cuencos.</p>
-        </article>
+      <nav class="world-nav" aria-label="Cambiar de rincón">
+        <button class="world-tab active" type="button" data-world-view="home" aria-controls="homeView" aria-pressed="true"><span aria-hidden="true">🏠</span><strong>Casa</strong></button>
+        <button class="world-tab" type="button" data-world-view="growth" aria-controls="growthView" aria-pressed="false"><span aria-hidden="true">⭐</span><strong>Crecer</strong></button>
+        <button class="world-tab" type="button" data-world-view="moments" aria-controls="momentsView" aria-pressed="false"><span aria-hidden="true">📖</span><strong>Momentos</strong></button>
+      </nav>
 
-        <article class="panel personality-panel">
-          <div class="section-heading"><div><p class="eyebrow">Su forma de ser</p><h2 id="personalityTitle">Curioso</h2></div><span class="big-emoji" id="personalityEmoji">🔎</span></div>
-          <p id="personalityDescription">Le gusta explorar y aprende un poco más rápido durante los paseos.</p>
-          <div class="trait-bars">
-            <div><span>Confianza</span><div class="mini-meter"><i id="trustBar"></i></div><strong id="trustValue">10</strong></div>
-            <div><span>Disciplina</span><div class="mini-meter"><i id="disciplineBar"></i></div><strong id="disciplineValue">5</strong></div>
-          </div>
-          <div class="favorite-line"><span>Actividad favorita</span><strong id="favoriteAction">Todavía no decide</strong></div>
-        </article>
+      <div class="world-views">
+        <section class="world-view" id="homeView" data-world-panel="home" aria-labelledby="homeViewTitle">
+          <article class="panel home-panel">
+            <div class="section-heading">
+              <div><h2 id="homeViewTitle">Mochila y cuencos</h2><p class="section-intro">Lo que tienen listo en casa.</p></div>
+              <span class="status-dot" id="homeStatusDot" aria-label="Estado de los cuencos"></span>
+            </div>
+            <div class="bowl-status-grid">
+              <div><span>🍲 Comida servida</span><strong id="foodBowlValue">Vacío</strong></div>
+              <div><span>💧 Agua disponible</span><strong id="waterBowlValue">2 porciones</strong></div>
+            </div>
+            <div class="inventory" id="inventoryList" aria-label="Mochila"></div>
+            <p class="helper-copy"><span class="pet-name-inline">Milo</span> come y bebe solo cuando tiene algo en sus cuencos.</p>
+            <div class="panel-actions"><button class="text-button" type="button" data-modal="careModal">Preparar sus cuencos</button><button class="text-button secondary" type="button" data-modal="shopModal">Ir a la tienda</button></div>
+          </article>
+        </section>
 
-        <article class="panel training-panel">
-          <div class="section-heading"><div><p class="eyebrow">Aprendizaje</p><h2>Trucos</h2></div><button class="text-button" type="button" data-modal="trainingModal">Entrenar</button></div>
-          <div class="skill-list" id="skillList"></div>
-        </article>
+        <section class="world-view" id="growthView" data-world-panel="growth" aria-labelledby="growthViewTitle" hidden>
+          <article class="panel level-panel">
+            <div class="section-heading"><div><h2 id="growthViewTitle">Próximo nivel</h2><p class="section-intro">Cada cuidado y aventura los hace crecer.</p></div><span class="big-emoji" aria-hidden="true">⭐</span></div>
+            <div class="xp-row">
+              <div><span>Avance</span><strong id="xpLabel">0 / 100</strong></div>
+              <div class="xp-track"><i id="xpBar"></i></div>
+            </div>
+          </article>
 
-        <article class="panel diary-panel">
-          <div class="section-heading"><div><p class="eyebrow">Lo que recuerda</p><h2>Diario de Milo</h2></div><span class="big-emoji">📖</span></div>
-          <div class="diary-list" id="diaryList" aria-live="polite"></div>
-        </article>
-      </section>
+          <article class="panel personality-panel">
+            <div class="section-heading"><div><h2>Así es <span class="pet-name-inline">Milo</span></h2><span class="personality-summary" id="personalityTitle">Curioso</span></div><span class="big-emoji" id="personalityEmoji">🔎</span></div>
+            <p id="personalityDescription">Le gusta explorar y aprende un poco más rápido durante los paseos.</p>
+            <div class="trait-bars">
+              <div><span>Confianza</span><div class="mini-meter"><i id="trustBar"></i></div><strong id="trustValue">10</strong></div>
+              <div><span>Atención</span><div class="mini-meter"><i id="disciplineBar"></i></div><strong id="disciplineValue">5</strong></div>
+            </div>
+            <div class="favorite-line"><span>Lo que más disfruta</span><strong id="favoriteAction">Todavía no decide</strong></div>
+          </article>
 
-      <section class="panel memories-panel">
-        <div class="section-heading">
-          <div><p class="eyebrow">Su vida contigo</p><h2>Nuestros recuerdos</h2></div>
-          <button class="text-button" id="uploadBtn" type="button">＋ Agregar foto</button>
-        </div>
-        <p class="helper-copy">Las fotos se quedan únicamente en este dispositivo.</p>
-        <div class="memory-grid" id="memoryGrid"></div>
-        <input type="file" id="photoInput" accept="image/*" hidden />
-      </section>
+          <article class="panel training-panel">
+            <div class="section-heading"><div><h2>Trucos aprendidos</h2><p class="section-intro">Practiquen a su ritmo.</p></div><button class="text-button" type="button" data-modal="trainingModal">Practicar</button></div>
+            <div class="skill-list" id="skillList"></div>
+          </article>
+        </section>
+
+        <section class="world-view" id="momentsView" data-world-panel="moments" aria-labelledby="momentsViewTitle" hidden>
+          <article class="panel diary-panel">
+            <div class="section-heading"><div><h2 id="momentsViewTitle">Aventuras de <span class="pet-name-inline">Milo</span></h2><p class="section-intro">Lo que han vivido juntos.</p></div><span class="big-emoji" aria-hidden="true">📖</span></div>
+            <div class="diary-list" id="diaryList" aria-live="polite"></div>
+          </article>
+
+          <section class="panel memories-panel">
+            <div class="section-heading">
+              <div><h2>Fotos juntos</h2><p class="section-intro">Un rinconcito sólo para ustedes.</p></div>
+              <button class="text-button" id="uploadBtn" type="button">＋ Añadir foto</button>
+            </div>
+            <p class="helper-copy">Solo tú puedes ver estas fotos en este dispositivo.</p>
+            <div class="memory-grid" id="memoryGrid"></div>
+            <input type="file" id="photoInput" accept="image/*" hidden />
+          </section>
+        </section>
+      </div>
+
+      <div class="state-bindings" hidden aria-hidden="true">
+        <span class="overall-badge" id="overallBadge">Todo bien</span>
+        <div class="need"><strong id="foodValue">82%</strong><i id="foodBar"></i></div>
+        <div class="need"><strong id="waterValue">86%</strong><i id="waterBar"></i></div>
+        <div class="need"><strong id="energyValue">78%</strong><i id="energyBar"></i></div>
+        <div class="need"><strong id="hygieneValue">90%</strong><i id="hygieneBar"></i></div>
+        <div class="need"><strong id="healthValue">100%</strong><i id="healthBar"></i></div>
+        <div class="need"><strong id="bondValue">18%</strong><i id="bondBar"></i></div>
+      </div>
     </main>
 
     <footer><p id="signature">Creado con amor para ti 💗</p><span>El progreso se guarda en este dispositivo.</span></footer>
@@ -203,19 +218,18 @@
   <div class="modal-backdrop" id="welcomeModal" hidden inert>
     <section class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
       <div class="welcome-paw">🐾</div>
-      <p class="eyebrow">Una adopción para recordar</p>
-      <h2 id="welcomeTitle">Tu compañero ya está esperando</h2>
-      <p>No será solo una mascota de botones. Tendrá horarios, personalidad, recuerdos y necesidades propias.</p>
+      <h2 id="welcomeTitle">Un perrito te está esperando</h2>
+      <p>Cuídalo, juega con él y descubre cómo cambia con tus decisiones.</p>
       <label class="field"><span>Tu nombre</span><input id="partnerInput" maxlength="24" placeholder="Ej. Sofía" autocomplete="name" /></label>
       <label class="field"><span>Nombre del perrito</span><input id="petInput" maxlength="18" placeholder="Ej. Milo" value="Milo" /></label>
-      <button class="primary full-button" id="startBtn" type="button">Adoptarlo 💗</button>
+      <button class="primary full-button" id="startBtn" type="button">¡Adoptarlo! 💗</button>
     </section>
   </div>
 
   <div class="modal-backdrop" id="careModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="careTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Cuidados</p><h2 id="careTitle">¿Qué necesita?</h2></div><button class="close-button" type="button" data-close="careModal" aria-label="Cerrar">×</button></div>
-      <p>Milo reaccionará según lo que sienta; no todas las acciones funcionan igual en todo momento.</p>
+      <div class="modal-heading"><div><h2 id="careTitle">Cuida a <span class="pet-name-inline">Milo</span></h2></div><button class="close-button" type="button" data-close="careModal" aria-label="Cerrar">×</button></div>
+      <p>Elige lo que más necesita ahora. Él te dirá cómo se siente.</p>
       <div class="choice-grid care-choice-grid">
         <button type="button" data-care="serveFood"><span>🍲</span><strong>Servir comida</strong><small id="careFoodCount">3 porciones</small></button>
         <button type="button" data-care="giveTreat"><span>🦴</span><strong>Dar premio</strong><small id="careTreatCount">2 premios</small></button>
@@ -229,28 +243,28 @@
 
   <div class="modal-backdrop" id="walkModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="walkTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Salir de casa</p><h2 id="walkTitle">Elige un paseo</h2></div><button class="close-button" type="button" data-close="walkModal" aria-label="Cerrar">×</button></div>
-      <p>Los paseos consumen energía y agua. El clima y la personalidad pueden cambiar el resultado.</p>
+      <div class="modal-heading"><div><h2 id="walkTitle">¿A dónde vamos?</h2></div><button class="close-button" type="button" data-close="walkModal" aria-label="Cerrar">×</button></div>
+      <p>Revisa su energía y agua antes de salir. El clima puede cambiar la aventura.</p>
       <div class="route-list">
-        <button type="button" data-walk="block"><span class="route-icon">🏘️</span><span><strong>Vuelta a la cuadra</strong><small>5 min · tranquila · +6 monedas</small></span><b>Energía −6</b></button>
-        <button type="button" data-walk="park"><span class="route-icon">🌳</span><span><strong>Visitar el parque</strong><small>12 min · eventos · +12 monedas</small></span><b>Energía −14</b></button>
-        <button type="button" data-walk="adventure"><span class="route-icon">⛰️</span><span><strong>Pequeña aventura</strong><small>20 min · exige nivel 3 · +22 monedas</small></span><b>Energía −24</b></button>
+        <button type="button" data-walk="block"><span class="route-icon">🏘️</span><span><strong>Vuelta a la cuadra</strong><small>Rápido · +6 o más 🪙</small></span><b>Energía −6</b></button>
+        <button type="button" data-walk="park"><span class="route-icon">🌳</span><span><strong>Visitar el parque</strong><small>Exploración · +12 o más 🪙</small></span><b>Energía −14</b></button>
+        <button type="button" data-walk="adventure"><span class="route-icon">⛰️</span><span><strong>Pequeña aventura</strong><small>Nivel 3 · +22 o más 🪙</small></span><b>Energía −24</b></button>
       </div>
     </section>
   </div>
 
   <div class="modal-backdrop" id="trainingModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="trainingTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Paciencia y vínculo</p><h2 id="trainingTitle">Entrenamiento</h2></div><button class="close-button" type="button" data-close="trainingModal" aria-label="Cerrar">×</button></div>
-      <p>Aprende mejor con energía, buen ánimo y premios disponibles.</p>
+      <div class="modal-heading"><div><h2 id="trainingTitle">Practiquen un truco</h2></div><button class="close-button" type="button" data-close="trainingModal" aria-label="Cerrar">×</button></div>
+      <p>Cada práctica usa energía. Si tienes un premio, se usará para ayudarle a aprender.</p>
       <div class="training-choices" id="trainingChoices"></div>
     </section>
   </div>
 
   <div class="modal-backdrop" id="arcadeModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="arcadeTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Juegos del parque</p><h2 id="arcadeTitle">Juega con Milo</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
-      <p>Elige una actividad corta para practicar coordinación, reflejos o memoria junto a tu compañero.</p>
+      <div class="modal-heading"><div><h2 id="arcadeTitle">Elige un juego</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
+      <p>Supera retos, mejora tu récord y gana monedas con <span class="pet-name-inline">Milo</span>.</p>
       <div class="arcade-grid">
         <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Atrapa la pelota</strong><small>Acerca la marca a la zona verde durante cinco rondas</small></span><b id="ballGameStatus">Energía −16</b></button>
         <button type="button" data-arcade="dodge"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Pista de reflejos</strong><small>Guía la huella entre hojas, gotitas y conos</small></span><b id="dodgeGameStatus">Nivel 2</b></button>
@@ -261,10 +275,10 @@
 
   <div class="modal-backdrop" id="gameModal" hidden inert>
     <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Juego de coordinación</p><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
-      <p>Elige una ayuda y toca «¡Atrapa!» cuando la marca pase por la zona verde. Son cinco rondas.</p>
+      <div class="modal-heading"><div><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
+      <p>Toca «¡Atrapa!» cuando la huella pase por el verde. Tienes cinco tiros.</p>
       <div class="play-stage">
-        <div class="play-mascot"><span class="play-icon ball-creature" aria-hidden="true">🎾</span><div><strong>Pelota saltarina</strong><small>Milo sigue cada rebote.</small></div></div>
+        <div class="play-mascot"><span class="play-icon ball-creature" aria-hidden="true">🎾</span><div><strong>Pelota saltarina</strong><small><span class="pet-name-inline">Milo</span> sigue cada rebote.</small></div></div>
         <div class="play-tip" id="gameDialogue">La pelota está lista para el primer lanzamiento.</div>
         <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Ronda <strong id="gameTurn">0 / 5</strong></span><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">25</strong>s</span></div>
         <div class="game-field play-surface" id="gameField">
@@ -285,8 +299,8 @@
 
   <div class="modal-backdrop" id="dodgeModal" hidden inert>
     <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="dodgeTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Juego de agilidad</p><h2 id="dodgeTitle">Pista de reflejos</h2></div><button class="close-button" type="button" data-close="dodgeModal" aria-label="Cerrar">×</button></div>
-      <p id="dodgeDescription">Arrastra la huella o usa los botones táctiles durante tres tramos cortos.</p>
+      <div class="modal-heading"><div><h2 id="dodgeTitle">Pista de reflejos</h2></div><button class="close-button" type="button" data-close="dodgeModal" aria-label="Cerrar">×</button></div>
+      <p id="dodgeDescription">Arrastra la huella y evita los obstáculos durante 15 segundos.</p>
       <div class="play-stage">
         <div class="play-mascot"><span class="play-icon" id="dodgeEnemy" aria-hidden="true">🏁</span><div><strong id="dodgeEnemyName">Pista sorpresa</strong><small id="dodgeEnemyMood">Hojas, gotas y conos se cruzan.</small></div></div>
         <div class="play-tip" id="dodgeDialogue">Milo observa la pista y espera tu señal.</div>
@@ -318,8 +332,8 @@
 
   <div class="modal-backdrop" id="memoryModal" hidden inert>
     <section class="modal challenge-modal play-modal" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Juego de memoria</p><h2 id="memoryTitle">Secuencia de señales</h2></div><button class="close-button" type="button" data-close="memoryModal" aria-label="Cerrar">×</button></div>
-      <p id="memoryDescription">Observa las señales que usa Milo y repítelas en el mismo orden.</p>
+      <div class="modal-heading"><div><h2 id="memoryTitle">Secuencia de señales</h2></div><button class="close-button" type="button" data-close="memoryModal" aria-label="Cerrar">×</button></div>
+      <p id="memoryDescription">Mira las señales y repítelas en el mismo orden.</p>
       <div class="play-stage">
         <div class="play-mascot"><span class="play-icon echo-creature" aria-hidden="true">🎨</span><div><strong>Rueda de señales</strong><small>Se ilumina en un orden nuevo.</small></div></div>
         <div class="memory-message play-tip" id="memoryMessage">Mira la secuencia y trata de recordarla.</div>
@@ -335,14 +349,23 @@
     </section>
   </div>
 
+  <div class="modal-backdrop" id="momentModal" hidden inert>
+    <section class="modal moment-modal" role="dialog" aria-modal="true" aria-labelledby="momentTitle">
+      <div class="modal-heading"><div><span class="moment-tag">🐾 Un momento con <span class="pet-name-inline">Milo</span></span><h2 id="momentTitle">Tengo algo que contarte…</h2></div><button class="close-button" type="button" data-close="momentModal" aria-label="Cerrar">×</button></div>
+      <div class="moment-prompt"><span class="moment-avatar" id="momentIcon" aria-hidden="true">🐶</span><p id="momentPrompt">¿Me ayudas a decidir?</p></div>
+      <div class="moment-choices" id="momentChoices"></div>
+      <p class="moment-helper">Elige cómo quieres acompañarlo. <span class="pet-name-inline">Milo</span> lo recordará.</p>
+    </section>
+  </div>
+
   <div class="modal-backdrop" id="shopModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Usa tus monedas</p><h2 id="shopTitle">Tienda del barrio</h2></div><button class="close-button" type="button" data-close="shopModal" aria-label="Cerrar">×</button></div>
+      <div class="modal-heading"><div><h2 id="shopTitle">Tienda del barrio</h2></div><button class="close-button" type="button" data-close="shopModal" aria-label="Cerrar">×</button></div>
       <div class="shop-balance" id="shopBalance" role="status" aria-live="polite" aria-label="Tu saldo: 25 monedas">
         <span class="shop-balance-icon" aria-hidden="true">🪙</span>
         <span class="shop-balance-copy"><small>Tu saldo</small><strong><span id="shopCoinValue">25</span> monedas</strong></span>
       </div>
-      <p class="shop-helper">Los paseos, juegos y cuidados constantes te dan más monedas.</p>
+      <p class="shop-helper">Gana monedas jugando, paseando y subiendo de nivel.</p>
       <div class="shop-grid">
         <button type="button" data-buy="food"><span>🥫</span><strong>Comida ×2</strong><small>Para llenar el cuenco</small><b>10 🪙</b></button>
         <button type="button" data-buy="treat"><span>🦴</span><strong>Premio ×2</strong><small>Ayuda al entrenamiento</small><b>12 🪙</b></button>
@@ -354,16 +377,16 @@
 
   <div class="modal-backdrop" id="settingsModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-      <div class="modal-heading"><div><p class="eyebrow">Personalización</p><h2 id="settingsTitle">Ajustes del compañero</h2></div><button class="close-button" type="button" data-close="settingsModal" aria-label="Cerrar">×</button></div>
+      <div class="modal-heading"><div><h2 id="settingsTitle">Ajustes</h2></div><button class="close-button" type="button" data-close="settingsModal" aria-label="Cerrar">×</button></div>
       <label class="field"><span>Tu nombre</span><input id="settingsPartner" maxlength="24" /></label>
       <label class="field"><span>Nombre del perrito</span><input id="settingsPet" maxlength="18" /></label>
       <label class="field"><span>Firma</span><input id="settingsSignature" maxlength="60" placeholder="Creado con amor por Luis 💗" /></label>
       <label class="field"><span>Mensaje especial</span><textarea id="settingsNote" maxlength="220"></textarea></label>
-      <div class="settings-actions"><button class="danger" id="resetBtn" type="button">Reiniciar adopción</button><button class="primary" id="saveSettingsBtn" type="button">Guardar cambios</button></div>
+      <div class="settings-actions"><button class="danger" id="resetBtn" type="button">Empezar de cero</button><button class="primary" id="saveSettingsBtn" type="button">Guardar cambios</button></div>
     </section>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.10.0" defer></script>
+  <script src="app.js?v=3.11.0" defer></script>
 </body>
 </html>

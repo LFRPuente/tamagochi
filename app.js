@@ -65,6 +65,38 @@
     trainingMemory: 2
   };
 
+  const STORY_MOMENTS = [
+    {
+      id: 'lost-ball', icon: '🎾', title: 'La pelota escondida',
+      when: pet => pet.habits.play > 0 || pet.habits.walk > 0,
+      prompt: 'Escondí mi pelota y ya no recuerdo dónde… ¿la buscamos?',
+      choices: [
+        { id: 'tracks', icon: '👣', label: 'Seguir tus huellas', detail: 'Confianza y curiosidad', stats: { bond: 3, mood: 2, stress: -1 }, traits: { trust: 2 }, response: '¡Mi nariz sabía que íbamos por buen camino!', result: '+2 confianza · +3 cariño', activity: 'exploring', memory: 'Siguieron sus huellas hasta encontrar la pelota escondida.' },
+        { id: 'together', icon: '🔎', label: 'Buscar juntos', detail: 'Cariño y atención', stats: { bond: 4, mood: 2 }, traits: { discipline: 1 }, response: 'Contigo hasta buscar debajo de la cama es divertido.', result: '+4 cariño · +1 atención', activity: 'exploring', memory: 'Buscaron la pelota en cada rincón y celebraron al encontrarla.' },
+        { id: 'later', icon: '🌿', label: 'Dejarla para luego', detail: 'Calma y paciencia', stats: { bond: 1, stress: -3 }, traits: { trust: 1 }, response: 'Está bien. Me quedo cerquita de ti un rato.', result: '−3 nervios · +1 confianza', activity: 'sitting', memory: 'Decidieron dejar la búsqueda para otro momento y descansar juntos.' }
+      ]
+    },
+    {
+      id: 'practice', icon: '🐾', title: 'Un intento difícil',
+      when: pet => pet.habits.train > 0,
+      prompt: 'Hoy no me salió bien el truco… ¿qué hacemos?',
+      choices: [
+        { id: 'again', icon: '⭐', label: 'Una vez más', detail: 'Atención y confianza', stats: { bond: 2, mood: 1, energy: -2 }, traits: { discipline: 2, trust: 1 }, response: '¡Una más! Esta vez miraré bien tu señal.', result: '+2 atención · +1 confianza', activity: 'training', memory: 'Volvieron a intentarlo con paciencia y estuvo más atento a la señal.' },
+        { id: 'rest', icon: '🧺', label: 'Descansar un rato', detail: 'Calma y confianza', stats: { bond: 2, stress: -4, energy: 2 }, traits: { trust: 2 }, response: 'Gracias. Luego lo intento con más ganas.', result: '−4 nervios · +2 confianza', activity: 'sitting', memory: 'Hicieron una pausa a tiempo y el descanso también contó como aprendizaje.' },
+        { id: 'celebrate', icon: '💗', label: 'Celebrar el intento', detail: 'Ánimo y cariño', stats: { bond: 3, mood: 4, stress: -2 }, traits: { trust: 1 }, response: '¿También cuentan los intentos? ¡Entonces moví muy bien la cola!', result: '+4 ánimo · +3 cariño', activity: 'playing', memory: 'Celebraron el esfuerzo, aunque el truco todavía necesita práctica.' }
+      ]
+    },
+    {
+      id: 'window-noise', icon: '🪟', title: 'Un ruido en la ventana',
+      prompt: 'Escuché algo junto a la ventana… ¿vienes conmigo?',
+      choices: [
+        { id: 'look', icon: '👀', label: 'Mirar juntos', detail: 'Confianza y curiosidad', stats: { bond: 3, stress: -2 }, traits: { trust: 2 }, response: '¡Era sólo una hoja! Me gusta investigar contigo.', result: '+2 confianza · +3 cariño', activity: 'watching', memory: 'Investigaron juntos un ruido misterioso que resultó ser una hoja.' },
+        { id: 'light', icon: '💡', label: 'Encender una luz', detail: 'Calma y atención', stats: { mood: 2, stress: -4, bond: 2 }, traits: { discipline: 1 }, response: 'Así se ve menos misterioso. Gracias por venir.', result: '−4 nervios · +2 cariño', activity: 'watching', memory: 'Encendieron una luz y observaron la ventana hasta sentirse tranquilos.' },
+        { id: 'bed', icon: '🧸', label: 'Volver a la cama', detail: 'Seguridad y descanso', stats: { energy: 3, stress: -3, bond: 1 }, traits: { trust: 1 }, response: 'Buena idea. Desde aquí puedo cuidar la casa contigo.', result: '+3 energía · +1 confianza', activity: 'sitting', memory: 'Volvieron a su rincón favorito y escucharon el viento desde la cama.' }
+      ]
+    }
+  ];
+
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
@@ -81,7 +113,7 @@
     guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como todo un guardián.', css: 'sitting alert' },
     eating: { icon: '🍲', title: 'Comiendo', description: 'Decidió comer lo que dejaste en su cuenco.', css: 'eating' },
     drinking: { icon: '💧', title: 'Bebiendo agua', description: 'Fue a hidratarse por su cuenta.', css: 'drinking' },
-    sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Está recuperando todas sus necesidades. En un máximo de 2 horas estará al 100%.', css: 'sleeping' },
+    sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Mientras duerme recupera fuerzas. Su descanso se completa en hasta dos horas.', css: 'sleeping' },
     walking: { icon: '🦮', title: 'De paseo', description: 'Está explorando y olfateando todo a su alrededor.', css: 'walking' },
     training: { icon: '🎓', title: 'Entrenando', description: 'Está concentrado en aprender algo nuevo.', css: 'training' },
     playing: { icon: '🎾', title: 'Jugando contigo', description: 'Corre detrás de la pelota con toda su energía.', css: 'playing' },
@@ -121,7 +153,8 @@
     manualAwakeUntil: 0,
     journal: [],
     photos: [],
-    day: { key: '', actions: 0, bonusClaimed: false }
+    day: { key: '', actions: 0, bonusClaimed: false },
+    story: { lastDate: '', choices: {} }
   });
 
   let state = loadState();
@@ -170,6 +203,8 @@
   let petReaction = '';
   let petReactionTimer = null;
   let lastAffectionRewardAt = 0;
+  let currentMoment = null;
+  let activeWorldView = 'home';
 
   function localDateKey(date = new Date()) {
     const year = date.getFullYear();
@@ -232,7 +267,8 @@
       arcade: { ...base.arcade, ...(saved.arcade || {}) },
       habits: { ...base.habits, ...(saved.habits || {}) },
       activity: { ...base.activity, ...(saved.activity || {}) },
-      day: { ...base.day, ...(saved.day || {}) }
+      day: { ...base.day, ...(saved.day || {}) },
+      story: { ...base.story, ...(saved.story || {}), choices: { ...base.story.choices, ...(saved.story?.choices || {}) } }
     };
     normalized.photos = Array.isArray(saved.photos) ? saved.photos.slice(0, MAX_PHOTOS) : [];
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
@@ -262,7 +298,7 @@
       return true;
     } catch (error) {
       if (String(error).toLowerCase().includes('quota')) toast('No queda espacio para guardar más fotos en este dispositivo.');
-      else toast('No pude guardar el progreso en este dispositivo.');
+      else toast('No se pudo guardar la partida en este dispositivo.');
       return false;
     }
   }
@@ -401,11 +437,13 @@
   }
 
   function recordHabit(type) {
+    ensureDailyVisit();
     if (type in state.habits) state.habits[type] += 1;
     state.day.actions += 1;
   }
 
   function ensureDailyVisit() {
+    if (!state.initialized) return false;
     const today = localDateKey();
     if (state.day.key !== today) {
       const previous = state.day.key;
@@ -413,7 +451,17 @@
       state.coins += 5;
       if (previous) addJournal('☀️', 'Un nuevo día', `${state.petName} te recibió con 5 monedas para empezar el día.`);
       state.lastVisitDate = today;
+      return true;
     }
+    return false;
+  }
+
+  function syncSimulation() {
+    if (!state.initialized) return;
+    const elapsed = advanceSimulation();
+    runOfflineAutonomy(elapsed);
+    ensureDailyVisit();
+    resolveActivity();
   }
 
   function setActivity(type, duration = 0, custom = {}) {
@@ -481,8 +529,7 @@
 
   function autonomousTick() {
     if (!state.initialized) return;
-    advanceSimulation();
-    resolveActivity();
+    syncSimulation();
 
     if (state.isAsleep) {
       render();
@@ -521,7 +568,7 @@
     setActivity('sleeping');
     recordHabit('sleep');
     addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : resumedProgress ? 'Retomó su descanso' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : resumedProgress ? `Continuará desde el ${resumedProgress}% hasta completar su descanso.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
-    if (!automatic) speak(resumedProgress ? `Seguiré desde el ${resumedProgress}%… zzz.` : 'Dormiré hasta sentirme al cien… zzz.');
+    if (!automatic) speak(resumedProgress ? 'Todavía tengo sueño… seguiré descansando.' : 'Arrópame bien… zzz.');
     touch();
     saveState();
     render();
@@ -556,7 +603,7 @@
     else setActivity('idle', 9000, { title: 'Recién despierto', description: 'Está estirando las patas y mirando a su alrededor.', icon: '🥱' });
     if (byUser) {
       addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.` : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`);
-      speak(savedProgress < 100 ? `Voy en ${savedProgress}%. Luego seguiré desde aquí.` : '¡Qué bien dormí!');
+      speak(savedProgress < 100 ? 'Todavía tengo sueño. Luego sigo descansando.' : '¡Qué bien dormí!');
     } else {
       addJournal('☀️', 'Despertó descansado', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
     }
@@ -577,6 +624,7 @@
   function handleCare(action) {
     if (isBusy()) return toast(`${state.petName} está ocupado. Espera un momento.`);
     let close = true;
+    let feedback = '';
     switch (action) {
       case 'serveFood':
         if (state.inventory.food <= 0) return toast('No queda comida. Puedes comprar más en la tienda.');
@@ -588,9 +636,10 @@
         addJournal('🥫', 'Dejaste comida', `Serviste una porción para que ${state.petName} pueda comer cuando tenga hambre.`);
         if (state.stats.food < 50) consumeBowlFood(true);
         else speak('La guardaré para cuando tenga hambre.');
+        feedback = '🍲 Comida lista · +3 XP';
         break;
       case 'giveTreat':
-        if (state.inventory.treat <= 0) return toast('No quedan premios.');
+        if (state.inventory.treat <= 0) return toast('Se acabaron los premios. Puedes comprar más en la tienda.');
         if (state.stats.food > 95) return speak('Gracias, pero estoy demasiado lleno.'), toast('No quiso comer de más.');
         state.inventory.treat -= 1;
         modifyStats({ food: 9, mood: 8 * (PERSONALITIES[state.personality].food || 1), bond: 2, stress: -2 });
@@ -599,6 +648,7 @@
         gainXp(6);
         speak('¡Un premio! ¡Un premio!');
         createSparkles('💗');
+        feedback = '💗 +2 cariño · +6 XP';
         break;
       case 'fillWater':
         state.bowls.water = 3;
@@ -607,6 +657,7 @@
         addJournal('💧', 'Agua fresca', 'Llenaste el cuenco para que pueda beber cuando lo necesite.');
         if (state.stats.water < 52) consumeBowlWater(true);
         else speak('¡Ya tengo agua fresca!');
+        feedback = '💧 Agua lista · +2 XP';
         break;
       case 'brush':
         modifyStats({ hygiene: 13, mood: state.personality === 'calm' ? 9 : 5, bond: 2, stress: -5 });
@@ -615,6 +666,7 @@
         recordHabit('care');
         gainXp(7);
         speak('Mmm… eso se siente muy bonito.');
+        feedback = '🫧 +13 limpieza · +7 XP';
         break;
       case 'bath':
         if (state.inventory.soap <= 0) return toast('No queda jabón.');
@@ -627,6 +679,7 @@
         addJournal('🛁', 'Baño completo', `${state.petName} quedó limpio y esponjoso.`);
         speak('¡Cuidado con mis orejas!');
         createSparkles('🫧');
+        feedback = '🫧 Limpieza completa · +11 XP';
         break;
       case 'medicine':
         if (state.stats.health >= 90) return toast('Está saludable; no necesita medicina.');
@@ -638,6 +691,7 @@
         gainXp(10);
         addJournal('🩹', 'Recibió medicina', `Lo cuidaste a tiempo y ya empezó a sentirse mejor.`);
         speak('Sabe raro… pero ya me siento mejor.');
+        feedback = '❤️ +30 salud · +10 XP';
         break;
       default:
         close = false;
@@ -645,7 +699,10 @@
     touch();
     saveState();
     render();
-    if (close) closeModal('careModal');
+    if (close) {
+      closeModal('careModal');
+      if (feedback) toast(feedback);
+    }
   }
 
   function handleWalk(routeKey) {
@@ -654,8 +711,8 @@
     if (isBusy()) return toast(`${state.petName} está ocupado.`);
     if (state.level < route.level) return toast(`Esta ruta se desbloquea en el nivel ${route.level}.`);
     if (state.stats.health < 35) return toast('Necesita recuperar salud antes de salir.');
-    if (state.stats.energy < route.energy + 12) return toast('Está demasiado cansado para ese paseo.');
-    if (state.stats.water < route.water + 8) return toast('Primero debería beber un poco de agua.');
+    if (state.stats.energy < route.energy + 12) return toast(`${state.petName} necesita descansar antes de ese paseo.`);
+    if (state.stats.water < route.water + 8) return toast('Dale agua antes de salir.');
 
     const personality = PERSONALITIES[state.personality];
     const rewardMultiplier = personality.walking || 1;
@@ -689,10 +746,12 @@
       bond: route.bond,
       stress: -Math.max(3, route.bond)
     });
-    state.coins += Math.round(route.coins * rewardMultiplier) + (event.coins || 0);
+    const earnedCoins = Math.round(route.coins * rewardMultiplier) + (event.coins || 0);
+    const earnedXp = Math.round(route.xp * rewardMultiplier);
+    state.coins += earnedCoins;
     if (event.fetch) state.skills.fetch = clamp(state.skills.fetch + event.fetch);
     state.traits.trust = clamp(state.traits.trust + route.bond * .7);
-    gainXp(Math.round(route.xp * rewardMultiplier));
+    gainXp(earnedXp);
     recordHabit('walk');
     setActivity('walking', route.duration, { icon: route.icon, title: route.name, description: `${state.petName} ${event.text}.` });
     addJournal(route.icon, route.name, `${state.petName} ${event.text}. El clima estaba ${weather.label.toLowerCase()}.`);
@@ -701,6 +760,7 @@
     saveState();
     render();
     closeModal('walkModal');
+    toast(`+${earnedCoins} 🪙 · +${earnedXp} XP · −${route.energy} energía`);
     const foundEncounter = routeKey === 'adventure' || (routeKey === 'park' && Math.random() < .55);
     if (foundEncounter) {
       scheduleEncounter(() => openDodgeEncounter({
@@ -708,7 +768,7 @@
         bonus: routeKey === 'adventure' ? 10 : 5,
         title: routeKey === 'adventure' ? '¡Cruza el sendero!' : '¡Esquiva los charcos!',
         description: routeKey === 'adventure'
-          ? 'Guía la huella de Milo por el sendero sin tocar ramas ni piedras.'
+          ? `Guía la huella de ${state.petName} por el sendero sin tocar ramas ni piedras.`
           : 'El parque se llenó de charcos. Muévete con las flechas, WASD o los controles táctiles.'
       }));
     }
@@ -733,8 +793,9 @@
     modifyStats({ energy: -ENERGY_COSTS.training, food: -3, water: -4, mood: hasTreat ? 5 : 2, bond: 3, stress: focus < 30 ? 3 : -1 });
     state.traits.discipline = clamp(state.traits.discipline + 1.8);
     state.traits.trust = clamp(state.traits.trust + 1.1);
+    const earnedXp = 11 + afterLevel * 2;
     state.coins += 3;
-    gainXp(11 + afterLevel * 2);
+    gainXp(earnedXp);
     recordHabit('train');
     const trickPose = skillKey === 'sit' ? 'sitting' : skillKey === 'paw' ? 'sitting pawing' : 'playing';
     setActivity('training', 4500, { title: `Practicando: ${skill.name}`, description: hasTreat ? 'El premio ayudó a mantener toda su atención.' : 'Está intentando comprender la señal.', css: trickPose });
@@ -750,6 +811,7 @@
     saveState();
     render();
     closeModal('trainingModal');
+    toast(`+3 🪙 · +${earnedXp} XP · +${gain}% de truco`);
     const concentrationTest = afterLevel > beforeLevel || Math.random() < .38;
     if (concentrationTest) {
       scheduleEncounter(() => openMemoryEncounter({
@@ -764,7 +826,13 @@
   function handleBuy(itemKey) {
     const item = SHOP[itemKey];
     if (!item) return;
-    if (state.coins < item.cost) return toast('No tienes suficientes monedas.');
+    syncSimulation();
+    if (state.coins < item.cost) {
+      touch();
+      saveState();
+      render();
+      return toast('No tienes suficientes monedas.');
+    }
     state.coins -= item.cost;
     state.inventory[itemKey] += item.amount;
     addJournal('🛍️', 'Compraste provisiones', `Agregaste ${item.amount} de ${item.label} al inventario.`);
@@ -927,7 +995,7 @@
     el('gameMessage').hidden = false;
     const verdict = accuracy >= 92 ? '¡Centro perfecto!' : accuracy >= 75 ? '¡Gran lanzamiento!' : accuracy >= 50 ? 'Buen intento.' : 'La pelota escapó por poco.';
     el('gameMessage').textContent = `${verdict} Precisión ${accuracy}% · +${earned} puntos`;
-    el('gameDialogue').textContent = accuracy >= 92 ? 'Milo atrapó la pelota con una coordinación perfecta.' : 'La pelota se prepara para la siguiente ronda.';
+    el('gameDialogue').textContent = accuracy >= 92 ? `${state.petName} atrapó la pelota con una coordinación perfecta.` : 'La pelota se prepara para la siguiente ronda.';
     haptic(accuracy >= 92 ? [14, 28, 40] : 12);
     if (gameTurn >= 5) setTimeout(() => finishGame(false), 750);
     else setTimeout(() => {
@@ -966,7 +1034,7 @@
     recordHabit('play');
     setActivity('playing', 5000, { description: `Completaron ${gameTurn} rondas de precisión y lograron ${gameScore} puntos.` });
     addJournal('🎾', 'Atrapa la pelota', `Completaron ${gameTurn} rondas, lograron ${gameScore} puntos y ganaron ${coins} monedas.`);
-    el('gameDialogue').textContent = gameTurn >= 5 ? 'Milo terminó feliz después de tantos lanzamientos.' : 'La pelota descansa hasta la próxima partida.';
+    el('gameDialogue').textContent = gameTurn >= 5 ? `${state.petName} terminó feliz después de tantos lanzamientos.` : 'La pelota descansa hasta la próxima partida.';
     el('gameMessage').textContent = `Juego terminado · ${gameScore} puntos · +${coins} monedas`;
     speak(gameScore >= 60 ? '¡Nuestra coordinación fue perfecta!' : '¡Cada vez lo hacemos mejor!');
     createSparkles('🎾');
@@ -995,7 +1063,7 @@
     setTimeout(() => {
       if (!document.querySelector('.modal-backdrop.open')) callback();
       else if (attempt < 12) scheduleEncounter(callback, attempt + 1);
-      else toast('Milo encontró un reto especial, pero estaba ocupado. Aparecerá en otro paseo.');
+      else toast(`${state.petName} encontró un reto especial, pero estaba ocupado. Aparecerá en otro paseo.`);
     }, attempt ? 500 : 420);
   }
 
@@ -1010,7 +1078,7 @@
     el('dodgeEnemy').textContent = isAdventure ? '🌿' : isWalk ? '💦' : '🏁';
     el('dodgeEnemyName').textContent = isAdventure ? 'Sendero inquieto' : isWalk ? 'Charcos juguetones' : 'Pista sorpresa';
     el('dodgeEnemyMood').textContent = isAdventure ? 'Las ramas se cruzan en el camino.' : isWalk ? 'Las gotas saltan sin parar.' : 'Hojas, gotas y conos se cruzan.';
-    el('dodgeDialogue').textContent = isAdventure ? 'Milo mira el sendero y busca el mejor paso.' : isWalk ? 'Ayuda a Milo a encontrar un camino seco.' : 'Milo observa la pista y espera tu señal.';
+    el('dodgeDialogue').textContent = isAdventure ? `${state.petName} mira el sendero y busca el mejor paso.` : isWalk ? `Ayuda a ${state.petName} a encontrar un camino seco.` : `${state.petName} observa la pista y espera tu señal.`;
     el('dodgeLives').textContent = '🐾🐾🐾';
     el('dodgeScore').textContent = '0';
     el('dodgeTime').textContent = '15';
@@ -1238,7 +1306,7 @@
     el('startDodgeBtn').disabled = false;
     el('startDodgeBtn').textContent = `Jugar otra vez · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = false);
-    el('dodgeDialogue').textContent = survived ? 'La pista quedó libre. Milo mueve la cola, orgulloso.' : 'Milo descansó un momento y ya quiere intentarlo otra vez.';
+    el('dodgeDialogue').textContent = survived ? `La pista quedó libre. ${state.petName} mueve la cola, orgulloso.` : `${state.petName} descansó un momento y ya quiere intentarlo otra vez.`;
     speak(survived ? '¡Lo logramos juntos!' : '¡Casi! La próxima lo lograremos.');
     haptic(survived ? [18, 35, 55] : 25);
     if (survived) createSparkles('🐾');
@@ -1344,7 +1412,7 @@
         memoryAccepting = false;
         setMemoryPadsDisabled(true);
         if (memoryRound >= 4) {
-          el('memoryMessage').textContent = '¡Secuencia completa! Milo recordó todas las señales.';
+          el('memoryMessage').textContent = `¡Secuencia completa! ${state.petName} recordó todas las señales.`;
           memoryLater(() => finishMemory(false, true), 650);
         } else {
           memoryRound += 1;
@@ -1448,6 +1516,116 @@
     return '#65af7d';
   }
 
+  function canOfferMoment() {
+    const today = localDateKey();
+    return state.initialized && state.day.key === today && state.day.actions > 0 && state.story.lastDate !== today && !state.isAsleep && !isBusy();
+  }
+
+  function getDailyMoment() {
+    const available = STORY_MOMENTS.filter(moment => !moment.when || moment.when(state));
+    return available[hashCode(`${localDateKey()}-${state.petName}-${state.personality}`) % available.length] || STORY_MOMENTS.at(-1);
+  }
+
+  function openDailyMoment() {
+    if (!canOfferMoment()) return;
+    currentMoment = getDailyMoment();
+    el('momentIcon').textContent = currentMoment.icon;
+    el('momentTitle').textContent = currentMoment.title;
+    const rememberedChoice = currentMoment.choices.find(choice => choice.id === state.story.choices[currentMoment.id]);
+    el('momentPrompt').textContent = rememberedChoice
+      ? `La vez pasada eligieron «${rememberedChoice.label}». ${currentMoment.prompt}`
+      : currentMoment.prompt;
+    el('momentChoices').innerHTML = currentMoment.choices.map((choice, index) => `
+      <button class="moment-choice" type="button" data-moment-choice="${index}">
+        <span aria-hidden="true">${choice.icon}</span>
+        <div><strong>${escapeHtml(choice.label)}</strong><small>${escapeHtml(choice.detail)}</small></div>
+      </button>`).join('');
+    openModal('momentModal');
+  }
+
+  function completeMoment(choiceIndex) {
+    const choice = currentMoment?.choices[choiceIndex];
+    if (!currentMoment || !choice) return;
+    modifyStats(choice.stats || {});
+    Object.entries(choice.traits || {}).forEach(([key, amount]) => {
+      if (key in state.traits) state.traits[key] = clamp(state.traits[key] + amount);
+    });
+    state.story.lastDate = localDateKey();
+    state.story.choices[currentMoment.id] = choice.id;
+    gainXp(4);
+    addJournal(currentMoment.icon, currentMoment.title, choice.memory);
+    setActivity(choice.activity || 'sitting', 4800, { title: currentMoment.title, description: choice.memory });
+    const response = choice.response;
+    const result = choice.result;
+    currentMoment = null;
+    touch();
+    saveState();
+    render();
+    closeModal('momentModal');
+    speak(response);
+    createSparkles('💗', 7);
+    toast(`${result} · +4 XP`);
+  }
+
+  function setWorldView(view) {
+    if (!['home', 'growth', 'moments'].includes(view)) return;
+    activeWorldView = view;
+    document.querySelectorAll('[data-world-view]').forEach(button => {
+      const selected = button.dataset.worldView === view;
+      button.classList.toggle('active', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+    document.querySelectorAll('[data-world-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.worldPanel !== view;
+    });
+  }
+
+  function renderNudge() {
+    const petName = state.petName || 'Milo';
+    const nudge = el('companionNudge');
+    const suppressed = isBusy();
+    nudge.hidden = suppressed;
+    if (suppressed) return;
+    let suggestion;
+
+    if (state.stats.health < 38) {
+      suggestion = { icon: '🩹', kicker: `${petName} te necesita`, title: 'No me siento bien…', text: 'Revisa su salud y ayúdalo a recuperarse.', action: 'care', label: 'Cuidarlo' };
+    } else if (state.stats.food < 34) {
+      suggestion = state.bowls.food
+        ? { icon: '🍲', kicker: `${petName} tiene comida lista`, title: 'Ya olí mi comida', text: 'Comerá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
+        : { icon: '🍲', kicker: `${petName} tiene hambre`, title: '¿Me dejas comida?', text: 'Su cuenco está vacío.', action: 'care', label: 'Servir comida' };
+    } else if (state.stats.water < 39) {
+      suggestion = state.bowls.water
+        ? { icon: '💧', kicker: `${petName} tiene agua lista`, title: 'Tengo un poquito de sed', text: 'Beberá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
+        : { icon: '💧', kicker: `${petName} tiene sed`, title: '¿Llenas mi cuenco?', text: 'Necesita agua antes de otra aventura.', action: 'care', label: 'Darle agua' };
+    } else if (state.stats.hygiene < 38) {
+      suggestion = { icon: '🫧', kicker: `${petName} necesita cuidados`, title: 'Creo que me ensucié…', text: 'Un cepillado o un baño le vendrían bien.', action: 'care', label: 'Limpiarlo' };
+    } else if (state.stats.energy < 34) {
+      suggestion = { icon: '🌙', kicker: `${petName} tiene sueño`, title: 'Se me cierran los ojos…', text: 'Puede descansar ahora y continuar después.', action: 'sleep', label: 'Arroparlo' };
+    } else if (canOfferMoment()) {
+      suggestion = { icon: '💌', kicker: `${petName} quiere contarte algo`, title: 'Tengo algo que contarte…', text: 'Escúchalo y elijan juntos qué hacer.', action: 'moment', label: 'Escucharlo' };
+    } else {
+      const invitations = {
+        curious: ['¿Vamos a descubrir algo?', 'Un paseo puede traer una historia nueva.'],
+        playful: ['¿Jugamos un ratito?', 'Superen un reto y ganen monedas juntos.'],
+        foodie: ['¿Hacemos algo juntos?', 'Un paseo corto le abrirá el apetito.'],
+        calm: ['Me gusta estar contigo', 'Pueden practicar o jugar sin prisa.'],
+        brave: ['¿Nos vamos de aventura?', 'El parque siempre guarda algo nuevo.']
+      };
+      const [title, text] = invitations[state.personality] || invitations.curious;
+      suggestion = { icon: PERSONALITIES[state.personality].emoji, kicker: `${petName} está listo`, title, text, action: state.personality === 'brave' || state.personality === 'curious' ? 'walk' : 'play', label: state.personality === 'brave' || state.personality === 'curious' ? 'Pasear' : 'Jugar' };
+    }
+
+    el('nudgeIcon').textContent = suggestion.icon;
+    el('nudgeKicker').textContent = suggestion.kicker;
+    el('nudgeTitle').textContent = suggestion.title;
+    el('nudgeText').textContent = suggestion.text;
+    const button = el('nudgeAction');
+    button.textContent = suggestion.label;
+    button.dataset.nudgeAction = suggestion.action;
+    button.disabled = !!suggestion.disabled;
+  }
+
   function renderNeeds() {
     Object.entries(state.stats).forEach(([key, raw]) => {
       const value = Math.round(raw);
@@ -1471,16 +1649,16 @@
       }
     });
     const minimum = Math.min(state.stats.food, state.stats.water, state.stats.energy, state.stats.hygiene, state.stats.health);
-    let badgeText = 'Todo bien';
+    let badgeText = 'Está feliz';
     let badgeState = '';
     if (minimum < 25) {
-      badgeText = 'Necesita ayuda';
+      badgeText = 'Te necesita';
       badgeState = 'critical';
     } else if (minimum < 48) {
-      badgeText = 'Ponle atención';
+      badgeText = 'Necesita atención';
       badgeState = 'warning';
     }
-    [el('overallBadge'), el('sceneOverallBadge')].forEach(badge => {
+    [el('overallBadge'), el('sceneOverallBadge')].filter(Boolean).forEach(badge => {
       badge.className = `overall-badge${badgeState ? ` ${badgeState}` : ''}`;
       badge.textContent = badgeText;
     });
@@ -1493,22 +1671,26 @@
   }
 
   function renderScene() {
-    el('petName').textContent = state.petName || 'Milo';
-    document.querySelectorAll('.game-pet-name').forEach(label => label.textContent = state.petName || 'Milo');
+    const petName = state.petName || 'Milo';
+    el('petName').textContent = petName;
+    document.title = `La casita de ${petName}`;
+    document.querySelectorAll('.game-pet-name, .pet-name-inline').forEach(label => label.textContent = petName);
+    el('sceneCard').setAttribute('aria-label', `Habitación de ${petName}`);
+    document.querySelector('.play-deck')?.setAttribute('aria-label', `Qué hacer con ${petName}`);
+    document.querySelector('.world-nav')?.setAttribute('aria-label', `Explorar la vida de ${petName}`);
     el('levelPill').textContent = `Nivel ${state.level}`;
     const personality = PERSONALITIES[state.personality];
     el('personalityChip').textContent = personality.name;
     el('petStage').textContent = state.level >= 8 ? 'Tu compañero inseparable' : state.level >= 5 ? 'Un perro seguro y lleno de vida' : state.level >= 3 ? 'Un cachorro que aprende rápido' : 'Cachorro recién adoptado';
 
     const activity = activityPreset();
-    el('activityFloat').textContent = activity.title;
     el('nowIcon').textContent = activity.icon;
     el('nowTitle').textContent = activity.title;
     el('nowDescription').textContent = activity.description;
     const wrap = el('petWrap');
     wrap.className = `pet-wrap ${activity.css || ''} ${petReaction}`.trim();
-    wrap.setAttribute('aria-label', `${state.isAsleep ? 'Acariciar suavemente a' : 'Acariciar a'} ${state.petName || 'Milo'}`);
-    el('petTouchHint').textContent = state.isAsleep ? 'Tócalo con suavidad' : `Acaricia a ${state.petName || 'Milo'}`;
+    wrap.setAttribute('aria-label', `${state.isAsleep ? 'Acariciar suavemente a' : 'Acariciar a'} ${petName}`);
+    el('petTouchHint').textContent = state.isAsleep ? 'Tócalo con suavidad' : `Acaricia a ${petName}`;
 
     const dog = el('dog');
     const average = (state.stats.food + state.stats.water + state.stats.energy + state.stats.hygiene + state.stats.health + state.mood) / 6;
@@ -1522,16 +1704,18 @@
     if (state.stats.hygiene < 36) dog.classList.add('dirty');
 
     const savedSleepProgress = Math.floor(state.sleepProgress);
-    const sleepLabel = !state.isAsleep && savedSleepProgress > 0 && savedSleepProgress < 100 ? `Dormir · ${savedSleepProgress}%` : 'Dormir';
+    const hasSavedRest = !state.isAsleep && savedSleepProgress > 0 && savedSleepProgress < 100;
+    const sleepLabel = hasSavedRest ? 'Seguir descansando' : 'Dormir';
     el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : sleepLabel;
-    el('sleepBtn').dataset.label = state.isAsleep ? 'Despertar' : sleepLabel;
-    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : sleepLabel);
-    el('sleepActionCopy').textContent = state.isAsleep ? 'Interrumpir descanso' : nightAwake ? 'Está despierto con sueño' : 'Descanso de verdad';
+    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : hasSavedRest ? `Seguir descansando, ${savedSleepProgress}% guardado` : sleepLabel);
+    el('sleepActionIcon').textContent = state.isAsleep ? '☀️' : '🌙';
+    el('sleepActionCopy').textContent = state.isAsleep ? `Descanso ${Math.floor(currentSleepProgress())}%` : hasSavedRest ? `Descanso guardado: ${savedSleepProgress}%` : nightAwake ? 'Despierto con sueño' : 'Recupera fuerzas';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
 
   function renderHome() {
     el('coinValue').textContent = String(state.coins);
+    el('coinPill').setAttribute('aria-label', `Abrir tienda: ${state.coins} monedas`);
     el('shopCoinValue').textContent = String(state.coins);
     el('shopBalance').setAttribute('aria-label', `Tu saldo: ${state.coins} monedas`);
     el('foodBowlValue').textContent = state.bowls.food ? `${state.bowls.food} ${state.bowls.food === 1 ? 'porción' : 'porciones'}` : 'Vacío';
@@ -1545,6 +1729,13 @@
     dot.className = 'status-dot';
     if (homeMinimum < 25) dot.classList.add('critical');
     else if (homeMinimum < 50) dot.classList.add('warning');
+    const bowlState = !state.bowls.food && !state.bowls.water
+      ? 'Los cuencos están vacíos'
+      : !state.bowls.food || !state.bowls.water
+        ? 'Falta preparar un cuenco'
+        : 'Los dos cuencos están listos';
+    const bowlUrgency = homeMinimum < 25 ? 'Necesita atención ahora.' : homeMinimum < 50 ? 'Conviene prepararlo pronto.' : 'Puede esperar.';
+    dot.setAttribute('aria-label', `${bowlState}. ${bowlUrgency}`);
 
     const inventory = [
       ['🥫', 'Comida', state.inventory.food],
@@ -1608,9 +1799,9 @@
   function renderArcade() {
     const dodgeUnlocked = state.level >= 2;
     const memoryUnlocked = state.level >= 3;
-    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · precisión` : 'Acerca la marca a la zona verde durante cinco rondas';
-    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : 'Guía la huella entre hojas, gotitas y conos';
-    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : 'Observa las señales y repítelas en el mismo orden';
+    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · gana monedas` : '5 tiros · precisión y monedas';
+    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : '15 s · evita todos los obstáculos';
+    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · repite las señales';
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
     el('dodgeGameStatus').textContent = dodgeUnlocked ? energyLabel(ENERGY_COSTS.arcadeDodge) : 'Nivel 2';
     el('memoryGameStatus').textContent = memoryUnlocked ? energyLabel(ENERGY_COSTS.arcadeMemory) : 'Nivel 3';
@@ -1621,7 +1812,7 @@
 
   function renderDiary() {
     if (!state.journal.length) {
-      el('diaryList').innerHTML = `<div class="diary-entry"><span class="entry-icon">🐾</span><div><strong>Su historia empieza aquí</strong><p>Las decisiones y recuerdos importantes aparecerán en este diario.</p></div></div>`;
+      el('diaryList').innerHTML = `<div class="diary-entry"><span class="entry-icon">🐾</span><div><strong>${escapeHtml(state.petName)} llegó a casa</strong><p>Jueguen, paseen y cuídense para llenar este espacio de momentos.</p></div></div>`;
       return;
     }
     el('diaryList').innerHTML = state.journal.slice(0, 12).map(entry => {
@@ -1648,6 +1839,7 @@
         remove.textContent = '×';
         remove.setAttribute('aria-label', `Eliminar recuerdo ${i + 1}`);
         remove.addEventListener('click', () => {
+          syncSimulation();
           state.photos.splice(i, 1);
           touch();
           saveState();
@@ -1700,6 +1892,7 @@
     renderClock();
     renderNeeds();
     renderScene();
+    renderNudge();
     renderHome();
     renderPersonality();
     renderSkills();
@@ -1707,6 +1900,7 @@
     renderDiary();
     renderPhotos();
     renderActivityTimer();
+    setWorldView(activeWorldView);
     el('signature').textContent = state.signature || 'Creado con amor para ti 💗';
   }
 
@@ -1879,10 +2073,27 @@
 
   function registerEvents() {
     document.querySelectorAll('[data-modal]').forEach(button => button.addEventListener('click', () => {
-      if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
+      if (isBusy() && button.dataset.modal !== 'shopModal') return toast(`Espera a que ${state.petName} termine lo que está haciendo.`);
       openModal(button.dataset.modal);
     }));
+    document.querySelectorAll('[data-world-view]').forEach(button => button.addEventListener('click', () => {
+      setWorldView(button.dataset.worldView);
+      const panel = el(button.getAttribute('aria-controls'));
+      requestAnimationFrame(() => panel?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }));
+    }));
+    el('nudgeAction').addEventListener('click', () => {
+      const action = el('nudgeAction').dataset.nudgeAction;
+      if (action === 'sleep') return handleSleepButton();
+      if (action === 'pet') return triggerPetReaction();
+      if (action === 'moment') return openDailyMoment();
+      const modalByAction = { care: 'careModal', walk: 'walkModal', play: 'arcadeModal' };
+      if (modalByAction[action]) openModal(modalByAction[action]);
+    });
     document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => closeModal(button.dataset.close)));
+    el('momentChoices').addEventListener('click', event => {
+      const button = event.target.closest('[data-moment-choice]');
+      if (button) completeMoment(Number(button.dataset.momentChoice));
+    });
     document.querySelectorAll('[data-care]').forEach(button => button.addEventListener('click', () => handleCare(button.dataset.care)));
     document.querySelectorAll('[data-walk]').forEach(button => button.addEventListener('click', () => handleWalk(button.dataset.walk)));
     document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => handleBuy(button.dataset.buy)));
@@ -1964,6 +2175,7 @@
       openModal('settingsModal');
     });
     el('saveSettingsBtn').addEventListener('click', () => {
+      syncSimulation();
       state.partnerName = el('settingsPartner').value.trim();
       state.petName = el('settingsPet').value.trim() || 'Milo';
       state.signature = el('settingsSignature').value.trim() || 'Creado con amor para ti 💗';
@@ -1975,10 +2187,11 @@
       toast('Cambios guardados.');
     });
     el('resetBtn').addEventListener('click', () => {
-      if (!confirm('¿Seguro que quieres reiniciar el progreso, inventario, diario y fotos?')) return;
+      if (!confirm('¿Empezar de cero? Se borrarán la mochila, los momentos y las fotos de este dispositivo.')) return;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(LEGACY_KEY);
       state = defaultState();
+      activeWorldView = 'home';
       applyGiftParams();
       closeModal('settingsModal');
       render();
@@ -1990,6 +2203,7 @@
       state.initialized = true;
       state.partnerName = partner;
       state.petName = pet;
+      activeWorldView = 'home';
       state.personality = assignPersonality(`${partner}-${pet}-${state.createdAt}`);
       state.lastUpdated = now();
       state.lastVisitDate = localDateKey();
@@ -2008,9 +2222,25 @@
       if (event.target === backdrop && backdrop.id !== 'welcomeModal') closeModal(backdrop.id);
     }));
     document.addEventListener('keydown', event => {
-      if (event.key !== 'Escape') return;
       const open = document.querySelector('.modal-backdrop.open');
-      if (open && open.id !== 'welcomeModal') closeModal(open.id);
+      if (!open) return;
+      if (event.key === 'Escape') {
+        if (open.id !== 'welcomeModal') closeModal(open.id);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const controls = [...open.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')]
+        .filter(control => control.offsetParent !== null);
+      if (!controls.length) return event.preventDefault();
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (event.shiftKey && (document.activeElement === first || !open.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     });
 
     el('uploadBtn').addEventListener('click', () => {
@@ -2024,6 +2254,7 @@
       if (!file.type.startsWith('image/')) return toast('Selecciona una imagen válida.');
       try {
         const encoded = await resizeImage(file);
+        syncSimulation();
         state.photos.push(encoded);
         addJournal('📸', 'Un recuerdo nuevo', 'Guardaste una foto especial en su diario de vida.');
         touch();
@@ -2046,10 +2277,7 @@
     applyGiftParams();
     registerEvents();
     if (state.initialized) {
-      const elapsed = advanceSimulation();
-      runOfflineAutonomy(elapsed);
-      ensureDailyVisit();
-      resolveActivity();
+      syncSimulation();
       if (!state.activity.type) chooseIdleActivity();
       touch();
       saveState();
@@ -2072,14 +2300,26 @@
     activityTimerInterval = setInterval(() => {
       renderClock();
       renderActivityTimer();
+      if (state.isAsleep) renderNudge();
       if (!state.isAsleep && state.activity.endsAt && state.activity.endsAt <= now()) {
         chooseIdleActivity();
         touch();
         saveState();
         renderScene();
+        renderNudge();
       }
     }, 1000);
     setInterval(autonomousTick, 15000);
+
+    const refreshAfterReturn = () => {
+      if (!state.initialized || document.hidden) return;
+      syncSimulation();
+      touch();
+      saveState();
+      render();
+    };
+    document.addEventListener('visibilitychange', refreshAfterReturn);
+    window.addEventListener('pageshow', refreshAfterReturn);
   }
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
