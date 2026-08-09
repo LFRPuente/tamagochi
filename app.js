@@ -106,7 +106,7 @@
     drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
     sitting: { icon: '🐕', title: 'Sentado junto a ti', description: 'Se acomodó y mueve la cola mientras te observa.', css: 'sitting' },
     stretching: { icon: '🧘', title: 'Estirándose', description: 'Estira las patas delanteras después de descansar.', css: 'stretching' },
-    grooming: { icon: '✨', title: 'Arreglándose', description: 'Se rasca una orejita y vuelve a acomodarse.', css: 'grooming' },
+    grooming: { icon: '✨', title: 'Arreglándose', description: 'Se lame una patita y vuelve a acomodarse.', css: 'grooming' },
     exploring: { icon: '🔎', title: 'Siguiendo un olor', description: 'Recorre la casa con la nariz pegada al suelo.', css: 'sniffing' },
     watching: { icon: '🪟', title: 'Mirando la ventana', description: 'Observa el mundo y mueve la cola cuando pasa alguien.', css: 'sitting watching' },
     toy: { icon: '🧸', title: 'Jugando solo', description: 'Encontró su juguete y se entretiene por su cuenta.', css: 'playing' },
@@ -479,6 +479,94 @@
 
   function activityPreset() {
     return { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
+  }
+
+  function resolvePetPose(css = '') {
+    const classes = new Set(String(css).split(/\s+/).filter(Boolean));
+    if (classes.has('sleeping')) return 'sleep';
+    if (classes.has('waking')) return 'wake';
+    if (classes.has('stretching')) return 'stretch';
+    if (classes.has('bathing')) return 'bath';
+    if (classes.has('brushing')) return 'brush';
+    if (classes.has('grooming')) return 'groom';
+    if (classes.has('training-fetch')) return 'fetch';
+    if (classes.has('training-paw') || classes.has('pawing')) return 'train-paw';
+    if (classes.has('training')) return 'train-sit';
+    if (classes.has('treating')) return 'treat';
+    if (classes.has('eating')) return 'eat';
+    if (classes.has('drinking')) return 'drink';
+    if (classes.has('walking')) return 'walk';
+    if (classes.has('sniffing')) return 'sniff';
+    if (classes.has('playing')) return 'play';
+    if (classes.has('night-awake')) return 'sit-drowsy';
+    if (classes.has('watching')) return 'sit-watch';
+    if (classes.has('alert')) return 'stand-alert';
+    if (classes.has('sitting')) return 'sit';
+    return 'stand';
+  }
+
+  const PET_POSE_SPRITES = {
+    stand: ['stand'],
+    'stand-alert': ['stand'],
+    sit: ['sit'],
+    'sit-watch': ['sit'],
+    'sit-drowsy': ['drowsy'],
+    'train-sit': ['sit'],
+    'train-paw': ['paw'],
+    sniff: ['sniff'],
+    play: ['play'],
+    fetch: ['play'],
+    walk: ['walk-a', 'walk-b'],
+    stretch: ['wake'],
+    wake: ['wake', 'sit', 'stand'],
+    groom: ['groom', 'groom-alt'],
+    sleep: ['sleep'],
+    eat: ['eat', 'eat-alt'],
+    drink: ['drink', 'drink-alt'],
+    treat: ['treat'],
+    bath: ['bath', 'bath-alt'],
+    brush: ['brush', 'brush-alt']
+  };
+  const decodedPetSprites = new WeakSet();
+
+  function ensurePetPoseSprites(pose, wrap) {
+    const images = (PET_POSE_SPRITES[pose] || PET_POSE_SPRITES.stand)
+      .map(spriteName => document.querySelector(`.pet-sprite--${spriteName}`))
+      .filter(Boolean);
+    const isReady = image => image.complete && image.naturalWidth > 0;
+    const decodeImage = image => {
+      if (decodedPetSprites.has(image)) return Promise.resolve();
+      const decoded = typeof image.decode === 'function'
+        ? image.decode()
+        : isReady(image)
+          ? Promise.resolve()
+          : new Promise(resolve => {
+              image.addEventListener('load', resolve, { once: true });
+              image.addEventListener('error', resolve, { once: true });
+            });
+      return decoded.catch(() => undefined).then(() => {
+        if (isReady(image)) decodedPetSprites.add(image);
+      });
+    };
+
+    wrap.dataset.requestedPose = pose;
+    for (const image of images) {
+      if (image.dataset.src && !image.hasAttribute('src')) image.src = image.dataset.src;
+    }
+    if (images.every(image => decodedPetSprites.has(image))) {
+      wrap.dataset.pose = pose;
+      delete wrap.dataset.loadingPose;
+      return;
+    }
+
+    if (!wrap.dataset.pose) wrap.dataset.pose = 'stand';
+    if (wrap.dataset.loadingPose === pose) return;
+    wrap.dataset.loadingPose = pose;
+    Promise.all(images.map(decodeImage))
+      .then(() => {
+        if (wrap.dataset.requestedPose === pose && images.every(image => decodedPetSprites.has(image))) wrap.dataset.pose = pose;
+        if (wrap.dataset.loadingPose === pose) delete wrap.dataset.loadingPose;
+      });
   }
 
   function isBusy() {
@@ -1689,13 +1777,18 @@
     el('nowDescription').textContent = activity.description;
     const wrap = el('petWrap');
     wrap.className = `pet-wrap ${activity.css || ''} ${petReaction}`.trim();
+    const sceneHour = new Date().getHours();
+    const nightAwake = (sceneHour >= 22 || sceneHour < 6) && now() < Number(state.manualAwakeUntil || 0);
+    const activityPose = resolvePetPose(activity.css);
+    const pose = !state.isAsleep && (state.stats.energy < 22 || nightAwake) && ['stand', 'stand-alert', 'sit', 'sit-watch'].includes(activityPose)
+      ? 'sit-drowsy'
+      : activityPose;
+    ensurePetPoseSprites(pose, wrap);
     wrap.setAttribute('aria-label', `${state.isAsleep ? 'Acariciar suavemente a' : 'Acariciar a'} ${petName}`);
     el('petTouchHint').textContent = state.isAsleep ? 'Tócalo con suavidad' : `Acaricia a ${petName}`;
 
     const dog = el('dog');
     const average = (state.stats.food + state.stats.water + state.stats.energy + state.stats.hygiene + state.stats.health + state.mood) / 6;
-    const sceneHour = new Date().getHours();
-    const nightAwake = (sceneHour >= 22 || sceneHour < 6) && now() < Number(state.manualAwakeUntil || 0);
     dog.className = 'dog';
     if (state.isAsleep || state.stats.energy < 22 || nightAwake) dog.classList.add('sleepy-face');
     else if (state.stats.health < 40) dog.classList.add('sick-face');
@@ -1971,7 +2064,7 @@
     const current = now();
     let reactionDuration = 1550;
     const target = event?.target instanceof Element ? event.target : null;
-    const touchZone = target?.closest('.nose, .muzzle') ? 'nose' : target?.closest('.head') ? 'head' : target ? 'body' : 'head';
+    const touchZone = target?.closest('[data-pet-zone]')?.dataset.petZone || (target ? 'body' : 'head');
 
     if (state.isAsleep) {
       petReaction = 'reaction-sleepy-pat';

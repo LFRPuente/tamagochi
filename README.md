@@ -14,8 +14,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Despertar nocturno con energía baja y 30 minutos de actividad soñolienta.
 - Comida y agua en cuencos que el perrito consume por su cuenta.
 - Personalidades distintas y hábitos que cambian con el cuidado.
-- Rig animado por capas con siluetas distintas al pararse, sentarse, estirarse, caminar, comer, jugar, bañarse y dormir.
-- Objetos que participan en cada acción: pelota, cuencos, premio, cepillo, espuma y cobija.
+- Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
+- Objetos integrados naturalmente en cada pose: pelota, cuencos, premio, cepillo, espuma y una cobija que deja libre su cara.
 - Caricias táctiles con reacciones, expresiones y vibración en celular.
 - Pantalla principal móvil con recomendaciones contextuales y acciones siempre etiquetadas.
 - Rincones compactos de Casa, Crecer y Momentos, sin repetir las necesidades.

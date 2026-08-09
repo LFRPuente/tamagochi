@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.12.0" />
+  <link rel="stylesheet" href="styles.css?v=3.14.0" />
   <title>La casita de Milo</title>
 </head>
 <body>
@@ -54,43 +54,39 @@
         <div class="speech" id="speech" role="status">Estoy conociendo mi nuevo hogar…</div>
 
         <div class="pet-zone">
-          <div class="pet-wrap" id="petWrap" role="button" tabindex="0" aria-label="Acariciar al perrito virtual">
+          <div class="pet-wrap" id="petWrap" data-pose="stand" role="button" tabindex="0" aria-label="Acariciar al perrito virtual">
             <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
             <div class="sparkles" id="sparkles" aria-hidden="true"></div>
-            <div class="pet-ground-shadow" aria-hidden="true"></div>
-            <div class="pose-props" aria-hidden="true">
-              <span class="prop-ball"><i></i></span>
-              <span class="prop-treat"></span>
-              <span class="prop-bowl prop-food"><i></i></span>
-              <span class="prop-bowl prop-water"><i></i></span>
-              <span class="prop-brush"></span>
-              <span class="prop-bubbles"><i></i><i></i><i></i><i></i></span>
-              <span class="prop-scent"><i></i><i></i><i></i></span>
-              <span class="prop-star">★</span>
-            </div>
             <div class="pet-track">
-              <span class="prop-pet-hand" aria-hidden="true"><i></i></span>
               <div class="pet-react">
                 <div class="dog happy-face" id="dog" aria-hidden="true">
-                  <div class="tail"><span></span></div>
-                  <div class="hind-leg hind-left"><span></span></div>
-                  <div class="hind-leg hind-right"><span></span></div>
-                  <div class="body"><span class="body-spot"></span><span class="chest"></span></div>
-                  <div class="collar"><i></i></div>
-                  <div class="paw paw-left"><span></span></div>
-                  <div class="paw paw-right"><span></span></div>
-                  <div class="head">
-                    <span class="ear ear-left"><i></i></span>
-                    <span class="ear ear-right"><i></i></span>
-                    <span class="spot"></span>
-                    <span class="eye eye-left"></span>
-                    <span class="eye eye-right"></span>
-                    <span class="brow brow-left"></span>
-                    <span class="brow brow-right"></span>
-                    <div class="muzzle"><span class="nose"></span><span class="mouth"></span><span class="tongue"></span></div>
-                    <span class="dirt dirt-one">●</span><span class="dirt dirt-two">●</span>
+                  <div class="pet-sprite-stage">
+                    <img class="pet-sprite pet-sprite--stand" src="assets/puppy-stand.webp?v=3.14.0" alt="" decoding="async" fetchpriority="high" />
+                    <img class="pet-sprite pet-sprite--sit" data-src="assets/puppy-sit.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--drowsy" data-src="assets/puppy-drowsy.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--sniff" data-src="assets/puppy-sniff.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--play" data-src="assets/puppy-play.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--walk-a" data-src="assets/puppy-walk-a.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--walk-b" data-src="assets/puppy-walk-b.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--paw" data-src="assets/puppy-paw.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--sleep" data-src="assets/puppy-sleep.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--wake" data-src="assets/puppy-wake.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--groom" data-src="assets/puppy-groom.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--groom-alt" data-src="assets/puppy-groom-alt.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--eat" data-src="assets/puppy-eat.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--eat-alt" data-src="assets/puppy-eat-alt.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--drink" data-src="assets/puppy-drink.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--drink-alt" data-src="assets/puppy-drink-alt.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--treat" data-src="assets/puppy-treat.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--bath" data-src="assets/puppy-bath.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--bath-alt" data-src="assets/puppy-bath-alt.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--brush" data-src="assets/puppy-brush.webp?v=3.14.0" alt="" decoding="async" />
+                    <img class="pet-sprite pet-sprite--brush-alt" data-src="assets/puppy-brush-alt.webp?v=3.14.0" alt="" decoding="async" />
+                    <span class="pet-sprite-star" aria-hidden="true">★</span>
+                    <span class="pet-hit-zone pet-hit-zone--body" data-pet-zone="body"></span>
+                    <span class="pet-hit-zone pet-hit-zone--head" data-pet-zone="head"></span>
+                    <span class="pet-hit-zone pet-hit-zone--nose" data-pet-zone="nose"></span>
                   </div>
-                  <div class="sleep-blanket"><span>✦</span><span>✦</span></div>
                 </div>
               </div>
             </div>
@@ -407,6 +403,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.12.0" defer></script>
+  <script src="app.js?v=3.14.0" defer></script>
 </body>
 </html>

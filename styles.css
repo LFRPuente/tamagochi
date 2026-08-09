@@ -1326,3 +1326,211 @@ footer p { margin-bottom: 3px; color: var(--text); font-weight: 800; }
   .pet-track, .pet-react, .dog, .dog *, .pose-props *, .prop-pet-hand, .pet-ground-shadow { animation: none !important; transition: none !important; }
   .sparkle { animation: none !important; opacity: 1; }
 }
+
+/* Personaje ilustrado: cada pose es un dibujo completo, nunca piezas reacomodadas. */
+.pet-wrap {
+  width: 280px;
+  height: 235px;
+  animation: none !important;
+}
+@media (min-width: 651px) {
+  .pet-wrap {
+    width: 310px;
+    height: 250px;
+  }
+}
+.pet-wrap .pet-track,
+.pet-wrap .pet-react {
+  position: absolute;
+  inset: 0;
+  transform: none;
+  transform-origin: 50% 88%;
+}
+.pet-wrap .pet-track { animation: none !important; }
+.pet-wrap .pet-react { transition: filter .16s ease, transform .18s ease; }
+.pet-wrap:active .pet-react,
+.pet-wrap.is-pressed .pet-react { filter: brightness(1.045); transform: none; }
+.pet-wrap .dog {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: none !important;
+  filter: none;
+  transform: none !important;
+  transition: filter .3s ease;
+}
+.pet-wrap > .zzz { display: none !important; }
+
+/* Sprites finales: ilustraciones completas, sin deformación anatómica. */
+.pet-sprite-stage { position: absolute; inset: 0; isolation: isolate; }
+.pet-sprite {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  opacity: 0;
+  visibility: hidden;
+  filter: drop-shadow(0 8px 7px rgba(79,51,41,.18));
+  transform-origin: 50% 96%;
+  transition: opacity .2s ease,filter .25s ease;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.pet-wrap:is([data-pose="stand"],[data-pose="stand-alert"]) .pet-sprite--stand,
+.pet-wrap:is([data-pose="sit"],[data-pose="sit-watch"],[data-pose="train-sit"]) .pet-sprite--sit,
+.pet-wrap[data-pose="sit-drowsy"] .pet-sprite--drowsy,
+.pet-wrap[data-pose="train-paw"] .pet-sprite--paw,
+.pet-wrap[data-pose="sniff"] .pet-sprite--sniff,
+.pet-wrap:is([data-pose="play"],[data-pose="fetch"]) .pet-sprite--play,
+.pet-wrap[data-pose="stretch"] .pet-sprite--wake,
+.pet-wrap[data-pose="sleep"] .pet-sprite--sleep,
+.pet-wrap[data-pose="treat"] .pet-sprite--treat {
+  opacity: 1;
+  visibility: visible;
+}
+.pet-wrap[data-pose="walk"] :is(.pet-sprite--walk-a,.pet-sprite--walk-b),
+.pet-wrap[data-pose="groom"] :is(.pet-sprite--groom,.pet-sprite--groom-alt),
+.pet-wrap[data-pose="eat"] :is(.pet-sprite--eat,.pet-sprite--eat-alt),
+.pet-wrap[data-pose="drink"] :is(.pet-sprite--drink,.pet-sprite--drink-alt),
+.pet-wrap[data-pose="bath"] :is(.pet-sprite--bath,.pet-sprite--bath-alt),
+.pet-wrap[data-pose="brush"] :is(.pet-sprite--brush,.pet-sprite--brush-alt) { visibility: visible; }
+.pet-wrap[data-pose="wake"] :is(.pet-sprite--wake,.pet-sprite--sit,.pet-sprite--stand) { visibility: visible; }
+.pet-wrap[data-pose="wake"] .pet-sprite--wake { animation: puppyWakeStretchFrames 5.2s steps(1,end) both; }
+.pet-wrap[data-pose="wake"] .pet-sprite--sit { animation: puppyWakeSitFrames 5.2s steps(1,end) both; }
+.pet-wrap[data-pose="wake"] .pet-sprite--stand { animation: puppyWakeStandFrames 5.2s steps(1,end) both; }
+.pet-wrap[data-pose="walk"] .pet-sprite-stage { animation: puppyTravel 4.2s ease-in-out infinite alternate; }
+.pet-wrap[data-pose="groom"] .pet-sprite--groom,
+.pet-wrap[data-pose="eat"] .pet-sprite--eat,
+.pet-wrap[data-pose="drink"] .pet-sprite--drink,
+.pet-wrap[data-pose="bath"] .pet-sprite--bath,
+.pet-wrap[data-pose="brush"] .pet-sprite--brush { animation-name: puppyFrameA; animation-timing-function: steps(1,end); animation-iteration-count: infinite; }
+.pet-wrap[data-pose="groom"] .pet-sprite--groom-alt,
+.pet-wrap[data-pose="eat"] .pet-sprite--eat-alt,
+.pet-wrap[data-pose="drink"] .pet-sprite--drink-alt,
+.pet-wrap[data-pose="bath"] .pet-sprite--bath-alt,
+.pet-wrap[data-pose="brush"] .pet-sprite--brush-alt { animation-name: puppyFrameB; animation-timing-function: steps(1,end); animation-iteration-count: infinite; }
+.pet-wrap[data-pose="walk"] .pet-sprite--walk-a { animation: puppyStepA .68s steps(1,end) infinite; }
+.pet-wrap[data-pose="walk"] .pet-sprite--walk-b { animation: puppyStepB .68s steps(1,end) infinite; }
+.pet-wrap[data-pose="walk"] :is(.pet-sprite--walk-a,.pet-sprite--walk-b) { animation-duration: .68s; }
+.pet-wrap[data-pose="groom"] :is(.pet-sprite--groom,.pet-sprite--groom-alt) { animation-duration: 1.15s; }
+.pet-wrap:is([data-pose="eat"],[data-pose="drink"]) .pet-sprite { animation-duration: .92s; }
+.pet-wrap[data-pose="bath"] :is(.pet-sprite--bath,.pet-sprite--bath-alt) { animation-duration: 1.45s; }
+.pet-wrap[data-pose="brush"] :is(.pet-sprite--brush,.pet-sprite--brush-alt) { animation-duration: 1.05s; }
+.pet-wrap[data-pose="stand-alert"] .pet-sprite--stand { animation: puppyAlert 2.6s ease-in-out infinite; }
+.pet-wrap[data-pose="sit-drowsy"] .pet-sprite--drowsy { animation: puppyDrowsy 3.6s ease-in-out infinite; }
+.pet-wrap[data-pose="sit-watch"] .pet-sprite--sit { animation: puppyWatch 4.4s ease-in-out infinite; }
+.pet-wrap[data-pose="sniff"] .pet-sprite--sniff { animation: puppySniff 1.5s ease-in-out infinite; }
+.pet-wrap:is([data-pose="play"],[data-pose="fetch"]) .pet-sprite--play { animation: puppyPlay 1.3s ease-in-out infinite; }
+.pet-wrap[data-pose="stretch"] .pet-sprite--wake { animation: puppyStretch 3.4s ease-in-out infinite; }
+.pet-wrap[data-pose="sleep"] .pet-sprite--sleep { animation: puppySleep 3.8s ease-in-out infinite; }
+.pet-wrap[data-pose="treat"] .pet-sprite--treat { animation: puppyNibble 1.05s ease-in-out infinite; }
+.dog.sad-face .pet-sprite { filter: drop-shadow(0 8px 7px rgba(79,51,41,.18)) saturate(.82) brightness(.95); }
+.dog.sick-face .pet-sprite { filter: drop-shadow(0 8px 7px rgba(79,51,41,.18)) saturate(.58) brightness(.93); }
+.dog.dirty .pet-sprite-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: 47%;
+  left: 58%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(100,75,48,.52);
+  box-shadow: 24px 18px 0 -2px rgba(100,75,48,.44),-12px 27px 0 -3px rgba(100,75,48,.4);
+  pointer-events: none;
+}
+.pet-sprite-star {
+  position: absolute;
+  z-index: 5;
+  top: 7px;
+  right: 30px;
+  color: #ffd45d;
+  font-size: 2.1rem;
+  filter: drop-shadow(0 3px 2px rgba(112,77,28,.2));
+  opacity: 0;
+  pointer-events: none;
+}
+.pet-wrap:is([data-pose="train-sit"],[data-pose="train-paw"]) .pet-sprite-star { opacity: 1; animation: puppyStar 1.5s ease-in-out infinite; }
+.pet-wrap[data-pose="sleep"] > .zzz { display: block !important; top: 39px; right: 6px; }
+
+.pet-wrap {
+  --hit-head-left: 7%;
+  --hit-head-top: 5%;
+  --hit-head-width: 52%;
+  --hit-head-height: 67%;
+  --hit-nose-left: 26%;
+  --hit-nose-top: 39%;
+  --hit-nose-width: 18%;
+  --hit-nose-height: 20%;
+}
+.pet-wrap:is([data-pose="sit"],[data-pose="sit-drowsy"],[data-pose="sit-watch"],[data-pose="train-sit"],[data-pose="train-paw"],[data-pose="groom"],[data-pose="bath"],[data-pose="brush"]) {
+  --hit-head-left: 18%; --hit-head-top: 3%; --hit-head-width: 62%; --hit-head-height: 58%; --hit-nose-left: 43%; --hit-nose-top: 35%;
+}
+.pet-wrap:is([data-pose="sniff"],[data-pose="play"],[data-pose="fetch"],[data-pose="eat"],[data-pose="drink"],[data-pose="treat"]) {
+  --hit-head-left: 3%; --hit-head-top: 30%; --hit-head-width: 55%; --hit-head-height: 62%; --hit-nose-left: 25%; --hit-nose-top: 65%;
+}
+.pet-wrap:is([data-pose="wake"],[data-pose="stretch"]) {
+  --hit-head-left: 4%; --hit-head-top: 27%; --hit-head-width: 56%; --hit-head-height: 66%; --hit-nose-left: 25%; --hit-nose-top: 58%;
+}
+.pet-wrap[data-pose="sleep"] {
+  --hit-head-left: 2%; --hit-head-top: 35%; --hit-head-width: 52%; --hit-head-height: 56%; --hit-nose-left: 27%; --hit-nose-top: 62%;
+}
+.pet-wrap[data-pose="sit-drowsy"] { --hit-nose-left: 23%; --hit-nose-top: 38%; }
+.pet-wrap[data-pose="groom"] { --hit-nose-left: 23%; --hit-nose-top: 35%; }
+.pet-wrap[data-pose="brush"] { --hit-head-left: 8%; --hit-head-width: 55%; --hit-nose-left: 17%; --hit-nose-top: 33%; }
+.pet-wrap[data-pose="bath"] { --hit-nose-left: 41%; --hit-nose-top: 30%; }
+.pet-wrap[data-pose="sniff"] { --hit-nose-left: 23%; --hit-nose-top: 73%; }
+.pet-wrap:is([data-pose="play"],[data-pose="fetch"]) { --hit-nose-left: 24%; --hit-nose-top: 55%; }
+.pet-wrap[data-pose="eat"] { --hit-nose-left: 20%; --hit-nose-top: 60%; }
+.pet-wrap[data-pose="drink"] { --hit-nose-left: 23%; --hit-nose-top: 61%; }
+.pet-wrap[data-pose="treat"] { --hit-nose-left: 25%; --hit-nose-top: 56%; }
+.pet-wrap:is([data-pose="wake"],[data-pose="stretch"]) { --hit-nose-left: 24%; --hit-nose-top: 34%; --hit-nose-width: 34%; --hit-nose-height: 30%; }
+.pet-wrap[data-pose="sleep"] { --hit-nose-left: 34%; --hit-nose-top: 61%; }
+.pet-hit-zone { position: absolute; display: block; opacity: 0; }
+.pet-hit-zone--body { z-index: 6; inset: 4% 3%; }
+.pet-hit-zone--head { z-index: 7; top: var(--hit-head-top); left: var(--hit-head-left); width: var(--hit-head-width); height: var(--hit-head-height); border-radius: 48%; }
+.pet-hit-zone--nose { z-index: 8; top: var(--hit-nose-top); left: var(--hit-nose-left); width: var(--hit-nose-width); height: var(--hit-nose-height); border-radius: 50%; }
+
+@keyframes puppyWakeStretchFrames { 0%,54.9% { opacity: 1; } 55%,100% { opacity: 0; } }
+@keyframes puppyWakeSitFrames { 0%,54.9% { opacity: 0; } 55%,73.9% { opacity: 1; } 74%,100% { opacity: 0; } }
+@keyframes puppyWakeStandFrames { 0%,73.9% { opacity: 0; } 74%,100% { opacity: 1; } }
+@keyframes puppyStepA { 0%,49.9% { opacity: 1; } 50%,100% { opacity: 0; } }
+@keyframes puppyStepB { 0%,49.9% { opacity: 0; } 50%,100% { opacity: 1; } }
+@keyframes puppyFrameA { 0%,49.9% { opacity: 1; } 50%,100% { opacity: 0; } }
+@keyframes puppyFrameB { 0%,49.9% { opacity: 0; } 50%,100% { opacity: 1; } }
+@keyframes puppyTravel { from { transform: translateX(-10px); } to { transform: translateX(10px); } }
+@keyframes puppyAlert { 0%,64%,100% { transform: translateY(0); } 76%,88% { transform: translateY(-3px) rotate(1deg); } }
+@keyframes puppyDrowsy { 0%,100% { transform: translateY(2px) rotate(-.5deg); } 50% { transform: translateY(5px) rotate(.5deg); } }
+@keyframes puppyWatch { 0%,100% { transform: rotate(-1deg); } 50% { transform: rotate(1deg); } }
+@keyframes puppySniff { 0%,100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+@keyframes puppyPlay { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(-.5deg); } }
+@keyframes puppyStretch { 0%,100% { transform: translateY(1px); } 50% { transform: translateY(3px); } }
+@keyframes puppySleep { 0%,100% { transform: scale(1); } 50% { transform: scale(1.006,1.016); } }
+@keyframes puppyNibble { 0%,100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+@keyframes puppyStar { 0%,100% { transform: scale(.85) rotate(-7deg); } 50% { transform: scale(1.05) rotate(6deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-sprite,
+  .pet-sprite-star { animation: none !important; transition: none !important; }
+  .pet-wrap[data-pose="walk"] .pet-sprite--walk-a,
+  .pet-wrap[data-pose="groom"] .pet-sprite--groom,
+  .pet-wrap[data-pose="eat"] .pet-sprite--eat,
+  .pet-wrap[data-pose="drink"] .pet-sprite--drink,
+  .pet-wrap[data-pose="bath"] .pet-sprite--bath,
+  .pet-wrap[data-pose="brush"] .pet-sprite--brush { opacity: 1 !important; visibility: visible !important; }
+  .pet-wrap[data-pose="walk"] .pet-sprite--walk-b,
+  .pet-wrap[data-pose="groom"] .pet-sprite--groom-alt,
+  .pet-wrap[data-pose="eat"] .pet-sprite--eat-alt,
+  .pet-wrap[data-pose="drink"] .pet-sprite--drink-alt,
+  .pet-wrap[data-pose="bath"] .pet-sprite--bath-alt,
+  .pet-wrap[data-pose="brush"] .pet-sprite--brush-alt { opacity: 0 !important; visibility: hidden !important; }
+  .pet-wrap[data-pose="wake"] .pet-sprite--wake { opacity: 0 !important; visibility: hidden !important; }
+  .pet-wrap[data-pose="wake"] .pet-sprite--sit { opacity: 0 !important; visibility: hidden !important; }
+  .pet-wrap[data-pose="wake"] .pet-sprite--stand { opacity: 1 !important; visibility: visible !important; }
+}

@@ -1,12 +1,33 @@
-const CACHE = 'living-pet-v21';
+const CACHE = 'living-pet-v23';
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=3.12.0',
-  './app.js?v=3.12.0',
+  './styles.css?v=3.14.0',
+  './app.js?v=3.14.0',
   './manifest.webmanifest',
   './personalizar.html',
-  './assets/icon.svg'
+  './assets/icon.svg',
+  './assets/puppy-stand.webp?v=3.14.0',
+  './assets/puppy-sit.webp?v=3.14.0',
+  './assets/puppy-drowsy.webp?v=3.14.0',
+  './assets/puppy-sniff.webp?v=3.14.0',
+  './assets/puppy-play.webp?v=3.14.0',
+  './assets/puppy-walk-a.webp?v=3.14.0',
+  './assets/puppy-walk-b.webp?v=3.14.0',
+  './assets/puppy-paw.webp?v=3.14.0',
+  './assets/puppy-sleep.webp?v=3.14.0',
+  './assets/puppy-wake.webp?v=3.14.0',
+  './assets/puppy-groom.webp?v=3.14.0',
+  './assets/puppy-groom-alt.webp?v=3.14.0',
+  './assets/puppy-eat.webp?v=3.14.0',
+  './assets/puppy-eat-alt.webp?v=3.14.0',
+  './assets/puppy-drink.webp?v=3.14.0',
+  './assets/puppy-drink-alt.webp?v=3.14.0',
+  './assets/puppy-treat.webp?v=3.14.0',
+  './assets/puppy-bath.webp?v=3.14.0',
+  './assets/puppy-bath-alt.webp?v=3.14.0',
+  './assets/puppy-brush.webp?v=3.14.0',
+  './assets/puppy-brush-alt.webp?v=3.14.0'
 ];
 
 self.addEventListener('install', event => {
