@@ -102,23 +102,23 @@
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
 
   const ACTIVITY_PRESETS = {
-    idle: { icon: '🐾', title: 'Sentadito', description: 'Se sentó cerca de ti para hacerte compañía.', css: 'sitting' },
+    idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atento a lo que hagan juntos.', css: 'standing' },
     drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
     sitting: { icon: '🐕', title: 'Sentado junto a ti', description: 'Se acomodó y mueve la cola mientras te observa.', css: 'sitting' },
     stretching: { icon: '🧘', title: 'Estirándose', description: 'Estira las patas delanteras después de descansar.', css: 'stretching' },
     grooming: { icon: '✨', title: 'Arreglándose', description: 'Se rasca una orejita y vuelve a acomodarse.', css: 'grooming' },
-    exploring: { icon: '🔎', title: 'Explorando', description: 'Está revisando cada rincón de su hogar.', css: 'walking' },
+    exploring: { icon: '🔎', title: 'Siguiendo un olor', description: 'Recorre la casa con la nariz pegada al suelo.', css: 'sniffing' },
     watching: { icon: '🪟', title: 'Mirando la ventana', description: 'Observa el mundo y mueve la cola cuando pasa alguien.', css: 'sitting watching' },
     toy: { icon: '🧸', title: 'Jugando solo', description: 'Encontró su juguete y se entretiene por su cuenta.', css: 'playing' },
-    guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como todo un guardián.', css: 'sitting alert' },
+    guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como todo un guardián.', css: 'standing alert' },
     eating: { icon: '🍲', title: 'Comiendo', description: 'Decidió comer lo que dejaste en su cuenco.', css: 'eating' },
     drinking: { icon: '💧', title: 'Bebiendo agua', description: 'Fue a hidratarse por su cuenta.', css: 'drinking' },
     sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Mientras duerme recupera fuerzas. Su descanso se completa en hasta dos horas.', css: 'sleeping' },
     walking: { icon: '🦮', title: 'De paseo', description: 'Está explorando y olfateando todo a su alrededor.', css: 'walking' },
     training: { icon: '🎓', title: 'Entrenando', description: 'Está concentrado en aprender algo nuevo.', css: 'training' },
     playing: { icon: '🎾', title: 'Jugando contigo', description: 'Corre detrás de la pelota con toda su energía.', css: 'playing' },
-    bathing: { icon: '🛁', title: 'Hora del baño', description: 'No está muy convencido, pero quedará impecable.', css: 'playing' },
-    brushing: { icon: '🪮', title: 'Disfrutando el cepillado', description: 'Se sentó muy quieto mientras lo cepillas.', css: 'sitting' }
+    bathing: { icon: '🛁', title: 'Hora del baño', description: 'Sacude las orejas entre montones de espuma.', css: 'bathing' },
+    brushing: { icon: '🪮', title: 'Disfrutando el cepillado', description: 'Se inclina hacia el cepillo con los ojos felices.', css: 'brushing' }
   };
 
   const defaultState = () => ({
@@ -600,7 +600,7 @@
     if (wokeAtNight) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
     if (byUser && early) modifyStats({ mood: -3, stress: 2 });
     if (wokeAtNight) setActivity('drowsy', 14000);
-    else setActivity('idle', 9000, { title: 'Recién despierto', description: 'Está estirando las patas y mirando a su alrededor.', icon: '🥱' });
+    else setActivity('idle', 5200, { title: 'Recién despierto', description: 'Bosteza, estira las patas y vuelve a ponerse de pie.', icon: '🥱', css: 'waking' });
     if (byUser) {
       addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.` : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`);
       speak(savedProgress < 100 ? 'Todavía tengo sueño. Luego sigo descansando.' : '¡Qué bien dormí!');
@@ -643,7 +643,7 @@
         if (state.stats.food > 95) return speak('Gracias, pero estoy demasiado lleno.'), toast('No quiso comer de más.');
         state.inventory.treat -= 1;
         modifyStats({ food: 9, mood: 8 * (PERSONALITIES[state.personality].food || 1), bond: 2, stress: -2 });
-        setActivity('eating', 2800, { title: 'Comiendo un premio', description: 'Saborea su premio y mueve la cola muy rápido.', icon: '🦴' });
+        setActivity('eating', 2800, { title: 'Comiendo un premio', description: 'Saborea su premio y mueve la cola muy rápido.', icon: '🦴', css: 'treating' });
         recordHabit('care');
         gainXp(6);
         speak('¡Un premio! ¡Un premio!');
@@ -686,7 +686,7 @@
         if (state.inventory.medicine <= 0) return toast('No queda medicina.');
         state.inventory.medicine -= 1;
         modifyStats({ health: 30, stress: 5, mood: -2 });
-        setActivity('idle', 3200, { title: 'Recuperándose', description: 'La medicina está haciendo efecto. Necesita un momento tranquilo.', icon: '🩹' });
+        setActivity('idle', 3200, { title: 'Recuperándose', description: 'La medicina está haciendo efecto. Necesita un momento tranquilo.', icon: '🩹', css: 'sitting' });
         recordHabit('care');
         gainXp(10);
         addJournal('🩹', 'Recibió medicina', `Lo cuidaste a tiempo y ya empezó a sentirse mejor.`);
@@ -797,7 +797,7 @@
     state.coins += 3;
     gainXp(earnedXp);
     recordHabit('train');
-    const trickPose = skillKey === 'sit' ? 'sitting' : skillKey === 'paw' ? 'sitting pawing' : 'playing';
+    const trickPose = skillKey === 'sit' ? 'training training-sit' : skillKey === 'paw' ? 'training training-paw' : 'playing training-fetch';
     setActivity('training', 4500, { title: `Practicando: ${skill.name}`, description: hasTreat ? 'El premio ayudó a mantener toda su atención.' : 'Está intentando comprender la señal.', css: trickPose });
     if (afterLevel > beforeLevel) {
       addJournal(skill.icon, `Mejoró: ${skill.name}`, `${state.petName} alcanzó el nivel ${afterLevel} de este truco.`);
@@ -1966,10 +1966,12 @@
     return urgentNeed?.message || '';
   }
 
-  function triggerPetReaction() {
+  function triggerPetReaction(event) {
     clearTimeout(petReactionTimer);
     const current = now();
     let reactionDuration = 1550;
+    const target = event?.target instanceof Element ? event.target : null;
+    const touchZone = target?.closest('.nose, .muzzle') ? 'nose' : target?.closest('.head') ? 'head' : target ? 'body' : 'head';
 
     if (state.isAsleep) {
       petReaction = 'reaction-sleepy-pat';
@@ -1980,12 +1982,12 @@
     } else {
       const needMessage = pettingNeedMessage(state);
       const reaction = needMessage
-        ? { css: 'reaction-comfort', message: needMessage, symbol: '💗', haptic: [10, 38, 10], duration: 1850, sparkles: 7 }
-        : pick([
-          { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12], duration: 1700, sparkles: 10 },
-          { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14, duration: 1150, sparkles: 7 },
-          { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10], duration: 1900, sparkles: 12 }
-        ]);
+        ? { css: touchZone === 'nose' ? 'reaction-boop' : 'reaction-comfort', message: needMessage, symbol: '💗', haptic: [10, 38, 10], duration: 1850, sparkles: 7 }
+        : touchZone === 'nose'
+          ? { css: 'reaction-boop', message: '¡Me tocaste la nariz!', symbol: '✨', haptic: 14, duration: 1150, sparkles: 7 }
+          : touchZone === 'head'
+            ? { css: 'reaction-cuddle', message: '¡Otra caricia, por favor!', symbol: '💗', haptic: [12, 30, 12], duration: 1700, sparkles: 9 }
+            : { css: 'reaction-dance', message: '¡Mira qué feliz me pongo!', symbol: '💕', haptic: [10, 25, 10, 25, 10], duration: 1900, sparkles: 9 };
       petReaction = reaction.css;
       reactionDuration = reaction.duration;
       speak(reaction.message);
@@ -2105,8 +2107,14 @@
       if (button && !button.disabled) handleTraining(button.dataset.train);
     });
     el('sleepBtn').addEventListener('click', handleSleepButton);
-    el('petWrap').addEventListener('click', triggerPetReaction);
-    el('petWrap').addEventListener('keydown', event => {
+    const petWrap = el('petWrap');
+    petWrap.addEventListener('pointerdown', event => {
+      if (event.button != null && event.button !== 0) return;
+      petWrap.classList.add('is-pressed');
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => petWrap.addEventListener(type, () => petWrap.classList.remove('is-pressed')));
+    petWrap.addEventListener('click', triggerPetReaction);
+    petWrap.addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
       event.preventDefault();
       triggerPetReaction();

@@ -7,7 +7,7 @@
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.11.0" />
+  <link rel="stylesheet" href="styles.css?v=3.12.0" />
   <title>La casita de Milo</title>
 </head>
 <body>
@@ -57,21 +57,41 @@
           <div class="pet-wrap" id="petWrap" role="button" tabindex="0" aria-label="Acariciar al perrito virtual">
             <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
             <div class="sparkles" id="sparkles" aria-hidden="true"></div>
-            <div class="dog happy-face" id="dog">
-              <div class="tail"></div>
-              <div class="body"><span class="chest"></span></div>
-              <div class="paw paw-left"></div>
-              <div class="paw paw-right"></div>
-              <div class="ear ear-left"></div>
-              <div class="ear ear-right"></div>
-              <div class="head">
-                <span class="spot"></span>
-                <span class="eye eye-left"></span>
-                <span class="eye eye-right"></span>
-                <span class="brow brow-left"></span>
-                <span class="brow brow-right"></span>
-                <div class="muzzle"><span class="nose"></span><span class="mouth"></span><span class="tongue"></span></div>
-                <span class="dirt dirt-one">●</span><span class="dirt dirt-two">●</span>
+            <div class="pet-ground-shadow" aria-hidden="true"></div>
+            <div class="pose-props" aria-hidden="true">
+              <span class="prop-ball"><i></i></span>
+              <span class="prop-treat"></span>
+              <span class="prop-bowl prop-food"><i></i></span>
+              <span class="prop-bowl prop-water"><i></i></span>
+              <span class="prop-brush"></span>
+              <span class="prop-bubbles"><i></i><i></i><i></i><i></i></span>
+              <span class="prop-scent"><i></i><i></i><i></i></span>
+              <span class="prop-star">★</span>
+            </div>
+            <div class="pet-track">
+              <span class="prop-pet-hand" aria-hidden="true"><i></i></span>
+              <div class="pet-react">
+                <div class="dog happy-face" id="dog" aria-hidden="true">
+                  <div class="tail"><span></span></div>
+                  <div class="hind-leg hind-left"><span></span></div>
+                  <div class="hind-leg hind-right"><span></span></div>
+                  <div class="body"><span class="body-spot"></span><span class="chest"></span></div>
+                  <div class="collar"><i></i></div>
+                  <div class="paw paw-left"><span></span></div>
+                  <div class="paw paw-right"><span></span></div>
+                  <div class="head">
+                    <span class="ear ear-left"><i></i></span>
+                    <span class="ear ear-right"><i></i></span>
+                    <span class="spot"></span>
+                    <span class="eye eye-left"></span>
+                    <span class="eye eye-right"></span>
+                    <span class="brow brow-left"></span>
+                    <span class="brow brow-right"></span>
+                    <div class="muzzle"><span class="nose"></span><span class="mouth"></span><span class="tongue"></span></div>
+                    <span class="dirt dirt-one">●</span><span class="dirt dirt-two">●</span>
+                  </div>
+                  <div class="sleep-blanket"><span>✦</span><span>✦</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -387,6 +407,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.11.0" defer></script>
+  <script src="app.js?v=3.12.0" defer></script>
 </body>
 </html>
