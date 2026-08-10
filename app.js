@@ -121,8 +121,19 @@
     brushing: { icon: '🪮', title: 'Disfrutando el cepillado', description: 'Se inclina hacia el cepillo con los ojos felices.', css: 'brushing' }
   };
 
+  const LONELY_AFTER_MS = 6 * 3_600_000;
+  const PET_CONDITIONS = {
+    sick: { key: 'sick', icon: '🩹', title: 'No se siente bien', description: 'Está decaído y necesita que revises su salud.', badge: 'Se siente mal', badgeState: 'critical', pose: 'sick', face: 'sick-face' },
+    hungry: { key: 'hungry', icon: '🍲', title: 'Tiene hambre', description: 'Mira su cuenco y espera que le dejes comida.', badge: 'Tiene hambre', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
+    thirsty: { key: 'thirsty', icon: '💧', title: 'Tiene sed', description: 'Necesita agua fresca antes de seguir jugando.', badge: 'Tiene sed', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
+    dirty: { key: 'dirty', icon: '🫧', title: 'Se siente sucio', description: 'El lodo le pica un poco. Un cepillado o baño le ayudará.', badge: 'Necesita limpieza', badgeState: 'warning', pose: 'dirty', face: 'sad-face' },
+    tired: { key: 'tired', icon: '🌙', title: 'Está muy cansado', description: 'Se le cierran los ojos y necesita descansar.', badge: 'Tiene sueño', badgeState: 'warning', pose: 'sit-drowsy', face: 'sleepy-face' },
+    sad: { key: 'sad', icon: '💗', title: 'Está triste', description: 'Hoy necesita un poco más de compañía y cariño.', badge: 'Está triste', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
+    lonely: { key: 'lonely', icon: '💌', title: 'Te extrañó', description: 'Estuvo esperando tu regreso y quiere estar cerquita de ti.', badge: 'Te extrañó', badgeState: 'warning', pose: 'lonely', face: 'sad-face' }
+  };
+
   const defaultState = () => ({
-    version: 3,
+    version: 4,
     initialized: false,
     partnerName: '',
     petName: 'Milo',
@@ -130,6 +141,7 @@
     customNote: '',
     createdAt: now(),
     lastUpdated: now(),
+    lastInteractionAt: now(),
     lastVisitDate: '',
     personality: 'curious',
     stats: { food: 78, water: 84, energy: 76, hygiene: 88, health: 100, bond: 18 },
@@ -272,6 +284,7 @@
     };
     normalized.photos = Array.isArray(saved.photos) ? saved.photos.slice(0, MAX_PHOTOS) : [];
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
+    normalized.lastInteractionAt = Number(saved.lastInteractionAt) || Number(saved.lastUpdated) || Number(saved.createdAt) || now();
     if (!PERSONALITIES[normalized.personality]) normalized.personality = 'curious';
     Object.keys(normalized.stats).forEach(key => normalized.stats[key] = clamp(normalized.stats[key]));
     normalized.sleepProgress = clamp(normalized.sleepProgress);
@@ -310,6 +323,10 @@
 
   function touch() {
     state.lastUpdated = now();
+  }
+
+  function markInteraction(timestamp = now()) {
+    state.lastInteractionAt = timestamp;
   }
 
   function modifyStats(changes) {
@@ -436,8 +453,9 @@
     }
   }
 
-  function recordHabit(type) {
+  function recordHabit(type, interacted = true) {
     ensureDailyVisit();
+    if (interacted) markInteraction();
     if (type in state.habits) state.habits[type] += 1;
     state.day.actions += 1;
   }
@@ -479,6 +497,19 @@
 
   function activityPreset() {
     return { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
+  }
+
+  function currentPetCondition(reference = now()) {
+    if (!state.initialized || state.isAsleep) return null;
+    if (state.stats.health < 48) return PET_CONDITIONS.sick;
+    if (state.stats.food < 40) return PET_CONDITIONS.hungry;
+    if (state.stats.water < 40) return PET_CONDITIONS.thirsty;
+    if (state.stats.hygiene < 42) return PET_CONDITIONS.dirty;
+    if (state.stats.energy < 32) return PET_CONDITIONS.tired;
+    if (state.mood < 48 || state.stress > 65) return PET_CONDITIONS.sad;
+    const lastInteraction = Number(state.lastInteractionAt) || Number(state.lastUpdated) || Number(state.createdAt) || reference;
+    if (reference - lastInteraction >= LONELY_AFTER_MS) return PET_CONDITIONS.lonely;
+    return null;
   }
 
   function resolvePetPose(css = '') {
@@ -525,7 +556,11 @@
     drink: ['drink', 'drink-alt'],
     treat: ['treat'],
     bath: ['bath', 'bath-alt'],
-    brush: ['brush', 'brush-alt']
+    brush: ['brush', 'brush-alt'],
+    sad: ['sad'],
+    sick: ['sick'],
+    dirty: ['dirty'],
+    lonely: ['lonely']
   };
   const decodedPetSprites = new WeakSet();
 
@@ -654,7 +689,7 @@
     state.sleepStartedAt = now();
     state.sleepUntil = now() + duration;
     setActivity('sleeping');
-    recordHabit('sleep');
+    recordHabit('sleep', !automatic);
     addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : resumedProgress ? 'Retomó su descanso' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : resumedProgress ? `Continuará desde el ${resumedProgress}% hasta completar su descanso.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
     if (!automatic) speak(resumedProgress ? 'Todavía tengo sueño… seguiré descansando.' : 'Arrópame bien… zzz.');
     touch();
@@ -684,6 +719,7 @@
     state.sleepUntil = 0;
     const wakeHour = new Date().getHours();
     const wokeAtNight = byUser && (wakeHour >= 22 || wakeHour < 6);
+    if (byUser) markInteraction();
     if (byUser) state.manualAwakeUntil = now() + 30 * 60_000;
     if (wokeAtNight) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
     if (byUser && early) modifyStats({ mood: -3, stress: 2 });
@@ -1640,6 +1676,7 @@
     });
     state.story.lastDate = localDateKey();
     state.story.choices[currentMoment.id] = choice.id;
+    markInteraction();
     gainXp(4);
     addJournal(currentMoment.icon, currentMoment.title, choice.memory);
     setActivity(choice.activity || 'sitting', 4800, { title: currentMoment.title, description: choice.memory });
@@ -1675,21 +1712,26 @@
     nudge.hidden = suppressed;
     if (suppressed) return;
     let suggestion;
+    const condition = currentPetCondition();
 
-    if (state.stats.health < 38) {
+    if (condition?.key === 'sick') {
       suggestion = { icon: '🩹', kicker: `${petName} te necesita`, title: 'No me siento bien…', text: 'Revisa su salud y ayúdalo a recuperarse.', action: 'care', label: 'Cuidarlo' };
-    } else if (state.stats.food < 34) {
+    } else if (condition?.key === 'hungry') {
       suggestion = state.bowls.food
         ? { icon: '🍲', kicker: `${petName} tiene comida lista`, title: 'Ya olí mi comida', text: 'Comerá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
         : { icon: '🍲', kicker: `${petName} tiene hambre`, title: '¿Me dejas comida?', text: 'Su cuenco está vacío.', action: 'care', label: 'Servir comida' };
-    } else if (state.stats.water < 39) {
+    } else if (condition?.key === 'thirsty') {
       suggestion = state.bowls.water
         ? { icon: '💧', kicker: `${petName} tiene agua lista`, title: 'Tengo un poquito de sed', text: 'Beberá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
         : { icon: '💧', kicker: `${petName} tiene sed`, title: '¿Llenas mi cuenco?', text: 'Necesita agua antes de otra aventura.', action: 'care', label: 'Darle agua' };
-    } else if (state.stats.hygiene < 38) {
+    } else if (condition?.key === 'dirty') {
       suggestion = { icon: '🫧', kicker: `${petName} necesita cuidados`, title: 'Creo que me ensucié…', text: 'Un cepillado o un baño le vendrían bien.', action: 'care', label: 'Limpiarlo' };
-    } else if (state.stats.energy < 34) {
+    } else if (condition?.key === 'tired') {
       suggestion = { icon: '🌙', kicker: `${petName} tiene sueño`, title: 'Se me cierran los ojos…', text: 'Puede descansar ahora y continuar después.', action: 'sleep', label: 'Arroparlo' };
+    } else if (condition?.key === 'sad') {
+      suggestion = { icon: '💗', kicker: `${petName} necesita compañía`, title: '¿Te quedas conmigo?', text: 'Una caricia le ayudará a sentirse acompañado.', action: 'pet', label: 'Acariciarlo' };
+    } else if (condition?.key === 'lonely') {
+      suggestion = { icon: '💌', kicker: `${petName} te extrañó`, title: '¡Qué bueno que volviste!', text: 'Estuvo esperando un ratito de cariño contigo.', action: 'pet', label: 'Saludarlo' };
     } else if (canOfferMoment()) {
       suggestion = { icon: '💌', kicker: `${petName} quiere contarte algo`, title: 'Tengo algo que contarte…', text: 'Escúchalo y elijan juntos qué hacer.', action: 'moment', label: 'Escucharlo' };
     } else {
@@ -1739,7 +1781,11 @@
     const minimum = Math.min(state.stats.food, state.stats.water, state.stats.energy, state.stats.hygiene, state.stats.health);
     let badgeText = 'Está feliz';
     let badgeState = '';
-    if (minimum < 25) {
+    const condition = currentPetCondition();
+    if (condition) {
+      badgeText = condition.badge;
+      badgeState = condition.badgeState;
+    } else if (minimum < 25) {
       badgeText = 'Te necesita';
       badgeState = 'critical';
     } else if (minimum < 48) {
@@ -1772,17 +1818,21 @@
     el('petStage').textContent = state.level >= 8 ? 'Tu compañero inseparable' : state.level >= 5 ? 'Un perro seguro y lleno de vida' : state.level >= 3 ? 'Un cachorro que aprende rápido' : 'Cachorro recién adoptado';
 
     const activity = activityPreset();
-    el('nowIcon').textContent = activity.icon;
-    el('nowTitle').textContent = activity.title;
-    el('nowDescription').textContent = activity.description;
+    const condition = !isBusy() ? currentPetCondition() : null;
+    const displayState = condition || activity;
+    el('nowIcon').textContent = displayState.icon;
+    el('nowTitle').textContent = displayState.title;
+    el('nowDescription').textContent = displayState.description;
     const wrap = el('petWrap');
     wrap.className = `pet-wrap ${activity.css || ''} ${petReaction}`.trim();
+    if (condition) wrap.dataset.condition = condition.key;
+    else delete wrap.dataset.condition;
     const sceneHour = new Date().getHours();
     const nightAwake = (sceneHour >= 22 || sceneHour < 6) && now() < Number(state.manualAwakeUntil || 0);
     const activityPose = resolvePetPose(activity.css);
-    const pose = !state.isAsleep && (state.stats.energy < 22 || nightAwake) && ['stand', 'stand-alert', 'sit', 'sit-watch'].includes(activityPose)
+    const pose = condition?.pose || (!state.isAsleep && (state.stats.energy < 22 || nightAwake) && ['stand', 'stand-alert', 'sit', 'sit-watch'].includes(activityPose)
       ? 'sit-drowsy'
-      : activityPose;
+      : activityPose);
     ensurePetPoseSprites(pose, wrap);
     wrap.setAttribute('aria-label', `${state.isAsleep ? 'Acariciar suavemente a' : 'Acariciar a'} ${petName}`);
     el('petTouchHint').textContent = state.isAsleep ? 'Tócalo con suavidad' : `Acaricia a ${petName}`;
@@ -1790,11 +1840,12 @@
     const dog = el('dog');
     const average = (state.stats.food + state.stats.water + state.stats.energy + state.stats.hygiene + state.stats.health + state.mood) / 6;
     dog.className = 'dog';
-    if (state.isAsleep || state.stats.energy < 22 || nightAwake) dog.classList.add('sleepy-face');
+    if (condition?.face) dog.classList.add(condition.face);
+    else if (state.isAsleep || state.stats.energy < 22 || nightAwake) dog.classList.add('sleepy-face');
     else if (state.stats.health < 40) dog.classList.add('sick-face');
     else if (average < 44 || state.stress > 70) dog.classList.add('sad-face');
     else dog.classList.add('happy-face');
-    if (state.stats.hygiene < 36) dog.classList.add('dirty');
+    if (state.stats.hygiene < 42) dog.classList.add('dirty');
 
     const savedSleepProgress = Math.floor(state.sleepProgress);
     const hasSavedRest = !state.isAsleep && savedSleepProgress > 0 && savedSleepProgress < 100;
@@ -2056,7 +2107,8 @@
     const urgentNeed = needs
       .filter(need => need.value < need.threshold)
       .sort((a, b) => (a.value / a.threshold) - (b.value / b.threshold))[0];
-    return urgentNeed?.message || '';
+    if (urgentNeed) return urgentNeed.message;
+    return currentPetCondition()?.key === 'lonely' ? '¡Gracias por volver! Te extrañé mucho.' : '';
   }
 
   function triggerPetReaction(event) {
@@ -2090,9 +2142,13 @@
       if (state.initialized && current - lastAffectionRewardAt > 30_000) {
         modifyStats({ mood: 1.5, bond: .7, stress: -1 });
         lastAffectionRewardAt = current;
-        touch();
-        saveState();
       }
+    }
+
+    if (state.initialized) {
+      markInteraction(current);
+      touch();
+      saveState();
     }
 
     render();
@@ -2307,6 +2363,7 @@
       activeWorldView = 'home';
       state.personality = assignPersonality(`${partner}-${pet}-${state.createdAt}`);
       state.lastUpdated = now();
+      state.lastInteractionAt = now();
       state.lastVisitDate = localDateKey();
       state.day = { key: localDateKey(), actions: 0, bonusClaimed: true };
       setActivity('exploring', 20000);
@@ -2390,8 +2447,11 @@
       openModal('welcomeModal');
     } else {
       setTimeout(() => {
+        const condition = currentPetCondition();
         const greetings = state.isAsleep
           ? ['Zzz…', 'Estoy descansando…']
+          : condition?.key === 'lonely'
+            ? [`¡Volviste${state.partnerName ? `, ${state.partnerName}` : ''}! Te extrañé mucho.`, '¡Qué bueno que regresaste! Estuve esperándote.']
           : [`¡Qué bueno que volviste${state.partnerName ? `, ${state.partnerName}` : ''}!`, '¡Tengo muchas cosas que contarte!', '¡Llegaste justo a tiempo!'];
         speak(pick(greetings));
       }, 650);
