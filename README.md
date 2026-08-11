@@ -28,7 +28,7 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 - Rincones compactos de Casa y Crecer, sin repetir las necesidades.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
-- Cuatro minijuegos de coordinación, agilidad, memoria y esquiva, disponibles desde el inicio; Corazón valiente suma patrones móviles y flores para recoger.
+- Cuatro minijuegos de coordinación, agilidad, memoria y empatía, disponibles desde el inicio; Encuentro amistoso propone decisiones por turnos según cómo se siente cada visitante.
 - Retos jugables que también pueden aparecer durante paseos y entrenamientos.
 - Controles por teclado, toque, arrastre y botones táctiles.
 - Monedas, inventario y tienda.

@@ -42,7 +42,7 @@
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.22.0" />
+  <link rel="stylesheet" href="styles.css?v=3.23.0" />
   <title>La casita de Lolita</title>
 </head>
 <body>
@@ -307,7 +307,7 @@
         <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Atrapa la pelota</strong><small>Acerca la marca a la zona verde durante cinco rondas</small></span><b id="ballGameStatus">Energía −12</b></button>
         <button type="button" data-arcade="dodge"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Pista de reflejos</strong><small>Guía la huella entre hojas, gotitas y conos</small></span><b id="dodgeGameStatus">Energía −7</b></button>
         <button type="button" data-arcade="memory"><span class="arcade-icon">🎨</span><span class="arcade-copy"><strong>Secuencia de señales</strong><small>Observa las señales y repítelas en el mismo orden</small></span><b id="memoryGameStatus">Energía −5</b></button>
-        <button type="button" data-arcade="heart"><span class="arcade-icon heart-arcade-icon">♥</span><span class="arcade-copy"><strong>Corazón valiente</strong><small>Guía el corazón, esquiva patrones y reúne flores</small></span><b id="heartGameStatus">Energía −8</b></button>
+        <button type="button" data-arcade="encounter"><span class="arcade-icon encounter-arcade-icon">💬</span><span class="arcade-copy"><strong>Encuentro amistoso</strong><small>Interpreta cómo se siente cada visitante y responde</small></span><b id="encounterGameStatus">Energía −6</b></button>
       </div>
     </section>
   </div>
@@ -405,30 +405,27 @@
     </section>
   </div>
 
-  <div class="modal-backdrop" id="heartModal" hidden inert>
-    <section class="modal challenge-modal play-modal heart-modal" role="dialog" aria-modal="true" aria-labelledby="heartTitle">
-      <div class="modal-heading"><div><h2 id="heartTitle">Corazón valiente</h2></div><button class="close-button" type="button" data-close="heartModal" aria-label="Cerrar">×</button></div>
-      <p>Mueve el corazón, esquiva los patrones del jardín y reúne flores durante 18 segundos.</p>
+  <div class="modal-backdrop" id="encounterModal" hidden inert>
+    <section class="modal challenge-modal play-modal encounter-modal" role="dialog" aria-modal="true" aria-labelledby="encounterTitle">
+      <div class="modal-heading"><div><h2 id="encounterTitle">Encuentro amistoso</h2></div><button class="close-button" type="button" data-close="encounterModal" aria-label="Cerrar">×</button></div>
+      <p>Lee cómo se siente cada visitante y elige la respuesta que necesita en cinco turnos.</p>
       <div class="play-stage">
-        <div class="play-mascot"><span class="play-icon heart-creature" aria-hidden="true">♥</span><div><strong>El corazón de <span class="pet-name-inline">Lolita</span></strong><small>Se hace más fuerte con cada flor.</small></div></div>
-        <div class="play-tip" id="heartDialogue">El jardín está tranquilo. Prepárate para moverte.</div>
-        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Vida <strong id="heartLives">♥♥♥</strong></span><span>Flores <strong id="heartFlowers">0 / 5</strong></span><span>Tiempo <strong id="heartTime">18</strong>s</span></div>
-        <div class="dodge-arena heart-arena" id="heartArena" tabindex="0" aria-label="Área de juego. Mueve el corazón para esquivar los patrones y recoger flores.">
-          <div class="heart-garden-grid" aria-hidden="true"></div>
-          <div class="wave-label heart-wave-label" id="heartWave" aria-hidden="true">Ronda 1 · Lluvia suave</div>
-          <div class="dodge-message heart-message" id="heartMessage">Toca Empezar y guía el corazón.</div>
-          <span class="heart-player" id="heartPlayer" aria-hidden="true">♥</span>
-          <div id="heartObjectLayer" aria-hidden="true"></div>
+        <div class="play-mascot"><span class="play-icon encounter-creature" aria-hidden="true">💬</span><div><strong>Una aventura con <span class="pet-name-inline">Lolita</span></strong><small>Aquí importa comprender, no ser rápida.</small></div></div>
+        <div class="play-tip" id="encounterMessage" role="status" aria-live="polite">Observa sus palabras y elige una respuesta amable.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Turno <strong id="encounterRound">0 / 5</strong></span><span>Amistad <strong id="encounterFriendship">0 / 5</strong></span><span>Intentos <strong id="encounterLives">♥♥♥</strong></span></div>
+        <div class="encounter-scene" id="encounterScene">
+          <span class="encounter-visitor" id="encounterVisitorIcon" aria-hidden="true">💬</span>
+          <div><strong id="encounterVisitorName">Visitante del jardín</strong><p id="encounterClue">Cada visitante expresa lo que necesita de una manera distinta.</p></div>
+        </div>
+        <div class="encounter-progress" id="encounterProgress" role="progressbar" aria-label="Progreso de amistad" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><i id="encounterMeter"></i></div>
+        <div class="encounter-actions" id="encounterActions" aria-label="Respuestas disponibles">
+          <button type="button" data-encounter-action="greet" disabled><span>👋</span><strong>Saludar</strong></button>
+          <button type="button" data-encounter-action="listen" disabled><span>👂</span><strong>Escuchar</strong></button>
+          <button type="button" data-encounter-action="play" disabled><span>🎾</span><strong>Jugar</strong></button>
+          <button type="button" data-encounter-action="space" disabled><span>🌿</span><strong>Dar espacio</strong></button>
         </div>
       </div>
-      <div class="touch-controls heart-controls" aria-label="Controles de movimiento del corazón">
-        <button type="button" data-heart-dir="up" aria-label="Mover arriba">▲</button>
-        <span></span>
-        <button type="button" data-heart-dir="left" aria-label="Mover a la izquierda">◀</button>
-        <button type="button" data-heart-dir="down" aria-label="Mover abajo">▼</button>
-        <button type="button" data-heart-dir="right" aria-label="Mover a la derecha">▶</button>
-      </div>
-      <button class="primary full-button" id="startHeartBtn" type="button">Empezar reto · Energía −8</button>
+      <button class="primary full-button" id="startEncounterBtn" type="button">Empezar encuentro · Energía −6</button>
     </section>
   </div>
 
@@ -456,6 +453,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.22.1" defer></script>
+  <script src="app.js?v=3.23.0" defer></script>
 </body>
 </html>

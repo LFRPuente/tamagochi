@@ -61,7 +61,7 @@
     arcadeBall: 12,
     arcadeDodge: 7,
     arcadeMemory: 5,
-    arcadeHeart: 8,
+    arcadeEncounter: 6,
     walkDodge: 3,
     trainingMemory: 2
   };
@@ -69,10 +69,20 @@
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
   const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
-  const HEART_GAME_DURATION = 18;
-  const HEART_FLOWER_GOAL = 5;
+  const ENCOUNTER_ROUND_COUNT = 5;
   const SURPRISE_LEVEL_KEYS = ['food', 'water', 'hygiene', 'health', 'bond'];
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
+
+  const ENCOUNTER_SCENARIOS = [
+    { icon: '✨', name: 'Luciérnaga tímida', clue: 'Su luz tiembla cuando te acercas. Parece que necesita un momento sin presión.', answer: 'space', success: 'Le diste espacio y su luz volvió a brillar con calma.' },
+    { icon: '☁️', name: 'Nube pensativa', clue: 'Suspira y empieza a contarte algo, pero se detiene para comprobar si le prestas atención.', answer: 'listen', success: 'La escuchaste hasta el final y se sintió comprendida.' },
+    { icon: '🌱', name: 'Brote nuevo', clue: 'Asoma entre las hojas y te mira con curiosidad. Parece esperar una presentación amable.', answer: 'greet', success: 'Lo saludaste con suavidad y se animó a acercarse.' },
+    { icon: '🍂', name: 'Hoja inquieta', clue: 'Da vueltas y pequeños saltos frente a ustedes. Tiene muchísimas ganas de divertirse.', answer: 'play', success: 'Jugaron juntas y la hoja terminó dando vueltas de felicidad.' },
+    { icon: '🌙', name: 'Estrella callada', clue: 'Tiene una historia preparada, pero habla muy bajito y hace largas pausas.', answer: 'listen', success: 'Esperaste cada pausa y la estrella pudo terminar su historia.' },
+    { icon: '🌼', name: 'Flor reservada', clue: 'Cierra sus pétalos cuando alguien se acerca demasiado. Hoy prefiere tomar confianza despacio.', answer: 'space', success: 'Respetaste su distancia y abrió un pétalo para despedirse.' },
+    { icon: '🎈', name: 'Globo solitario', clue: 'Flota cerca y mueve su cuerda como si quisiera que alguien notara que llegó.', answer: 'greet', success: 'Lo recibiste con alegría y dejó de esconderse detrás de las ramas.' },
+    { icon: '🎾', name: 'Pelota traviesa', clue: 'Rueda hasta tus pies, se aleja y vuelve a hacerlo. La invitación parece bastante clara.', answer: 'play', success: 'Aceptaste el juego y rebotó de emoción a su lado.' }
+  ];
 
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atenta a lo que hagan juntas.', css: 'standing' },
@@ -127,7 +137,7 @@
     inventory: { food: 3, treat: 2, soap: 2, medicine: 1 },
     bowls: { food: 0, water: 2 },
     skills: { sit: 0, paw: 0, fetch: 0 },
-    arcade: { ballBest: 0, dodgeBest: 0, memoryBest: 0, heartBest: 0, played: 0 },
+    arcade: { ballBest: 0, dodgeBest: 0, memoryBest: 0, encounterBest: 0, played: 0 },
     habits: { care: 0, walk: 0, train: 0, play: 0, sleep: 0 },
     activity: { type: 'exploring', startedAt: now(), endsAt: now() + 18000 },
     isAsleep: false,
@@ -185,20 +195,15 @@
   let memoryScore = 0;
   let memoryContext = { source: 'arcade', bonus: 0 };
   let memoryTimers = [];
-  let heartActive = false;
-  let heartFrame = null;
-  let heartStartedAt = 0;
-  let heartLastFrame = 0;
-  let heartLastSpawn = 0;
-  let heartLastFlowerAt = 0;
-  let heartLives = 3;
-  let heartScore = 0;
-  let heartFlowers = 0;
-  let heartCurrentWave = 0;
-  let heartPlayerPosition = { x: .5, y: .72 };
-  let heartObjects = [];
-  let heartInvulnerableUntil = 0;
-  const heartDirections = new Set();
+  let encounterActive = false;
+  let encounterLocked = false;
+  let encounterRound = 0;
+  let encounterLives = 3;
+  let encounterScore = 0;
+  let encounterFriendship = 0;
+  let encounterDeck = [];
+  let encounterCurrent = null;
+  let encounterTimer = null;
   let previousFocus = null;
   let petReaction = '';
   let petReactionTimer = null;
@@ -657,7 +662,7 @@
   }
 
   function isBusy() {
-    return gameActive || dodgeActive || memoryActive || heartActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'drowsy', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
+    return gameActive || dodgeActive || memoryActive || encounterActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'drowsy', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
   }
 
   function resolveActivity() {
@@ -1084,7 +1089,7 @@
     if (type === 'ball') return ENERGY_COSTS.arcadeBall;
     if (type === 'dodge') return ENERGY_COSTS.arcadeDodge;
     if (type === 'memory') return ENERGY_COSTS.arcadeMemory;
-    if (type === 'heart') return ENERGY_COSTS.arcadeHeart;
+    if (type === 'encounter') return ENERGY_COSTS.arcadeEncounter;
     return 0;
   }
 
@@ -1285,7 +1290,7 @@
       }
       else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Pista de reflejos', description: 'Mueve la huella y evita hojas, gotitas y conos durante 15 segundos.' });
       else if (type === 'memory') openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Secuencia de señales', description: 'Observa las señales y repítelas. Cada ronda será un poco más larga.' });
-      else openHeartEncounter();
+      else openFriendlyEncounter();
     }, 230);
   }
 
@@ -1709,248 +1714,162 @@
     render();
   }
 
-  function openHeartEncounter() {
-    heartCurrentWave = 0;
-    heartLives = 3;
-    heartScore = 0;
-    heartFlowers = 0;
-    heartPlayerPosition = { x: .5, y: .72 };
-    heartInvulnerableUntil = 0;
-    heartDirections.clear();
-    clearHeartObjects();
-    el('heartLives').textContent = '♥♥♥';
-    el('heartFlowers').textContent = `0 / ${HEART_FLOWER_GOAL}`;
-    el('heartTime').textContent = String(HEART_GAME_DURATION);
-    el('heartWave').textContent = 'Ronda 1 · Lluvia suave';
-    el('heartDialogue').textContent = 'El jardín está tranquilo. Prepárate para moverte.';
-    el('heartMessage').hidden = false;
-    el('heartMessage').textContent = 'Toca Empezar y guía el corazón.';
-    el('heartPlayer').style.display = 'none';
-    el('startHeartBtn').disabled = false;
-    el('startHeartBtn').textContent = `Empezar reto · ${energyLabel(ENERGY_COSTS.arcadeHeart)}`;
-    openModal('heartModal');
+  function shuffledEncounterScenarios() {
+    const scenarios = [...ENCOUNTER_SCENARIOS];
+    for (let index = scenarios.length - 1; index > 0; index--) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [scenarios[index], scenarios[swapIndex]] = [scenarios[swapIndex], scenarios[index]];
+    }
+    return scenarios.slice(0, ENCOUNTER_ROUND_COUNT);
   }
 
-  function startHeartGame() {
-    if (heartActive) return;
+  function setEncounterActionsDisabled(disabled) {
+    document.querySelectorAll('[data-encounter-action]').forEach(button => button.disabled = disabled);
+  }
+
+  function resetEncounterActionStyles() {
+    document.querySelectorAll('[data-encounter-action]').forEach(button => button.classList.remove('correct', 'wrong'));
+    el('encounterVisitorIcon').classList.remove('happy', 'unsure');
+  }
+
+  function openFriendlyEncounter() {
+    clearTimeout(encounterTimer);
+    encounterTimer = null;
+    encounterRound = 0;
+    encounterLives = 3;
+    encounterScore = 0;
+    encounterFriendship = 0;
+    encounterCurrent = null;
+    resetEncounterActionStyles();
+    setEncounterActionsDisabled(true);
+    el('encounterRound').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterFriendship').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterLives').textContent = '♥♥♥';
+    el('encounterMeter').style.width = '0%';
+    el('encounterProgress').setAttribute('aria-valuenow', '0');
+    el('encounterVisitorIcon').textContent = '💬';
+    el('encounterVisitorName').textContent = 'Visitante del jardín';
+    el('encounterClue').textContent = 'Cada visitante expresa lo que necesita de una manera distinta.';
+    el('encounterMessage').textContent = 'Observa sus palabras y elige una respuesta amable.';
+    el('startEncounterBtn').disabled = false;
+    el('startEncounterBtn').textContent = `Empezar encuentro · ${energyLabel(ENERGY_COSTS.arcadeEncounter)}`;
+    openModal('encounterModal');
+  }
+
+  function startFriendlyEncounter() {
+    if (encounterActive) return;
     if (state.isAsleep || isBusy()) return toast(`${state.petName} no puede jugar ahora.`);
-    if (state.stats.energy < ENERGY_COSTS.arcadeHeart) return toast(`Necesita ${ENERGY_COSTS.arcadeHeart}% de energía para jugar.`);
-    heartActive = true;
-    heartCurrentWave = 0;
-    heartLives = 3;
-    heartScore = 0;
-    heartFlowers = 0;
-    heartPlayerPosition = { x: .5, y: .72 };
-    heartInvulnerableUntil = 0;
-    heartDirections.clear();
-    clearHeartObjects();
-    el('heartLives').textContent = '♥♥♥';
-    el('heartFlowers').textContent = `0 / ${HEART_FLOWER_GOAL}`;
-    el('heartTime').textContent = String(HEART_GAME_DURATION);
-    el('heartWave').textContent = 'Ronda 1 · Lluvia suave';
-    el('heartDialogue').textContent = `Protege el corazón de ${state.petName} y busca las flores.`;
-    el('heartMessage').hidden = true;
-    el('heartPlayer').style.display = 'flex';
-    el('heartPlayer').style.left = '50%';
-    el('heartPlayer').style.top = '72%';
-    el('startHeartBtn').disabled = true;
-    el('startHeartBtn').textContent = 'Reto en curso';
-    el('heartArena').focus({ preventScroll: true });
-    heartStartedAt = performance.now();
-    heartLastFrame = heartStartedAt;
-    heartLastSpawn = heartStartedAt - 700;
-    heartLastFlowerAt = heartStartedAt - 1700;
-    heartFrame = requestAnimationFrame(updateHeartFrame);
+    if (state.stats.energy < ENERGY_COSTS.arcadeEncounter) return toast(`Necesita ${ENERGY_COSTS.arcadeEncounter}% de energía para jugar.`);
+    encounterActive = true;
+    encounterLocked = false;
+    encounterRound = 0;
+    encounterLives = 3;
+    encounterScore = 0;
+    encounterFriendship = 0;
+    encounterDeck = shuffledEncounterScenarios();
+    clearTimeout(encounterTimer);
+    encounterTimer = null;
+    el('encounterRound').textContent = `1 / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterFriendship').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterLives').textContent = '♥♥♥';
+    el('encounterMeter').style.width = '0%';
+    el('encounterProgress').setAttribute('aria-valuenow', '0');
+    el('startEncounterBtn').disabled = true;
+    el('startEncounterBtn').textContent = 'Encuentro en curso';
+    showEncounterRound();
   }
 
-  function createHeartObject({ kind = 'hazard', x, y, vx, vy, size = 20, symbol = '●' }) {
-    const node = document.createElement('span');
-    node.className = `heart-object ${kind}`;
-    node.textContent = symbol;
-    node.style.width = `${size}px`;
-    node.style.height = `${size}px`;
-    el('heartObjectLayer').appendChild(node);
-    heartObjects.push({ node, kind, x, y, vx, vy, size });
-  }
-
-  function spawnHeartHazard(wave) {
-    const speed = .27 + wave * .035 + Math.random() * .045;
-    if (wave === 0) {
-      createHeartObject({ kind: 'rain', x: .06 + Math.random() * .88, y: -.08, vx: (Math.random() - .5) * .035, vy: speed, size: 18 + Math.random() * 5, symbol: '◆' });
+  function showEncounterRound() {
+    if (!encounterActive) return;
+    if (encounterRound >= ENCOUNTER_ROUND_COUNT || encounterLives <= 0) {
+      finishFriendlyEncounter(false);
       return;
     }
-    if (wave === 1) {
-      const fromLeft = Math.random() > .5;
-      createHeartObject({ kind: 'breeze', x: fromLeft ? -.08 : 1.08, y: .12 + Math.random() * .76, vx: (fromLeft ? 1 : -1) * speed * 1.15, vy: (Math.random() - .5) * .055, size: 19 + Math.random() * 6, symbol: '≈' });
-      return;
-    }
-
-    const side = Math.floor(Math.random() * 4);
-    const origin = side === 0 ? { x: -.08, y: Math.random() } : side === 1 ? { x: 1.08, y: Math.random() } : side === 2 ? { x: Math.random(), y: -.08 } : { x: Math.random(), y: 1.08 };
-    const dx = heartPlayerPosition.x - origin.x + (Math.random() - .5) * .24;
-    const dy = heartPlayerPosition.y - origin.y + (Math.random() - .5) * .24;
-    const length = Math.max(.01, Math.hypot(dx, dy));
-    createHeartObject({ kind: 'glow', x: origin.x, y: origin.y, vx: dx / length * speed, vy: dy / length * speed, size: 17 + Math.random() * 5, symbol: '✦' });
+    encounterCurrent = encounterDeck[encounterRound];
+    encounterLocked = false;
+    resetEncounterActionStyles();
+    setEncounterActionsDisabled(false);
+    el('encounterRound').textContent = `${encounterRound + 1} / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterVisitorIcon').textContent = encounterCurrent.icon;
+    el('encounterVisitorName').textContent = encounterCurrent.name;
+    el('encounterClue').textContent = encounterCurrent.clue;
+    el('encounterMessage').textContent = 'Elige la respuesta que mejor coincide con la pista.';
   }
 
-  function spawnHeartFlower() {
-    if (heartObjects.filter(object => object.kind === 'flower').length >= 2) return;
-    createHeartObject({
-      kind: 'flower',
-      x: .12 + Math.random() * .76,
-      y: .12 + Math.random() * .7,
-      vx: (Math.random() - .5) * .025,
-      vy: (Math.random() - .5) * .018,
-      size: 30,
-      symbol: '🌼'
-    });
+  function handleEncounterAction(action) {
+    if (!encounterActive || encounterLocked || !encounterCurrent) return;
+    encounterLocked = true;
+    const correct = action === encounterCurrent.answer;
+    const selected = document.querySelector(`[data-encounter-action="${action}"]`);
+    const answer = document.querySelector(`[data-encounter-action="${encounterCurrent.answer}"]`);
+    setEncounterActionsDisabled(true);
+    selected?.classList.add(correct ? 'correct' : 'wrong');
+    if (!correct) answer?.classList.add('correct');
+
+    if (correct) {
+      encounterFriendship += 1;
+      encounterScore += 20;
+      el('encounterMessage').textContent = encounterCurrent.success;
+      el('encounterVisitorIcon').classList.add('happy');
+      haptic([12, 22, 30]);
+    } else {
+      encounterLives -= 1;
+      encounterScore += 4;
+      el('encounterMessage').textContent = 'Casi. La pista estaba en cómo expresó lo que necesitaba.';
+      el('encounterVisitorIcon').classList.add('unsure');
+      haptic([38, 24, 38]);
+    }
+
+    encounterRound += 1;
+    el('encounterRound').textContent = `${encounterRound} / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterFriendship').textContent = `${encounterFriendship} / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterLives').textContent = '♥'.repeat(Math.max(0, encounterLives)) || '—';
+    el('encounterMeter').style.width = `${encounterFriendship / ENCOUNTER_ROUND_COUNT * 100}%`;
+    el('encounterProgress').setAttribute('aria-valuenow', String(encounterFriendship));
+    encounterTimer = setTimeout(() => {
+      encounterTimer = null;
+      if (!encounterActive) return;
+      if (encounterRound >= ENCOUNTER_ROUND_COUNT || encounterLives <= 0) finishFriendlyEncounter(false);
+      else showEncounterRound();
+    }, 1450);
   }
 
-  function updateHeartFrame(timestamp) {
-    if (!heartActive) return;
-    const delta = Math.min(.04, Math.max(.001, (timestamp - heartLastFrame) / 1000));
-    const elapsed = (timestamp - heartStartedAt) / 1000;
-    heartLastFrame = timestamp;
-
-    const speed = .54;
-    if (heartDirections.has('left')) heartPlayerPosition.x -= speed * delta;
-    if (heartDirections.has('right')) heartPlayerPosition.x += speed * delta;
-    if (heartDirections.has('up')) heartPlayerPosition.y -= speed * delta;
-    if (heartDirections.has('down')) heartPlayerPosition.y += speed * delta;
-    heartPlayerPosition.x = Math.max(.045, Math.min(.955, heartPlayerPosition.x));
-    heartPlayerPosition.y = Math.max(.065, Math.min(.935, heartPlayerPosition.y));
-    const player = el('heartPlayer');
-    player.style.left = `${heartPlayerPosition.x * 100}%`;
-    player.style.top = `${heartPlayerPosition.y * 100}%`;
-
-    const wave = Math.min(2, Math.floor(elapsed / 6));
-    if (wave !== heartCurrentWave) {
-      heartCurrentWave = wave;
-      const waveNames = ['Lluvia suave', 'Brisa cruzada', 'Luces danzantes'];
-      el('heartWave').textContent = `Ronda ${wave + 1} · ${waveNames[wave]}`;
-      el('heartDialogue').textContent = wave === 1 ? 'La brisa cruza de ambos lados. Muévete entre sus espacios.' : 'Las luces siguen al corazón. Cambia de dirección con calma.';
-    }
-
-    const spawnEvery = wave === 0 ? 650 : wave === 1 ? 510 : 430;
-    if (timestamp - heartLastSpawn >= spawnEvery) {
-      spawnHeartHazard(wave);
-      heartLastSpawn = timestamp;
-    }
-    if (heartFlowers < HEART_FLOWER_GOAL && timestamp - heartLastFlowerAt >= 2450) {
-      spawnHeartFlower();
-      heartLastFlowerAt = timestamp;
-    }
-
-    const arena = el('heartArena');
-    const width = arena.clientWidth;
-    const height = arena.clientHeight;
-    const playerX = heartPlayerPosition.x * width;
-    const playerY = heartPlayerPosition.y * height;
-    let defeated = false;
-    heartObjects = heartObjects.filter(object => {
-      object.x += object.vx * delta;
-      object.y += object.vy * delta;
-      object.node.style.transform = `translate(${object.x * width - object.size / 2}px, ${object.y * height - object.size / 2}px)`;
-      if (object.x < -.14 || object.x > 1.14 || object.y < -.14 || object.y > 1.14) {
-        object.node.remove();
-        return false;
-      }
-
-      const distance = Math.hypot(object.x * width - playerX, object.y * height - playerY);
-      if (distance >= (object.size + 24) * .42) return true;
-      if (object.kind === 'flower') {
-        if (heartFlowers >= HEART_FLOWER_GOAL) {
-          object.node.remove();
-          return false;
-        }
-        heartFlowers = Math.min(HEART_FLOWER_GOAL, heartFlowers + 1);
-        heartScore += 28;
-        el('heartFlowers').textContent = `${heartFlowers} / ${HEART_FLOWER_GOAL}`;
-        el('heartDialogue').textContent = heartFlowers >= HEART_FLOWER_GOAL ? `¡${state.petName} reunió todas las flores! Ahora resiste hasta el final.` : `Flor de cariño ${heartFlowers} de ${HEART_FLOWER_GOAL}.`;
-        haptic([12, 20, 24]);
-        object.node.remove();
-        return false;
-      }
-      if (timestamp > heartInvulnerableUntil) {
-        heartLives -= 1;
-        heartScore = Math.max(0, heartScore - 10);
-        heartInvulnerableUntil = timestamp + 950;
-        el('heartLives').textContent = '♥'.repeat(Math.max(0, heartLives)) || '—';
-        player.classList.remove('hit');
-        void player.offsetWidth;
-        player.classList.add('hit');
-        haptic([45, 30, 45]);
-        if (heartLives <= 0) defeated = true;
-      }
-      object.node.remove();
-      return false;
-    });
-
-    heartScore += delta * 6;
-    el('heartTime').textContent = String(Math.max(0, Math.ceil(HEART_GAME_DURATION - elapsed)));
-    if (defeated) {
-      finishHeartGame(false, false);
-      return;
-    }
-    if (elapsed >= HEART_GAME_DURATION) {
-      finishHeartGame(false, true);
-      return;
-    }
-    heartFrame = requestAnimationFrame(updateHeartFrame);
-  }
-
-  function clearHeartObjects() {
-    heartObjects.forEach(object => object.node.remove());
-    heartObjects = [];
-  }
-
-  function finishHeartGame(cancelled = false, survived = false) {
-    cancelAnimationFrame(heartFrame);
-    heartFrame = null;
-    heartDirections.clear();
-    document.querySelectorAll('[data-heart-dir]').forEach(button => button.classList.remove('pressed'));
-    clearHeartObjects();
-    const wasActive = heartActive;
-    heartActive = false;
-    el('heartPlayer').style.display = 'none';
-    el('heartPlayer').classList.remove('hit');
-    el('startHeartBtn').disabled = false;
+  function finishFriendlyEncounter(cancelled = false) {
+    clearTimeout(encounterTimer);
+    encounterTimer = null;
+    const wasActive = encounterActive;
+    encounterActive = false;
+    encounterLocked = false;
+    setEncounterActionsDisabled(true);
+    el('startEncounterBtn').disabled = false;
     if (!wasActive) return;
     if (cancelled) {
-      el('heartMessage').hidden = false;
-      el('heartMessage').textContent = 'Reto pausado.';
+      el('encounterMessage').textContent = 'Encuentro pausado.';
       return;
     }
 
-    const finalScore = Math.floor(heartScore + heartLives * 8);
-    const won = survived && heartFlowers >= HEART_FLOWER_GOAL;
-    const coins = Math.max(3, Math.floor(finalScore / 16) + heartFlowers + (won ? 6 : 1));
-    modifyStats({ energy: -ENERGY_COSTS.arcadeHeart, water: -4, food: -2, mood: won ? 16 : 7, bond: won ? 7 : 3, stress: won ? -8 : -3 });
+    const won = encounterFriendship >= 4;
+    const finalScore = encounterScore + encounterLives * 5;
+    const coins = Math.max(3, Math.floor(finalScore / 15) + encounterFriendship + (won ? 5 : 1));
+    modifyStats({ energy: -ENERGY_COSTS.arcadeEncounter, food: -2, mood: won ? 15 : 7, bond: won ? 7 : 3, stress: won ? -9 : -3 });
     state.coins += coins;
-    state.arcade.heartBest = Math.max(state.arcade.heartBest, finalScore);
+    state.arcade.encounterBest = Math.max(Number(state.arcade.encounterBest) || 0, finalScore);
     state.arcade.played += 1;
-    state.traits.trust = clamp(state.traits.trust + (won ? 3 : 1));
+    state.traits.trust = clamp(state.traits.trust + (won ? 4 : 1));
     gainXp(9 + Math.floor(finalScore / 10));
     recordHabit('play');
-    setActivity('playing', 4300, { icon: '♥', title: won ? 'Corazón valiente' : 'Descansando del reto', description: won ? `${state.petName} reunió las flores y superó todos los patrones.` : `${state.petName} lo intentó con mucha valentía.` });
-    addJournal('♥', won ? 'Superó Corazón valiente' : 'Practicó Corazón valiente', `Reunieron ${heartFlowers} flores, lograron ${finalScore} puntos y ganaron ${coins} monedas.`);
-    el('heartMessage').hidden = false;
-    el('heartMessage').textContent = won ? `¡Jardín superado! ${finalScore} puntos · +${coins} monedas` : `Buen intento · ${finalScore} puntos · +${coins} monedas`;
-    el('heartDialogue').textContent = won ? `${state.petName} mueve la cola, feliz de haber protegido su corazón.` : 'El jardín estará listo para intentarlo otra vez.';
-    el('startHeartBtn').textContent = `Jugar otra vez · ${energyLabel(ENERGY_COSTS.arcadeHeart)}`;
-    speak(won ? '¡Nuestro corazón fue muy valiente!' : '¡La próxima reuniremos todas las flores!');
+    setActivity('playing', 4300, { icon: '💬', title: won ? 'Hicieron nuevas amistades' : 'Aprendiendo a escuchar', description: won ? `${state.petName} ayudó a que los visitantes se sintieran comprendidos.` : `${state.petName} quiere volver a intentarlo con más calma.` });
+    addJournal('💬', won ? 'Completó Encuentro amistoso' : 'Practicó Encuentro amistoso', `Comprendieron a ${encounterFriendship} visitantes, lograron ${finalScore} puntos y ganaron ${coins} monedas.`);
+    el('encounterMessage').textContent = won ? `¡Encuentro completo! ${finalScore} puntos · +${coins} monedas` : `Buen intento · ${finalScore} puntos · +${coins} monedas`;
+    el('encounterVisitorName').textContent = won ? 'Un jardín más amable' : 'La empatía también se practica';
+    el('encounterClue').textContent = won ? `${state.petName} supo cuándo acercarse, escuchar, jugar o esperar.` : 'La próxima vez, fíjate en las palabras que describen cada emoción.';
+    el('startEncounterBtn').textContent = `Jugar otra vez · ${energyLabel(ENERGY_COSTS.arcadeEncounter)}`;
+    speak(won ? '¡Hicimos nuevas amistades!' : 'La próxima escucharé con más atención.');
     haptic(won ? [18, 28, 18, 28, 55] : 22);
-    if (won) createSparkles('♥');
+    if (won) createSparkles('💬');
     touch();
     saveState();
     render();
-  }
-
-  function moveHeartPlayerToPointer(event) {
-    if (!heartActive) return;
-    const rect = el('heartArena').getBoundingClientRect();
-    heartPlayerPosition.x = Math.max(.045, Math.min(.955, (event.clientX - rect.left) / rect.width));
-    heartPlayerPosition.y = Math.max(.065, Math.min(.935, (event.clientY - rect.top) / rect.height));
   }
 
   function currentWeather() {
@@ -2245,14 +2164,14 @@
     document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · gana monedas` : '5 tiros · precisión y monedas';
     document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : '15 s · evita todos los obstáculos';
     document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · repite las señales';
-    document.querySelector('[data-arcade="heart"] small').textContent = state.arcade.heartBest ? `Récord ${state.arcade.heartBest} · corazón` : '18 s · esquiva y reúne 5 flores';
+    document.querySelector('[data-arcade="encounter"] small').textContent = state.arcade.encounterBest ? `Récord ${state.arcade.encounterBest} · empatía` : '5 turnos · interpreta y responde';
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
     el('dodgeGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeDodge);
     el('memoryGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeMemory);
-    el('heartGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeHeart);
+    el('encounterGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeEncounter);
     document.querySelector('[data-arcade="dodge"]').disabled = isBusy();
     document.querySelector('[data-arcade="memory"]').disabled = isBusy();
-    document.querySelector('[data-arcade="heart"]').disabled = isBusy();
+    document.querySelector('[data-arcade="encounter"]').disabled = isBusy();
     document.querySelector('[data-arcade="ball"]').disabled = isBusy();
   }
 
@@ -2470,7 +2389,7 @@
     if (id === 'gameModal' && gameActive) finishGame(true);
     if (id === 'dodgeModal') finishDodge(true);
     if (id === 'memoryModal') finishMemory(true);
-    if (id === 'heartModal') finishHeartGame(true);
+    if (id === 'encounterModal') finishFriendlyEncounter(true);
     modal.classList.remove('open');
     modal.inert = true;
     const returnFocus = previousFocus;
@@ -2542,7 +2461,8 @@
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.addEventListener('click', () => selectDodgeAct(button.dataset.dodgeAct)));
     el('startMemoryBtn').addEventListener('click', startMemory);
     document.querySelectorAll('[data-memory-pad]').forEach(button => button.addEventListener('click', () => handleMemoryPad(Number(button.dataset.memoryPad))));
-    el('startHeartBtn').addEventListener('click', startHeartGame);
+    el('startEncounterBtn').addEventListener('click', startFriendlyEncounter);
+    document.querySelectorAll('[data-encounter-action]').forEach(button => button.addEventListener('click', () => handleEncounterAction(button.dataset.encounterAction)));
 
     const movementKeys = {
       ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
@@ -2550,21 +2470,15 @@
     };
     document.addEventListener('keydown', event => {
       const direction = movementKeys[event.key];
-      if (!direction || (!dodgeActive && !heartActive)) return;
+      if (!dodgeActive || !direction) return;
       event.preventDefault();
-      if (dodgeActive) dodgeDirections.add(direction);
-      if (heartActive) heartDirections.add(direction);
+      dodgeDirections.add(direction);
     });
     document.addEventListener('keyup', event => {
       const direction = movementKeys[event.key];
-      if (!direction) return;
-      dodgeDirections.delete(direction);
-      heartDirections.delete(direction);
+      if (direction) dodgeDirections.delete(direction);
     });
-    window.addEventListener('blur', () => {
-      dodgeDirections.clear();
-      heartDirections.clear();
-    });
+    window.addEventListener('blur', () => dodgeDirections.clear());
     document.querySelectorAll('[data-dodge-dir]').forEach(button => {
       const direction = button.dataset.dodgeDir;
       const press = event => {
@@ -2597,39 +2511,6 @@
     };
     el('dodgeArena').addEventListener('pointerup', endDodgePointer);
     el('dodgeArena').addEventListener('pointercancel', endDodgePointer);
-
-    document.querySelectorAll('[data-heart-dir]').forEach(button => {
-      const direction = button.dataset.heartDir;
-      const press = event => {
-        if (!heartActive) return;
-        event.preventDefault();
-        heartDirections.add(direction);
-        button.classList.add('pressed');
-      };
-      const release = () => {
-        heartDirections.delete(direction);
-        button.classList.remove('pressed');
-      };
-      button.addEventListener('pointerdown', press);
-      button.addEventListener('pointerup', release);
-      button.addEventListener('pointercancel', release);
-      button.addEventListener('pointerleave', release);
-    });
-    let heartPointerId = null;
-    el('heartArena').addEventListener('pointerdown', event => {
-      if (!heartActive) return;
-      heartPointerId = event.pointerId;
-      el('heartArena').setPointerCapture?.(event.pointerId);
-      moveHeartPlayerToPointer(event);
-    });
-    el('heartArena').addEventListener('pointermove', event => {
-      if (event.pointerId === heartPointerId) moveHeartPlayerToPointer(event);
-    });
-    const endHeartPointer = event => {
-      if (event.pointerId === heartPointerId) heartPointerId = null;
-    };
-    el('heartArena').addEventListener('pointerup', endHeartPointer);
-    el('heartArena').addEventListener('pointercancel', endHeartPointer);
 
     el('settingsBtn').addEventListener('click', () => {
       el('settingsPartner').value = state.partnerName || '';
