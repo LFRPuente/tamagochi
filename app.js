@@ -58,10 +58,10 @@
 
   const ENERGY_COSTS = {
     training: 7,
-    arcadeBall: 12,
-    arcadeDodge: 7,
-    arcadeMemory: 5,
-    arcadeEncounter: 6,
+    arcadeBall: 15,
+    arcadeDodge: 10,
+    arcadeMemory: 8,
+    arcadeEncounter: 9,
     walkDodge: 3,
     trainingMemory: 2
   };
@@ -70,6 +70,9 @@
   const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
   const ENCOUNTER_ROUND_COUNT = 5;
+  const BALL_GAME_SECONDS = 20;
+  const DODGE_GAME_SECONDS = 13;
+  const ENCOUNTER_TURN_SECONDS = 8;
   const SURPRISE_LEVEL_KEYS = ['food', 'water', 'hygiene', 'health', 'bond'];
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
 
@@ -160,7 +163,7 @@
   let gameInterval = null;
   let gameActive = false;
   let gameScore = 0;
-  let gameSeconds = 25;
+  let gameSeconds = BALL_GAME_SECONDS;
   let gameTurn = 0;
   let gameStrikeActive = false;
   let gameStrikeFrame = null;
@@ -203,7 +206,9 @@
   let encounterFriendship = 0;
   let encounterDeck = [];
   let encounterCurrent = null;
-  let encounterTimer = null;
+  let encounterAdvanceTimer = null;
+  let encounterCountdownTimer = null;
+  let encounterSeconds = ENCOUNTER_TURN_SECONDS;
   let previousFocus = null;
   let petReaction = '';
   let petReactionTimer = null;
@@ -1114,7 +1119,7 @@
     gameUsedActions.clear();
     el('gameScore').textContent = '0';
     el('gameTurn').textContent = '0 / 5';
-    el('gameTime').textContent = '25';
+    el('gameTime').textContent = String(BALL_GAME_SECONDS);
     el('gameDialogue').textContent = 'La pelota saltarina está lista para jugar.';
     el('gameMessage').hidden = false;
     el('gameMessage').textContent = `${state.petName} espera tu señal para comenzar.`;
@@ -1131,14 +1136,14 @@
     if (state.stats.energy < ENERGY_COSTS.arcadeBall) return toast(`Necesita ${ENERGY_COSTS.arcadeBall}% de energía para jugar.`);
     gameActive = true;
     gameScore = 0;
-    gameSeconds = 25;
+    gameSeconds = BALL_GAME_SECONDS;
     gameTurn = 0;
     gameFocusBonus = 0;
     gameSpeedMultiplier = 1;
     gameUsedActions.clear();
     el('gameScore').textContent = '0';
     el('gameTurn').textContent = '0 / 5';
-    el('gameTime').textContent = '25';
+    el('gameTime').textContent = String(BALL_GAME_SECONDS);
     el('gameDialogue').textContent = 'La pelota rebota de un lado a otro. Elige una ayuda.';
     el('gameMessage').hidden = false;
     el('gameMessage').textContent = 'Elige Lanzar cuando quieras.';
@@ -1173,7 +1178,7 @@
       saveState();
       renderHome();
     } else if (action === 'calm') {
-      gameSpeedMultiplier = .7;
+      gameSpeedMultiplier = .78;
       el('gameDialogue').textContent = 'Respiraron juntas. La marca irá más despacio en el próximo tiro.';
     }
     gameUsedActions.add(action);
@@ -1200,7 +1205,7 @@
     if (!gameActive || !gameStrikeActive) return;
     const delta = Math.min(.04, Math.max(.001, (timestamp - gameStrikeLastFrame) / 1000));
     gameStrikeLastFrame = timestamp;
-    gameCursorPosition += gameCursorDirection * 88 * gameSpeedMultiplier * delta;
+    gameCursorPosition += gameCursorDirection * 104 * gameSpeedMultiplier * delta;
     if (gameCursorPosition >= 100) {
       gameCursorPosition = 100;
       gameCursorDirection = -1;
@@ -1233,12 +1238,12 @@
     el('gameMessage').textContent = `${verdict} Precisión ${accuracy}% · +${earned} puntos`;
     el('gameDialogue').textContent = accuracy >= 92 ? `${state.petName} atrapó la pelota con una coordinación perfecta.` : 'La pelota se prepara para la siguiente ronda.';
     haptic(accuracy >= 92 ? [14, 28, 40] : 12);
-    if (gameTurn >= 5) setTimeout(() => finishGame(false), 750);
+    if (gameTurn >= 5) setTimeout(() => finishGame(false), 600);
     else setTimeout(() => {
       if (!gameActive) return;
       setBallActionsDisabled(false);
       el('gameDialogue').textContent = `Ronda ${gameTurn + 1}. Elige tu siguiente ayuda.`;
-    }, 620);
+    }, 480);
   }
 
   function finishGame(cancelled = false) {
@@ -1261,8 +1266,8 @@
     }
 
     const personalityBonus = PERSONALITIES[state.personality].play || 1;
-    const coins = Math.max(3, Math.min(24, Math.round(gameScore * personalityBonus / 4)));
-    modifyStats({ energy: -Math.min(ENERGY_COSTS.arcadeBall, 6 + gameTurn * 2), water: -5, food: -3, mood: Math.min(24, 7 + gameScore * .18 * personalityBonus), bond: 5, stress: -6 });
+    const coins = Math.max(2, Math.min(15, Math.round(gameScore * personalityBonus / 6)));
+    modifyStats({ energy: -ENERGY_COSTS.arcadeBall, water: -5, food: -3, mood: Math.min(24, 7 + gameScore * .18 * personalityBonus), bond: 5, stress: -6 });
     state.coins += coins;
     state.arcade.ballBest = Math.max(state.arcade.ballBest, gameScore);
     state.arcade.played += 1;
@@ -1288,7 +1293,7 @@
         prepareBallEncounter();
         openModal('gameModal');
       }
-      else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Pista de reflejos', description: 'Mueve la huella y evita hojas, gotitas y conos durante 15 segundos.' });
+      else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Pista de reflejos', description: `Mueve la huella y evita hojas, gotitas y conos durante ${DODGE_GAME_SECONDS} segundos.` });
       else if (type === 'memory') openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Secuencia de señales', description: 'Observa las señales y repítelas. Cada ronda será un poco más larga.' });
       else openFriendlyEncounter();
     }, 230);
@@ -1316,7 +1321,7 @@
     el('dodgeDialogue').textContent = isAdventure ? `${state.petName} mira el sendero y busca el mejor paso.` : isWalk ? `Ayuda a ${state.petName} a encontrar un camino seco.` : `${state.petName} observa la pista y espera tu señal.`;
     el('dodgeLives').textContent = '🐾🐾🐾';
     el('dodgeScore').textContent = '0';
-    el('dodgeTime').textContent = '15';
+    el('dodgeTime').textContent = String(DODGE_GAME_SECONDS);
     el('dodgeWave').textContent = 'Tramo 1 · Hojas';
     el('dodgeMessage').hidden = false;
     el('dodgeMessage').textContent = 'Elige cómo recorrer la pista.';
@@ -1362,7 +1367,7 @@
     clearDodgeHazards();
     el('dodgeLives').textContent = '🐾'.repeat(dodgeLives);
     el('dodgeScore').textContent = String(dodgeScore);
-    el('dodgeTime').textContent = '15';
+    el('dodgeTime').textContent = String(DODGE_GAME_SECONDS);
     el('dodgeWave').textContent = 'Tramo 1 · Hojas';
     el('dodgeDialogue').textContent = `${state.petName} eligió ${dodgeAct === 'play' ? 'ir a su ritmo' : dodgeAct === 'encourage' ? 'recibir ánimos' : dodgeAct === 'observe' ? 'mirar la pista' : 'respirar'}. ¡Comienza el recorrido!`;
     el('dodgeMessage').hidden = true;
@@ -1391,7 +1396,7 @@
 
   function spawnDodgeHazard(elapsed) {
     const wave = Math.min(2, Math.floor(elapsed / 5));
-    const baseSpeed = (.25 + Math.min(.15, elapsed * .007) + Math.random() * .045) * dodgeSpeedMultiplier;
+    const baseSpeed = (.29 + Math.min(.17, elapsed * .009) + Math.random() * .05) * dodgeSpeedMultiplier;
     if (wave === 0) {
       const side = Math.floor(Math.random() * 4);
       let x;
@@ -1452,7 +1457,7 @@
       el('dodgeDialogue').textContent = wave === 1 ? 'Ahora caen gotitas desde arriba. Busca los espacios libres.' : 'Último tramo: encuentra el hueco entre los conos.';
       haptic([10, 22, 10]);
     }
-    const spawnEvery = wave === 2 ? 1120 : wave === 1 ? 360 : Math.max(300, 610 - elapsed * 13);
+    const spawnEvery = wave === 2 ? 900 : wave === 1 ? 300 : Math.max(250, 520 - elapsed * 15);
     if (timestamp - dodgeLastSpawn >= spawnEvery) {
       spawnDodgeHazard(elapsed);
       dodgeLastSpawn = timestamp;
@@ -1489,10 +1494,10 @@
       }
       return true;
     });
-    dodgeScore = Math.max(dodgeScore, Math.floor(elapsed * 7));
+    dodgeScore = Math.max(dodgeScore, Math.floor(elapsed * 8));
     el('dodgeScore').textContent = String(dodgeScore);
-    el('dodgeTime').textContent = String(Math.max(0, Math.ceil(15 - elapsed)));
-    if (elapsed >= 15) finishDodge(false, true);
+    el('dodgeTime').textContent = String(Math.max(0, Math.ceil(DODGE_GAME_SECONDS - elapsed)));
+    if (elapsed >= DODGE_GAME_SECONDS) finishDodge(false, true);
     else if (dodgeActive) dodgeFrame = requestAnimationFrame(updateDodgeFrame);
   }
 
@@ -1518,8 +1523,8 @@
       document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = false);
       return;
     }
-    if (survived) dodgeScore += dodgeLives * 20;
-    const coins = Math.max(2, Math.floor(dodgeScore / 12) + Number(dodgeContext.bonus || 0));
+    if (survived) dodgeScore += dodgeLives * 16;
+    const coins = Math.max(2, Math.min(12, Math.floor(dodgeScore / 18) + Number(dodgeContext.bonus || 0)));
     const xp = 8 + Math.floor(dodgeScore / 8);
     modifyStats({
       energy: -dodgeEnergyCost(),
@@ -1622,22 +1627,22 @@
     el('memoryMessage').textContent = 'Mira las señales mientras se iluminan…';
     const pads = memoryPads();
     memorySequence.forEach((padIndex, index) => {
-      memoryLater(() => pads[padIndex]?.classList.add('active'), 350 + index * 620);
-      memoryLater(() => pads[padIndex]?.classList.remove('active'), 710 + index * 620);
+      memoryLater(() => pads[padIndex]?.classList.add('active'), 280 + index * 500);
+      memoryLater(() => pads[padIndex]?.classList.remove('active'), 570 + index * 500);
     });
     memoryLater(() => {
       if (!memoryActive) return;
       setMemoryPadsDisabled(false);
       memoryAccepting = true;
       el('memoryMessage').textContent = 'Ahora tú: toca las señales en el mismo orden.';
-    }, 500 + memorySequence.length * 620);
+    }, 400 + memorySequence.length * 500);
   }
 
   function handleMemoryPad(index) {
     if (!memoryActive || !memoryAccepting) return;
     const pad = memoryPads()[index];
     pad.classList.add('active');
-    memoryLater(() => pad.classList.remove('active'), 180);
+    memoryLater(() => pad.classList.remove('active'), 150);
     if (index === memorySequence[memoryPlayerIndex]) {
       haptic(12);
       memoryPlayerIndex += 1;
@@ -1648,13 +1653,13 @@
         setMemoryPadsDisabled(true);
         if (memoryRound >= 4) {
           el('memoryMessage').textContent = `¡Secuencia completa! ${state.petName} recordó todas las señales.`;
-          memoryLater(() => finishMemory(false, true), 650);
+          memoryLater(() => finishMemory(false, true), 500);
         } else {
           memoryRound += 1;
           memorySequence.push(randomMemoryPad());
           el('memoryRound').textContent = `${memoryRound} / 4`;
           el('memoryMessage').textContent = '¡Muy bien! La siguiente ronda agrega una señal.';
-          memoryLater(playMemorySequence, 850);
+          memoryLater(playMemorySequence, 650);
         }
       }
       return;
@@ -1671,11 +1676,11 @@
     board.classList.add('shake');
     if (memoryLives <= 0) {
       el('memoryMessage').textContent = 'Se terminaron los intentos de esta partida.';
-      memoryLater(() => finishMemory(false, false), 650);
+      memoryLater(() => finishMemory(false, false), 500);
     } else {
       memoryPlayerIndex = 0;
       el('memoryMessage').textContent = 'Esa no era la señal. La secuencia se repetirá.';
-      memoryLater(playMemorySequence, 900);
+      memoryLater(playMemorySequence, 700);
     }
   }
 
@@ -1686,7 +1691,7 @@
     memoryAccepting = false;
     setMemoryPadsDisabled(true);
     if (!wasActive || cancelled) return;
-    const coins = Math.max(2, Math.floor(memoryScore / 18) + (won ? 8 : 2) + Number(memoryContext.bonus || 0));
+    const coins = Math.max(2, Math.min(12, Math.floor(memoryScore / 28) + (won ? 3 : 1) + Number(memoryContext.bonus || 0)));
     modifyStats({
       energy: -memoryEnergyCost(),
       food: -2,
@@ -1732,9 +1737,15 @@
     el('encounterVisitorIcon').classList.remove('happy', 'unsure');
   }
 
+  function clearEncounterTimers() {
+    clearTimeout(encounterAdvanceTimer);
+    clearInterval(encounterCountdownTimer);
+    encounterAdvanceTimer = null;
+    encounterCountdownTimer = null;
+  }
+
   function openFriendlyEncounter() {
-    clearTimeout(encounterTimer);
-    encounterTimer = null;
+    clearEncounterTimers();
     encounterRound = 0;
     encounterLives = 3;
     encounterScore = 0;
@@ -1743,6 +1754,7 @@
     resetEncounterActionStyles();
     setEncounterActionsDisabled(true);
     el('encounterRound').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterTime').textContent = String(ENCOUNTER_TURN_SECONDS);
     el('encounterFriendship').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
     el('encounterLives').textContent = '♥♥♥';
     el('encounterMeter').style.width = '0%';
@@ -1767,8 +1779,7 @@
     encounterScore = 0;
     encounterFriendship = 0;
     encounterDeck = shuffledEncounterScenarios();
-    clearTimeout(encounterTimer);
-    encounterTimer = null;
+    clearEncounterTimers();
     el('encounterRound').textContent = `1 / ${ENCOUNTER_ROUND_COUNT}`;
     el('encounterFriendship').textContent = `0 / ${ENCOUNTER_ROUND_COUNT}`;
     el('encounterLives').textContent = '♥♥♥';
@@ -1787,20 +1798,37 @@
     }
     encounterCurrent = encounterDeck[encounterRound];
     encounterLocked = false;
+    clearInterval(encounterCountdownTimer);
+    encounterCountdownTimer = null;
+    encounterSeconds = ENCOUNTER_TURN_SECONDS;
     resetEncounterActionStyles();
     setEncounterActionsDisabled(false);
     el('encounterRound').textContent = `${encounterRound + 1} / ${ENCOUNTER_ROUND_COUNT}`;
+    el('encounterTime').textContent = String(encounterSeconds);
     el('encounterVisitorIcon').textContent = encounterCurrent.icon;
     el('encounterVisitorName').textContent = encounterCurrent.name;
     el('encounterClue').textContent = encounterCurrent.clue;
     el('encounterMessage').textContent = 'Elige la respuesta que mejor coincide con la pista.';
+    encounterCountdownTimer = setInterval(() => {
+      if (!encounterActive || encounterLocked) {
+        clearInterval(encounterCountdownTimer);
+        encounterCountdownTimer = null;
+        return;
+      }
+      encounterSeconds -= 1;
+      el('encounterTime').textContent = String(Math.max(0, encounterSeconds));
+      if (encounterSeconds <= 0) handleEncounterAction('timeout');
+    }, 1000);
   }
 
   function handleEncounterAction(action) {
     if (!encounterActive || encounterLocked || !encounterCurrent) return;
     encounterLocked = true;
-    const correct = action === encounterCurrent.answer;
-    const selected = document.querySelector(`[data-encounter-action="${action}"]`);
+    clearInterval(encounterCountdownTimer);
+    encounterCountdownTimer = null;
+    const timedOut = action === 'timeout';
+    const correct = !timedOut && action === encounterCurrent.answer;
+    const selected = timedOut ? null : document.querySelector(`[data-encounter-action="${action}"]`);
     const answer = document.querySelector(`[data-encounter-action="${encounterCurrent.answer}"]`);
     setEncounterActionsDisabled(true);
     selected?.classList.add(correct ? 'correct' : 'wrong');
@@ -1815,7 +1843,7 @@
     } else {
       encounterLives -= 1;
       encounterScore += 4;
-      el('encounterMessage').textContent = 'Casi. La pista estaba en cómo expresó lo que necesitaba.';
+      el('encounterMessage').textContent = timedOut ? 'Se acabó el tiempo. La respuesta correcta quedó marcada.' : 'Casi. La pista estaba en cómo expresó lo que necesitaba.';
       el('encounterVisitorIcon').classList.add('unsure');
       haptic([38, 24, 38]);
     }
@@ -1826,17 +1854,16 @@
     el('encounterLives').textContent = '♥'.repeat(Math.max(0, encounterLives)) || '—';
     el('encounterMeter').style.width = `${encounterFriendship / ENCOUNTER_ROUND_COUNT * 100}%`;
     el('encounterProgress').setAttribute('aria-valuenow', String(encounterFriendship));
-    encounterTimer = setTimeout(() => {
-      encounterTimer = null;
+    encounterAdvanceTimer = setTimeout(() => {
+      encounterAdvanceTimer = null;
       if (!encounterActive) return;
       if (encounterRound >= ENCOUNTER_ROUND_COUNT || encounterLives <= 0) finishFriendlyEncounter(false);
       else showEncounterRound();
-    }, 1450);
+    }, 950);
   }
 
   function finishFriendlyEncounter(cancelled = false) {
-    clearTimeout(encounterTimer);
-    encounterTimer = null;
+    clearEncounterTimers();
     const wasActive = encounterActive;
     encounterActive = false;
     encounterLocked = false;
@@ -1850,7 +1877,7 @@
 
     const won = encounterFriendship >= 4;
     const finalScore = encounterScore + encounterLives * 5;
-    const coins = Math.max(3, Math.floor(finalScore / 15) + encounterFriendship + (won ? 5 : 1));
+    const coins = Math.max(2, Math.min(10, Math.floor(finalScore / 26) + encounterFriendship + (won ? 1 : 0)));
     modifyStats({ energy: -ENERGY_COSTS.arcadeEncounter, food: -2, mood: won ? 15 : 7, bond: won ? 7 : 3, stress: won ? -9 : -3 });
     state.coins += coins;
     state.arcade.encounterBest = Math.max(Number(state.arcade.encounterBest) || 0, finalScore);
@@ -2161,10 +2188,10 @@
   }
 
   function renderArcade() {
-    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · gana monedas` : '5 tiros · precisión y monedas';
-    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : '15 s · evita todos los obstáculos';
-    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · repite las señales';
-    document.querySelector('[data-arcade="encounter"] small').textContent = state.arcade.encounterBest ? `Récord ${state.arcade.encounterBest} · empatía` : '5 turnos · interpreta y responde';
+    document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · precisión` : `${BALL_GAME_SECONDS} s · 5 tiros de precisión`;
+    document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : `${DODGE_GAME_SECONDS} s · obstáculos más rápidos`;
+    document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · señales más rápidas';
+    document.querySelector('[data-arcade="encounter"] small').textContent = state.arcade.encounterBest ? `Récord ${state.arcade.encounterBest} · empatía` : `${ENCOUNTER_ROUND_COUNT} turnos · ${ENCOUNTER_TURN_SECONDS} s por respuesta`;
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
     el('dodgeGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeDodge);
     el('memoryGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeMemory);
