@@ -11,34 +11,34 @@
 
   const PERSONALITIES = {
     curious: {
-      name: 'Curioso', emoji: '🔎',
+      name: 'Curiosa', emoji: '🔎',
       description: 'Le gusta explorar y aprende un poco más rápido durante los paseos.',
       learning: 1.12, walking: 1.18, bathingStress: 1
     },
     playful: {
-      name: 'Juguetón', emoji: '🎾',
+      name: 'Juguetona', emoji: '🎾',
       description: 'Siempre encuentra una excusa para jugar y obtiene más ánimo en los minijuegos.',
       learning: 1.06, walking: 1.05, play: 1.25, bathingStress: .8
     },
     foodie: {
-      name: 'Comelón', emoji: '🦴',
-      description: 'La comida lo hace muy feliz, aunque hay que cuidar que no coma de más.',
+      name: 'Comelona', emoji: '🦴',
+      description: 'La comida la hace muy feliz, aunque hay que cuidar que no coma de más.',
       learning: 1, walking: .95, food: 1.28, bathingStress: 1
     },
     calm: {
-      name: 'Tranquilo', emoji: '🌿',
-      description: 'Descansa bien, se estresa poco y disfruta especialmente que lo cepillen.',
+      name: 'Tranquila', emoji: '🌿',
+      description: 'Descansa bien, se estresa poco y disfruta especialmente que la cepillen.',
       learning: 1.04, walking: .95, rest: 1.2, bathingStress: .55
     },
     brave: {
-      name: 'Aventurero', emoji: '🧭',
+      name: 'Aventurera', emoji: '🧭',
       description: 'Los paseos largos le fascinan y rara vez se asusta con algo nuevo.',
       learning: 1.05, walking: 1.3, bathingStress: .85
     }
   };
 
   const SKILLS = {
-    sit: { name: 'Sentado', icon: '🐕', unlock: 1 },
+    sit: { name: 'Sentada', icon: '🐕', unlock: 1 },
     paw: { name: 'Dar la pata', icon: '🐾', unlock: 2 },
     fetch: { name: 'Buscar pelota', icon: '🎾', unlock: 3 }
   };
@@ -61,6 +61,7 @@
     arcadeBall: 12,
     arcadeDodge: 7,
     arcadeMemory: 5,
+    arcadeHeart: 8,
     walkDodge: 3,
     trainingMemory: 2
   };
@@ -68,24 +69,26 @@
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
   const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
+  const HEART_GAME_DURATION = 18;
+  const HEART_FLOWER_GOAL = 5;
   const SURPRISE_LEVEL_KEYS = ['food', 'water', 'hygiene', 'health', 'bond'];
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
 
   const ACTIVITY_PRESETS = {
-    idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atento a lo que hagan juntos.', css: 'standing' },
-    drowsy: { icon: '🥱', title: 'Despierto pero soñoliento', description: 'Es de noche: está despierto contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
-    sitting: { icon: '🐕', title: 'Sentado junto a ti', description: 'Se acomodó y mueve la cola mientras te observa.', css: 'sitting' },
+    idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atenta a lo que hagan juntas.', css: 'standing' },
+    drowsy: { icon: '🥱', title: 'Despierta pero soñolienta', description: 'Es de noche: está despierta contigo, aunque conserva poca energía.', css: 'sitting night-awake' },
+    sitting: { icon: '🐕', title: 'Sentada junto a ti', description: 'Se acomodó y mueve la cola mientras te observa.', css: 'sitting' },
     stretching: { icon: '🧘', title: 'Estirándose', description: 'Estira las patas delanteras después de descansar.', css: 'stretching' },
     grooming: { icon: '✨', title: 'Arreglándose', description: 'Se lame una patita y vuelve a acomodarse.', css: 'grooming' },
     exploring: { icon: '🔎', title: 'Siguiendo un olor', description: 'Recorre la casa con la nariz pegada al suelo.', css: 'sniffing' },
     watching: { icon: '🪟', title: 'Mirando la ventana', description: 'Observa el mundo y mueve la cola cuando pasa alguien.', css: 'sitting watching' },
-    toy: { icon: '🧸', title: 'Jugando solo', description: 'Encontró su juguete y se entretiene por su cuenta.', css: 'playing' },
-    guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como todo un guardián.', css: 'standing alert' },
+    toy: { icon: '🧸', title: 'Jugando sola', description: 'Encontró su juguete y se entretiene por su cuenta.', css: 'playing' },
+    guarding: { icon: '👂', title: 'Escuchando ruidos', description: 'Levantó las orejas y cuida la casa como toda una guardiana.', css: 'standing alert' },
     eating: { icon: '🍲', title: 'Comiendo', description: 'Decidió comer lo que dejaste en su cuenco.', css: 'eating' },
     drinking: { icon: '💧', title: 'Bebiendo agua', description: 'Fue a hidratarse por su cuenta.', css: 'drinking' },
     sleeping: { icon: '🌙', title: 'Durmiendo', description: 'Mientras duerme recupera fuerzas. Su descanso se completa en hasta dos horas.', css: 'sleeping' },
     walking: { icon: '🦮', title: 'De paseo', description: 'Está explorando y olfateando todo a su alrededor.', css: 'walking' },
-    training: { icon: '🎓', title: 'Entrenando', description: 'Está concentrado en aprender algo nuevo.', css: 'training' },
+    training: { icon: '🎓', title: 'Entrenando', description: 'Está concentrada en aprender algo nuevo.', css: 'training' },
     playing: { icon: '🎾', title: 'Jugando contigo', description: 'Corre detrás de la pelota con toda su energía.', css: 'playing' },
     bathing: { icon: '🛁', title: 'Hora del baño', description: 'Sacude las orejas entre montones de espuma.', css: 'bathing' },
     brushing: { icon: '🪮', title: 'Disfrutando el cepillado', description: 'Se inclina hacia el cepillo con los ojos felices.', css: 'brushing' }
@@ -93,11 +96,11 @@
 
   const LONELY_AFTER_MS = 6 * 3_600_000;
   const PET_CONDITIONS = {
-    sick: { key: 'sick', icon: '🩹', title: 'No se siente bien', description: 'Está decaído y necesita que revises su salud.', badge: 'Se siente mal', badgeState: 'critical', pose: 'sick', face: 'sick-face' },
+    sick: { key: 'sick', icon: '🩹', title: 'No se siente bien', description: 'Está decaída y necesita que revises su salud.', badge: 'Se siente mal', badgeState: 'critical', pose: 'sick', face: 'sick-face' },
     hungry: { key: 'hungry', icon: '🍲', title: 'Tiene hambre', description: 'Mira su cuenco y espera que le dejes comida.', badge: 'Tiene hambre', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
     thirsty: { key: 'thirsty', icon: '💧', title: 'Tiene sed', description: 'Necesita agua fresca antes de seguir jugando.', badge: 'Tiene sed', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
-    dirty: { key: 'dirty', icon: '🫧', title: 'Se siente sucio', description: 'El lodo le pica un poco. Un cepillado o baño le ayudará.', badge: 'Necesita limpieza', badgeState: 'warning', pose: 'dirty', face: 'sad-face' },
-    tired: { key: 'tired', icon: '🌙', title: 'Está muy cansado', description: 'Se le cierran los ojos y necesita descansar.', badge: 'Tiene sueño', badgeState: 'warning', pose: 'sit-drowsy', face: 'sleepy-face' },
+    dirty: { key: 'dirty', icon: '🫧', title: 'Se siente sucia', description: 'El lodo le pica un poco. Un cepillado o baño le ayudará.', badge: 'Necesita limpieza', badgeState: 'warning', pose: 'dirty', face: 'sad-face' },
+    tired: { key: 'tired', icon: '🌙', title: 'Está muy cansada', description: 'Se le cierran los ojos y necesita descansar.', badge: 'Tiene sueño', badgeState: 'warning', pose: 'sit-drowsy', face: 'sleepy-face' },
     sad: { key: 'sad', icon: '💗', title: 'Está triste', description: 'Hoy necesita un poco más de compañía y cariño.', badge: 'Está triste', badgeState: 'warning', pose: 'sad', face: 'sad-face' },
     lonely: { key: 'lonely', icon: '💌', title: 'Te extrañó', description: 'Estuvo esperando tu regreso y quiere estar cerquita de ti.', badge: 'Te extrañó', badgeState: 'warning', pose: 'lonely', face: 'sad-face' }
   };
@@ -106,7 +109,7 @@
     version: 4,
     initialized: false,
     partnerName: '',
-    petName: 'Milo',
+    petName: 'Lolita',
     signature: 'Creado con amor para ti 💗',
     customNote: '',
     createdAt: now(),
@@ -124,7 +127,7 @@
     inventory: { food: 3, treat: 2, soap: 2, medicine: 1 },
     bowls: { food: 0, water: 2 },
     skills: { sit: 0, paw: 0, fetch: 0 },
-    arcade: { ballBest: 0, dodgeBest: 0, memoryBest: 0, played: 0 },
+    arcade: { ballBest: 0, dodgeBest: 0, memoryBest: 0, heartBest: 0, played: 0 },
     habits: { care: 0, walk: 0, train: 0, play: 0, sleep: 0 },
     activity: { type: 'exploring', startedAt: now(), endsAt: now() + 18000 },
     isAsleep: false,
@@ -182,6 +185,20 @@
   let memoryScore = 0;
   let memoryContext = { source: 'arcade', bonus: 0 };
   let memoryTimers = [];
+  let heartActive = false;
+  let heartFrame = null;
+  let heartStartedAt = 0;
+  let heartLastFrame = 0;
+  let heartLastSpawn = 0;
+  let heartLastFlowerAt = 0;
+  let heartLives = 3;
+  let heartScore = 0;
+  let heartFlowers = 0;
+  let heartCurrentWave = 0;
+  let heartPlayerPosition = { x: .5, y: .72 };
+  let heartObjects = [];
+  let heartInvulnerableUntil = 0;
+  const heartDirections = new Set();
   let previousFocus = null;
   let petReaction = '';
   let petReactionTimer = null;
@@ -216,7 +233,7 @@
         const migrated = defaultState();
         migrated.initialized = !!legacy.initialized;
         migrated.partnerName = legacy.partnerName || '';
-        migrated.petName = legacy.petName || 'Milo';
+        migrated.petName = legacy.petName || 'Lolita';
         migrated.signature = legacy.signature || migrated.signature;
         migrated.customNote = legacy.customNote || '';
         migrated.createdAt = legacy.createdAt || migrated.createdAt;
@@ -455,8 +472,8 @@
     if (elapsedHours >= 4) {
       const summaries = [
         'Pasó un rato mirando por la ventana y luego jugó con su juguete.',
-        'Exploró la casa, descansó un poco y estuvo atento a la puerta.',
-        'Se entretuvo solo, aunque se alegrará mucho de verte regresar.'
+        'Exploró la casa, descansó un poco y estuvo atenta a la puerta.',
+        'Se entretuvo sola, aunque se alegrará mucho de verte regresar.'
       ];
       addJournal('🏡', 'Mientras no estabas', pick(summaries, (hashCode(localDateKey() + Math.floor(elapsedHours)) % 100) / 100));
       acted = true;
@@ -636,7 +653,7 @@
   }
 
   function isBusy() {
-    return gameActive || dodgeActive || memoryActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'drowsy', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
+    return gameActive || dodgeActive || memoryActive || heartActive || state.isAsleep || (state.activity.endsAt > now() && !['idle', 'drowsy', 'sitting', 'stretching', 'grooming', 'exploring', 'watching', 'toy', 'guarding'].includes(state.activity.type));
   }
 
   function resolveActivity() {
@@ -737,7 +754,7 @@
       : `${remainingMinutes} min`;
     const sleepTitle = mode === 'nap' ? 'Tomó una siesta' : hadSavedRest ? 'Retomó su descanso' : 'Hora de dormir';
     const sleepDescription = automatic
-      ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.`
+      ? `${state.petName} estaba agotada y decidió acostarse por su cuenta.`
       : hadSavedRest
         ? `Continuará desde el ${resumedProgress}% y le faltan aproximadamente ${remainingLabel}.`
         : `Su descanso empieza en ${resumedProgress}% porque ya tenía esa energía; le faltan aproximadamente ${remainingLabel}.`;
@@ -775,21 +792,21 @@
     if (wokeAtNight && early && !completedFullSleep) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
     if (byUser && early) modifyStats({ mood: -3, stress: 2 });
     if (wokeAtNight) setActivity('drowsy', 14000, completedFullSleep ? {
-      title: 'Despierto y descansado',
+      title: 'Despierta y descansada',
       description: 'Aunque es de noche, se levantó con energía después de dormir muy bien.'
     } : {});
-    else setActivity('idle', 5200, { title: 'Recién despierto', description: 'Bosteza, estira las patas y vuelve a ponerse de pie.', icon: '🥱', css: 'waking' });
+    else setActivity('idle', 5200, { title: 'Recién despierta', description: 'Bosteza, estira las patas y vuelve a ponerse de pie.', icon: '🥱', css: 'waking' });
     if (byUser) {
       const wakeTitle = completedFullSleep ? 'Terminó su descanso' : wokeAtNight ? 'Se despertó de noche' : 'Se despertó';
       const wakeDescription = completedFullSleep
-        ? `${state.petName} durmió hasta sentirse completamente descansado.`
+        ? `${state.petName} durmió hasta sentirse completamente descansada.`
         : wokeAtNight
           ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.`
           : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`;
       addJournal('🥱', wakeTitle, wakeDescription);
       speak(savedProgress < 100 ? 'Todavía tengo sueño. Luego sigo descansando.' : '¡Qué bien dormí!');
     } else {
-      addJournal('☀️', 'Despertó descansado', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
+      addJournal('☀️', 'Despertó descansada', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
     }
     touch();
   }
@@ -801,12 +818,12 @@
       render();
       return;
     }
-    if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
+    if (isBusy()) return toast(`${state.petName} está ocupada en este momento.`);
     beginSleep('night');
   }
 
   function handleCare(action) {
-    if (isBusy()) return toast(`${state.petName} está ocupado. Espera un momento.`);
+    if (isBusy()) return toast(`${state.petName} está ocupada. Espera un momento.`);
     let close = true;
     let feedback = '';
     switch (action) {
@@ -830,14 +847,14 @@
           feedback = `🍲 +${Math.max(1, Math.round(state.stats.food - foodBefore))} comida · +3 XP`;
         } else {
           addJournal('🥫', 'Dejaste comida', `Serviste una porción para que ${state.petName} pueda comer más tarde.`);
-          speak('Estoy lleno; la guardaré para después.');
+          speak('Estoy llena; la guardaré para después.');
           feedback = '🍲 Comida guardada · +3 XP';
         }
         break;
       }
       case 'giveTreat':
         if (state.inventory.treat <= 0) return toast('Se acabaron los premios. Puedes comprar más en la tienda.');
-        if (state.stats.food > 95) return speak('Gracias, pero estoy demasiado lleno.'), toast('No quiso comer de más.');
+        if (state.stats.food > 95) return speak('Gracias, pero estoy demasiado llena.'), toast('No quiso comer de más.');
         state.inventory.treat -= 1;
         modifyStats({ food: 9, mood: 8 * (PERSONALITIES[state.personality].food || 1), bond: 2, stress: -2 });
         setActivity('eating', 2800, { title: 'Comiendo un premio', description: 'Saborea su premio y mueve la cola muy rápido.', icon: '🦴', css: 'treating' });
@@ -863,7 +880,7 @@
           feedback = `💧 +${Math.max(1, Math.round(state.stats.water - waterBefore))} agua · +2 XP`;
         } else {
           addJournal('💧', 'Agua fresca', 'Llenaste el cuenco para que pueda beber más tarde.');
-          speak('Estoy bien hidratado; la guardaré para después.');
+          speak('Estoy bien hidratada; la guardaré para después.');
           feedback = '💧 Agua guardada · +2 XP';
         }
         break;
@@ -879,13 +896,13 @@
         break;
       case 'bath':
         if (state.inventory.soap <= 0) return toast('No queda jabón.');
-        if (state.stats.hygiene > 94) return speak('¡Pero si ya estoy limpio!'), toast('No necesita otro baño todavía.');
+        if (state.stats.hygiene > 94) return speak('¡Pero si ya estoy limpia!'), toast('No necesita otro baño todavía.');
         state.inventory.soap -= 1;
         modifyStats({ hygiene: 42, health: 3, mood: 2, stress: 5 * PERSONALITIES[state.personality].bathingStress, bond: 2 });
         setActivity('bathing', 4800);
         recordHabit('care');
         gainXp(11);
-        addJournal('🛁', 'Baño completo', `${state.petName} quedó limpio y esponjoso.`);
+        addJournal('🛁', 'Baño completo', `${state.petName} quedó limpia y esponjosa.`);
         speak('¡Cuidado con mis orejas!');
         createSparkles('🫧');
         feedback = '🫧 Limpieza completa · +11 XP';
@@ -898,7 +915,7 @@
         setActivity('idle', 3200, { title: 'Recuperándose', description: 'La medicina está haciendo efecto. Necesita un momento tranquilo.', icon: '🩹', css: 'sitting' });
         recordHabit('care');
         gainXp(10);
-        addJournal('🩹', 'Recibió medicina', `Lo cuidaste a tiempo y ya empezó a sentirse mejor.`);
+        addJournal('🩹', 'Recibió medicina', `La cuidaste a tiempo y ya empezó a sentirse mejor.`);
         speak('Sabe raro… pero ya me siento mejor.');
         feedback = '❤️ +30 salud · +10 XP';
         break;
@@ -917,7 +934,7 @@
   function handleWalk(routeKey) {
     const route = WALK_ROUTES[routeKey];
     if (!route) return;
-    if (isBusy()) return toast(`${state.petName} está ocupado.`);
+    if (isBusy()) return toast(`${state.petName} está ocupada.`);
     if (state.level < route.level) return toast(`Esta ruta se desbloquea en el nivel ${route.level}.`);
     if (state.stats.health < 35) return toast('Necesita recuperar salud antes de salir.');
     if (state.stats.energy < route.energy + 12) return toast(`${state.petName} necesita descansar antes de ese paseo.`);
@@ -928,13 +945,13 @@
     const weather = currentWeather();
     const events = {
       block: [
-        { text: 'saludó a otro perrito del vecindario', mood: 5, coins: 1, hygiene: 0 },
+        { text: 'saludó a otra perrita del vecindario', mood: 5, coins: 1, hygiene: 0 },
         { text: 'encontró una moneda junto a una banca', mood: 3, coins: 4, hygiene: 0 },
         { text: 'se detuvo a oler todas las flores', mood: 4, coins: 0, hygiene: 0 }
       ],
       park: [
         { text: 'hizo un nuevo amigo en el parque', mood: 9, coins: 2, hygiene: -2 },
-        { text: 'saltó directo a un charco de lodo', mood: 12, coins: 0, hygiene: -16 },
+        { text: 'saltó directa a un charco de lodo', mood: 12, coins: 0, hygiene: -16 },
         { text: 'encontró un palo perfecto para practicar', mood: 7, coins: 3, hygiene: -4, fetch: 5 }
       ],
       adventure: [
@@ -986,9 +1003,9 @@
   function handleTraining(skillKey) {
     const skill = SKILLS[skillKey];
     if (!skill) return;
-    if (isBusy()) return toast(`${state.petName} está ocupado.`);
+    if (isBusy()) return toast(`${state.petName} está ocupada.`);
     if (state.level < skill.unlock) return toast(`Se desbloquea en el nivel ${skill.unlock}.`);
-    if (state.stats.energy < 22) return toast('Está demasiado cansado para concentrarse.');
+    if (state.stats.energy < 22) return toast('Está demasiado cansada para concentrarse.');
     if (state.stats.water < 18 || state.stats.food < 18) return toast('Primero necesita comer o beber.');
 
     const hasTreat = state.inventory.treat > 0;
@@ -1063,6 +1080,7 @@
     if (type === 'ball') return ENERGY_COSTS.arcadeBall;
     if (type === 'dodge') return ENERGY_COSTS.arcadeDodge;
     if (type === 'memory') return ENERGY_COSTS.arcadeMemory;
+    if (type === 'heart') return ENERGY_COSTS.arcadeHeart;
     return 0;
   }
 
@@ -1114,7 +1132,7 @@
     el('gameTime').textContent = '25';
     el('gameDialogue').textContent = 'La pelota rebota de un lado a otro. Elige una ayuda.';
     el('gameMessage').hidden = false;
-    el('gameMessage').textContent = 'Elige Lanzar cuando estés listo.';
+    el('gameMessage').textContent = 'Elige Lanzar cuando quieras.';
     el('startGameBtn').disabled = true;
     el('startGameBtn').textContent = 'Juego en curso';
     setBallActionsDisabled(false);
@@ -1141,13 +1159,13 @@
       if (state.inventory.treat <= 0) return toast('No tienes premios en el inventario.');
       state.inventory.treat -= 1;
       gameFocusBonus += 10;
-      el('gameDialogue').textContent = `${state.petName} recibió un premio. ¡Está totalmente concentrado!`;
+      el('gameDialogue').textContent = `${state.petName} recibió un premio. ¡Está totalmente concentrada!`;
       touch();
       saveState();
       renderHome();
     } else if (action === 'calm') {
       gameSpeedMultiplier = .7;
-      el('gameDialogue').textContent = 'Respiraron juntos. La marca irá más despacio en el próximo tiro.';
+      el('gameDialogue').textContent = 'Respiraron juntas. La marca irá más despacio en el próximo tiro.';
     }
     gameUsedActions.add(action);
     haptic(12);
@@ -1253,7 +1271,7 @@
   }
 
   function openArcadeGame(type) {
-    if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
+    if (isBusy()) return toast(`${state.petName} está ocupada en este momento.`);
     if (state.stats.energy < arcadeEnergyCost(type)) return toast(`Necesita ${arcadeEnergyCost(type)}% de energía para jugar.`);
     closeModal('arcadeModal');
     setTimeout(() => {
@@ -1262,7 +1280,8 @@
         openModal('gameModal');
       }
       else if (type === 'dodge') openDodgeEncounter({ source: 'arcade', bonus: 0, title: 'Pista de reflejos', description: 'Mueve la huella y evita hojas, gotitas y conos durante 15 segundos.' });
-      else openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Secuencia de señales', description: 'Observa las señales y repítelas. Cada ronda será un poco más larga.' });
+      else if (type === 'memory') openMemoryEncounter({ source: 'arcade', bonus: 0, title: 'Secuencia de señales', description: 'Observa las señales y repítelas. Cada ronda será un poco más larga.' });
+      else openHeartEncounter();
     }, 230);
   }
 
@@ -1270,7 +1289,7 @@
     setTimeout(() => {
       if (!document.querySelector('.modal-backdrop.open')) callback();
       else if (attempt < 12) scheduleEncounter(callback, attempt + 1);
-      else toast(`${state.petName} encontró un reto especial, pero estaba ocupado. Aparecerá en otro paseo.`);
+      else toast(`${state.petName} encontró un reto especial, pero estaba ocupada. Aparecerá en otro paseo.`);
     }, attempt ? 500 : 420);
   }
 
@@ -1505,7 +1524,7 @@
     state.arcade.played += 1;
     gainXp(xp);
     recordHabit('play');
-    setActivity('playing', 4300, { icon: '🐾', title: survived ? 'Celebrando la pista' : 'Recuperando el aliento', description: survived ? `${state.petName} confió en tus reflejos y completó el recorrido.` : 'No llegaron al final, pero practicaron juntos.' });
+    setActivity('playing', 4300, { icon: '🐾', title: survived ? 'Celebrando la pista' : 'Recuperando el aliento', description: survived ? `${state.petName} confió en tus reflejos y completó el recorrido.` : 'No llegaron al final, pero practicaron juntas.' });
     addJournal('🐾', survived ? 'Completó la Pista de reflejos' : 'Practicó en la Pista de reflejos', `${survived ? 'Completaste' : 'Intentaste'} el recorrido con ${dodgeScore} puntos y ganaste ${coins} monedas.`);
     el('dodgeMessage').hidden = false;
     el('dodgeMessage').textContent = survived ? `¡Superado! ${dodgeScore} puntos · +${coins} monedas` : `Buen intento · ${dodgeScore} puntos · +${coins} monedas`;
@@ -1513,8 +1532,8 @@
     el('startDodgeBtn').disabled = false;
     el('startDodgeBtn').textContent = `Jugar otra vez · ${energyLabel(dodgeEnergyCost())}`;
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.disabled = false);
-    el('dodgeDialogue').textContent = survived ? `La pista quedó libre. ${state.petName} mueve la cola, orgulloso.` : `${state.petName} descansó un momento y ya quiere intentarlo otra vez.`;
-    speak(survived ? '¡Lo logramos juntos!' : '¡Casi! La próxima lo lograremos.');
+    el('dodgeDialogue').textContent = survived ? `La pista quedó libre. ${state.petName} mueve la cola, orgullosa.` : `${state.petName} descansó un momento y ya quiere intentarlo otra vez.`;
+    speak(survived ? '¡Lo logramos juntas!' : '¡Casi! La próxima lo lograremos.');
     haptic(survived ? [18, 35, 55] : 25);
     if (survived) createSparkles('🐾');
     touch();
@@ -1673,7 +1692,7 @@
     state.traits.trust = clamp(state.traits.trust + (won ? 2 : .5));
     gainXp(8 + Math.floor(memoryScore / 9));
     recordHabit('play');
-    setActivity('training', 3800, { icon: '🐾', title: won ? 'Orgulloso de su memoria' : 'Practicando otra vez', description: won ? `${state.petName} siguió todas tus señales.` : 'La secuencia fue difícil, pero no se rindió.' });
+    setActivity('training', 3800, { icon: '🐾', title: won ? 'Orgullosa de su memoria' : 'Practicando otra vez', description: won ? `${state.petName} siguió todas tus señales.` : 'La secuencia fue difícil, pero no se rindió.' });
     addJournal('🎨', won ? 'Completó la Secuencia de señales' : 'Practicó la Secuencia de señales', `Llegaron a la ronda ${memoryRound} con ${memoryScore} puntos y ganaron ${coins} monedas.`);
     el('memoryMessage').textContent = won ? `Secuencia completa · ${memoryScore} puntos · +${coins} monedas` : `Partida terminada · ${memoryScore} puntos · +${coins} monedas`;
     el('startMemoryBtn').disabled = false;
@@ -1684,6 +1703,250 @@
     touch();
     saveState();
     render();
+  }
+
+  function openHeartEncounter() {
+    heartCurrentWave = 0;
+    heartLives = 3;
+    heartScore = 0;
+    heartFlowers = 0;
+    heartPlayerPosition = { x: .5, y: .72 };
+    heartInvulnerableUntil = 0;
+    heartDirections.clear();
+    clearHeartObjects();
+    el('heartLives').textContent = '♥♥♥';
+    el('heartFlowers').textContent = `0 / ${HEART_FLOWER_GOAL}`;
+    el('heartTime').textContent = String(HEART_GAME_DURATION);
+    el('heartWave').textContent = 'Ronda 1 · Lluvia suave';
+    el('heartDialogue').textContent = 'El jardín está tranquilo. Prepárate para moverte.';
+    el('heartMessage').hidden = false;
+    el('heartMessage').textContent = 'Toca Empezar y guía el corazón.';
+    el('heartPlayer').style.display = 'none';
+    el('startHeartBtn').disabled = false;
+    el('startHeartBtn').textContent = `Empezar reto · ${energyLabel(ENERGY_COSTS.arcadeHeart)}`;
+    openModal('heartModal');
+  }
+
+  function startHeartGame() {
+    if (heartActive) return;
+    if (state.isAsleep || isBusy()) return toast(`${state.petName} no puede jugar ahora.`);
+    if (state.stats.energy < ENERGY_COSTS.arcadeHeart) return toast(`Necesita ${ENERGY_COSTS.arcadeHeart}% de energía para jugar.`);
+    heartActive = true;
+    heartCurrentWave = 0;
+    heartLives = 3;
+    heartScore = 0;
+    heartFlowers = 0;
+    heartPlayerPosition = { x: .5, y: .72 };
+    heartInvulnerableUntil = 0;
+    heartDirections.clear();
+    clearHeartObjects();
+    el('heartLives').textContent = '♥♥♥';
+    el('heartFlowers').textContent = `0 / ${HEART_FLOWER_GOAL}`;
+    el('heartTime').textContent = String(HEART_GAME_DURATION);
+    el('heartWave').textContent = 'Ronda 1 · Lluvia suave';
+    el('heartDialogue').textContent = `Protege el corazón de ${state.petName} y busca las flores.`;
+    el('heartMessage').hidden = true;
+    el('heartPlayer').style.display = 'flex';
+    el('heartPlayer').style.left = '50%';
+    el('heartPlayer').style.top = '72%';
+    el('startHeartBtn').disabled = true;
+    el('startHeartBtn').textContent = 'Reto en curso';
+    el('heartArena').focus({ preventScroll: true });
+    heartStartedAt = performance.now();
+    heartLastFrame = heartStartedAt;
+    heartLastSpawn = heartStartedAt - 700;
+    heartLastFlowerAt = heartStartedAt - 1700;
+    heartFrame = requestAnimationFrame(updateHeartFrame);
+  }
+
+  function createHeartObject({ kind = 'hazard', x, y, vx, vy, size = 20, symbol = '●' }) {
+    const node = document.createElement('span');
+    node.className = `heart-object ${kind}`;
+    node.textContent = symbol;
+    node.style.width = `${size}px`;
+    node.style.height = `${size}px`;
+    el('heartObjectLayer').appendChild(node);
+    heartObjects.push({ node, kind, x, y, vx, vy, size });
+  }
+
+  function spawnHeartHazard(wave) {
+    const speed = .27 + wave * .035 + Math.random() * .045;
+    if (wave === 0) {
+      createHeartObject({ kind: 'rain', x: .06 + Math.random() * .88, y: -.08, vx: (Math.random() - .5) * .035, vy: speed, size: 18 + Math.random() * 5, symbol: '◆' });
+      return;
+    }
+    if (wave === 1) {
+      const fromLeft = Math.random() > .5;
+      createHeartObject({ kind: 'breeze', x: fromLeft ? -.08 : 1.08, y: .12 + Math.random() * .76, vx: (fromLeft ? 1 : -1) * speed * 1.15, vy: (Math.random() - .5) * .055, size: 19 + Math.random() * 6, symbol: '≈' });
+      return;
+    }
+
+    const side = Math.floor(Math.random() * 4);
+    const origin = side === 0 ? { x: -.08, y: Math.random() } : side === 1 ? { x: 1.08, y: Math.random() } : side === 2 ? { x: Math.random(), y: -.08 } : { x: Math.random(), y: 1.08 };
+    const dx = heartPlayerPosition.x - origin.x + (Math.random() - .5) * .24;
+    const dy = heartPlayerPosition.y - origin.y + (Math.random() - .5) * .24;
+    const length = Math.max(.01, Math.hypot(dx, dy));
+    createHeartObject({ kind: 'glow', x: origin.x, y: origin.y, vx: dx / length * speed, vy: dy / length * speed, size: 17 + Math.random() * 5, symbol: '✦' });
+  }
+
+  function spawnHeartFlower() {
+    if (heartObjects.filter(object => object.kind === 'flower').length >= 2) return;
+    createHeartObject({
+      kind: 'flower',
+      x: .12 + Math.random() * .76,
+      y: .12 + Math.random() * .7,
+      vx: (Math.random() - .5) * .025,
+      vy: (Math.random() - .5) * .018,
+      size: 30,
+      symbol: '🌼'
+    });
+  }
+
+  function updateHeartFrame(timestamp) {
+    if (!heartActive) return;
+    const delta = Math.min(.04, Math.max(.001, (timestamp - heartLastFrame) / 1000));
+    const elapsed = (timestamp - heartStartedAt) / 1000;
+    heartLastFrame = timestamp;
+
+    const speed = .54;
+    if (heartDirections.has('left')) heartPlayerPosition.x -= speed * delta;
+    if (heartDirections.has('right')) heartPlayerPosition.x += speed * delta;
+    if (heartDirections.has('up')) heartPlayerPosition.y -= speed * delta;
+    if (heartDirections.has('down')) heartPlayerPosition.y += speed * delta;
+    heartPlayerPosition.x = Math.max(.045, Math.min(.955, heartPlayerPosition.x));
+    heartPlayerPosition.y = Math.max(.065, Math.min(.935, heartPlayerPosition.y));
+    const player = el('heartPlayer');
+    player.style.left = `${heartPlayerPosition.x * 100}%`;
+    player.style.top = `${heartPlayerPosition.y * 100}%`;
+
+    const wave = Math.min(2, Math.floor(elapsed / 6));
+    if (wave !== heartCurrentWave) {
+      heartCurrentWave = wave;
+      const waveNames = ['Lluvia suave', 'Brisa cruzada', 'Luces danzantes'];
+      el('heartWave').textContent = `Ronda ${wave + 1} · ${waveNames[wave]}`;
+      el('heartDialogue').textContent = wave === 1 ? 'La brisa cruza de ambos lados. Muévete entre sus espacios.' : 'Las luces siguen al corazón. Cambia de dirección con calma.';
+    }
+
+    const spawnEvery = wave === 0 ? 650 : wave === 1 ? 510 : 430;
+    if (timestamp - heartLastSpawn >= spawnEvery) {
+      spawnHeartHazard(wave);
+      heartLastSpawn = timestamp;
+    }
+    if (heartFlowers < HEART_FLOWER_GOAL && timestamp - heartLastFlowerAt >= 2450) {
+      spawnHeartFlower();
+      heartLastFlowerAt = timestamp;
+    }
+
+    const arena = el('heartArena');
+    const width = arena.clientWidth;
+    const height = arena.clientHeight;
+    const playerX = heartPlayerPosition.x * width;
+    const playerY = heartPlayerPosition.y * height;
+    let defeated = false;
+    heartObjects = heartObjects.filter(object => {
+      object.x += object.vx * delta;
+      object.y += object.vy * delta;
+      object.node.style.transform = `translate(${object.x * width - object.size / 2}px, ${object.y * height - object.size / 2}px)`;
+      if (object.x < -.14 || object.x > 1.14 || object.y < -.14 || object.y > 1.14) {
+        object.node.remove();
+        return false;
+      }
+
+      const distance = Math.hypot(object.x * width - playerX, object.y * height - playerY);
+      if (distance >= (object.size + 24) * .42) return true;
+      if (object.kind === 'flower') {
+        if (heartFlowers >= HEART_FLOWER_GOAL) {
+          object.node.remove();
+          return false;
+        }
+        heartFlowers = Math.min(HEART_FLOWER_GOAL, heartFlowers + 1);
+        heartScore += 28;
+        el('heartFlowers').textContent = `${heartFlowers} / ${HEART_FLOWER_GOAL}`;
+        el('heartDialogue').textContent = heartFlowers >= HEART_FLOWER_GOAL ? `¡${state.petName} reunió todas las flores! Ahora resiste hasta el final.` : `Flor de cariño ${heartFlowers} de ${HEART_FLOWER_GOAL}.`;
+        haptic([12, 20, 24]);
+        object.node.remove();
+        return false;
+      }
+      if (timestamp > heartInvulnerableUntil) {
+        heartLives -= 1;
+        heartScore = Math.max(0, heartScore - 10);
+        heartInvulnerableUntil = timestamp + 950;
+        el('heartLives').textContent = '♥'.repeat(Math.max(0, heartLives)) || '—';
+        player.classList.remove('hit');
+        void player.offsetWidth;
+        player.classList.add('hit');
+        haptic([45, 30, 45]);
+        if (heartLives <= 0) defeated = true;
+      }
+      object.node.remove();
+      return false;
+    });
+
+    heartScore += delta * 6;
+    el('heartTime').textContent = String(Math.max(0, Math.ceil(HEART_GAME_DURATION - elapsed)));
+    if (defeated) {
+      finishHeartGame(false, false);
+      return;
+    }
+    if (elapsed >= HEART_GAME_DURATION) {
+      finishHeartGame(false, true);
+      return;
+    }
+    heartFrame = requestAnimationFrame(updateHeartFrame);
+  }
+
+  function clearHeartObjects() {
+    heartObjects.forEach(object => object.node.remove());
+    heartObjects = [];
+  }
+
+  function finishHeartGame(cancelled = false, survived = false) {
+    cancelAnimationFrame(heartFrame);
+    heartFrame = null;
+    heartDirections.clear();
+    document.querySelectorAll('[data-heart-dir]').forEach(button => button.classList.remove('pressed'));
+    clearHeartObjects();
+    const wasActive = heartActive;
+    heartActive = false;
+    el('heartPlayer').style.display = 'none';
+    el('heartPlayer').classList.remove('hit');
+    el('startHeartBtn').disabled = false;
+    if (!wasActive) return;
+    if (cancelled) {
+      el('heartMessage').hidden = false;
+      el('heartMessage').textContent = 'Reto pausado.';
+      return;
+    }
+
+    const finalScore = Math.floor(heartScore + heartLives * 8);
+    const won = survived && heartFlowers >= HEART_FLOWER_GOAL;
+    const coins = Math.max(3, Math.floor(finalScore / 16) + heartFlowers + (won ? 6 : 1));
+    modifyStats({ energy: -ENERGY_COSTS.arcadeHeart, water: -4, food: -2, mood: won ? 16 : 7, bond: won ? 7 : 3, stress: won ? -8 : -3 });
+    state.coins += coins;
+    state.arcade.heartBest = Math.max(state.arcade.heartBest, finalScore);
+    state.arcade.played += 1;
+    state.traits.trust = clamp(state.traits.trust + (won ? 3 : 1));
+    gainXp(9 + Math.floor(finalScore / 10));
+    recordHabit('play');
+    setActivity('playing', 4300, { icon: '♥', title: won ? 'Corazón valiente' : 'Descansando del reto', description: won ? `${state.petName} reunió las flores y superó todos los patrones.` : `${state.petName} lo intentó con mucha valentía.` });
+    addJournal('♥', won ? 'Superó Corazón valiente' : 'Practicó Corazón valiente', `Reunieron ${heartFlowers} flores, lograron ${finalScore} puntos y ganaron ${coins} monedas.`);
+    el('heartMessage').hidden = false;
+    el('heartMessage').textContent = won ? `¡Jardín superado! ${finalScore} puntos · +${coins} monedas` : `Buen intento · ${finalScore} puntos · +${coins} monedas`;
+    el('heartDialogue').textContent = won ? `${state.petName} mueve la cola, feliz de haber protegido su corazón.` : 'El jardín estará listo para intentarlo otra vez.';
+    el('startHeartBtn').textContent = `Jugar otra vez · ${energyLabel(ENERGY_COSTS.arcadeHeart)}`;
+    speak(won ? '¡Nuestro corazón fue muy valiente!' : '¡La próxima reuniremos todas las flores!');
+    haptic(won ? [18, 28, 18, 28, 55] : 22);
+    if (won) createSparkles('♥');
+    touch();
+    saveState();
+    render();
+  }
+
+  function moveHeartPlayerToPointer(event) {
+    if (!heartActive) return;
+    const rect = el('heartArena').getBoundingClientRect();
+    heartPlayerPosition.x = Math.max(.045, Math.min(.955, (event.clientX - rect.left) / rect.width));
+    heartPlayerPosition.y = Math.max(.065, Math.min(.935, (event.clientY - rect.top) / rect.height));
   }
 
   function currentWeather() {
@@ -1737,7 +2000,7 @@
   }
 
   function renderNudge() {
-    const petName = state.petName || 'Milo';
+    const petName = state.petName || 'Lolita';
     const nudge = el('companionNudge');
     const suppressed = isBusy();
     nudge.hidden = suppressed;
@@ -1746,33 +2009,33 @@
     const condition = currentPetCondition();
 
     if (condition?.key === 'sick') {
-      suggestion = { icon: '🩹', kicker: `${petName} te necesita`, title: 'No me siento bien…', text: 'Revisa su salud y ayúdalo a recuperarse.', action: 'care', label: 'Cuidarlo' };
+      suggestion = { icon: '🩹', kicker: `${petName} te necesita`, title: 'No me siento bien…', text: 'Revisa su salud y ayúdala a recuperarse.', action: 'care', label: 'Cuidarla' };
     } else if (condition?.key === 'hungry') {
       suggestion = state.bowls.food
-        ? { icon: '🍲', kicker: `${petName} tiene comida lista`, title: 'Ya olí mi comida', text: 'Comerá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
+        ? { icon: '🍲', kicker: `${petName} tiene comida lista`, title: 'Ya olí mi comida', text: 'Comerá sola cuando lo necesite. Mientras tanto puedes acariciarla.', action: 'pet', label: 'Acariciarla' }
         : { icon: '🍲', kicker: `${petName} tiene hambre`, title: '¿Me dejas comida?', text: 'Su cuenco está vacío.', action: 'care', label: 'Servir comida' };
     } else if (condition?.key === 'thirsty') {
       suggestion = state.bowls.water
-        ? { icon: '💧', kicker: `${petName} tiene agua lista`, title: 'Tengo un poquito de sed', text: 'Beberá solo cuando lo necesite. Mientras tanto puedes acariciarlo.', action: 'pet', label: 'Acariciarlo' }
+        ? { icon: '💧', kicker: `${petName} tiene agua lista`, title: 'Tengo un poquito de sed', text: 'Beberá sola cuando lo necesite. Mientras tanto puedes acariciarla.', action: 'pet', label: 'Acariciarla' }
         : { icon: '💧', kicker: `${petName} tiene sed`, title: '¿Llenas mi cuenco?', text: 'Necesita agua antes de otra aventura.', action: 'care', label: 'Darle agua' };
     } else if (condition?.key === 'dirty') {
-      suggestion = { icon: '🫧', kicker: `${petName} necesita cuidados`, title: 'Creo que me ensucié…', text: 'Un cepillado o un baño le vendrían bien.', action: 'care', label: 'Limpiarlo' };
+      suggestion = { icon: '🫧', kicker: `${petName} necesita cuidados`, title: 'Creo que me ensucié…', text: 'Un cepillado o un baño le vendrían bien.', action: 'care', label: 'Limpiarla' };
     } else if (condition?.key === 'tired') {
       suggestion = { icon: '🌙', kicker: `${petName} tiene sueño`, title: 'Se me cierran los ojos…', text: 'Puede descansar ahora y continuar después.', action: 'sleep', label: 'Arroparlo' };
     } else if (condition?.key === 'sad') {
-      suggestion = { icon: '💗', kicker: `${petName} necesita compañía`, title: '¿Te quedas conmigo?', text: 'Una caricia le ayudará a sentirse acompañado.', action: 'pet', label: 'Acariciarlo' };
+      suggestion = { icon: '💗', kicker: `${petName} necesita compañía`, title: '¿Te quedas conmigo?', text: 'Una caricia le ayudará a sentirse acompañada.', action: 'pet', label: 'Acariciarla' };
     } else if (condition?.key === 'lonely') {
-      suggestion = { icon: '💌', kicker: `${petName} te extrañó`, title: '¡Qué bueno que volviste!', text: 'Estuvo esperando un ratito de cariño contigo.', action: 'pet', label: 'Saludarlo' };
+      suggestion = { icon: '💌', kicker: `${petName} te extrañó`, title: '¡Qué bueno que volviste!', text: 'Estuvo esperando un ratito de cariño contigo.', action: 'pet', label: 'Saludarla' };
     } else {
       const invitations = {
         curious: ['¿Vamos a descubrir algo?', 'Un paseo puede traer una historia nueva.'],
-        playful: ['¿Jugamos un ratito?', 'Superen un reto y ganen monedas juntos.'],
-        foodie: ['¿Hacemos algo juntos?', 'Un paseo corto le abrirá el apetito.'],
+        playful: ['¿Jugamos un ratito?', 'Superen un reto y ganen monedas juntas.'],
+        foodie: ['¿Hacemos algo juntas?', 'Un paseo corto le abrirá el apetito.'],
         calm: ['Me gusta estar contigo', 'Pueden practicar o jugar sin prisa.'],
         brave: ['¿Nos vamos de aventura?', 'El parque siempre guarda algo nuevo.']
       };
       const [title, text] = invitations[state.personality] || invitations.curious;
-      suggestion = { icon: PERSONALITIES[state.personality].emoji, kicker: `${petName} está listo`, title, text, action: state.personality === 'brave' || state.personality === 'curious' ? 'walk' : 'play', label: state.personality === 'brave' || state.personality === 'curious' ? 'Pasear' : 'Jugar' };
+      suggestion = { icon: PERSONALITIES[state.personality].emoji, kicker: `${petName} está lista`, title, text, action: state.personality === 'brave' || state.personality === 'curious' ? 'walk' : 'play', label: state.personality === 'brave' || state.personality === 'curious' ? 'Pasear' : 'Jugar' };
     }
 
     el('nudgeIcon').textContent = suggestion.icon;
@@ -1834,7 +2097,7 @@
   }
 
   function renderScene() {
-    const petName = state.petName || 'Milo';
+    const petName = state.petName || 'Lolita';
     el('petName').textContent = petName;
     document.title = `La casita de ${petName}`;
     document.querySelectorAll('.game-pet-name, .pet-name-inline').forEach(label => label.textContent = petName);
@@ -1844,7 +2107,7 @@
     el('levelPill').textContent = `Nivel ${state.level}`;
     const personality = PERSONALITIES[state.personality];
     el('personalityChip').textContent = personality.name;
-    el('petStage').textContent = state.level >= 8 ? 'Tu compañero inseparable' : state.level >= 5 ? 'Un perro seguro y lleno de vida' : state.level >= 3 ? 'Un cachorro que aprende rápido' : 'Cachorro recién adoptado';
+    el('petStage').textContent = state.level >= 8 ? 'Tu compañera inseparable' : state.level >= 5 ? 'Una perrita segura y llena de vida' : state.level >= 3 ? 'Una cachorra que aprende rápido' : 'Cachorra recién adoptada';
 
     const activity = activityPreset();
     const condition = !isBusy() ? currentPetCondition() : null;
@@ -1864,7 +2127,7 @@
       : activityPose);
     ensurePetPoseSprites(pose, wrap);
     wrap.setAttribute('aria-label', `${state.isAsleep ? 'Acariciar suavemente a' : 'Acariciar a'} ${petName}`);
-    el('petTouchHint').textContent = state.isAsleep ? 'Tócalo con suavidad' : `Acaricia a ${petName}`;
+    el('petTouchHint').textContent = state.isAsleep ? 'Tócala con suavidad' : `Acaricia a ${petName}`;
 
     const dog = el('dog');
     const average = (state.stats.food + state.stats.water + state.stats.energy + state.stats.hygiene + state.stats.health + state.mood) / 6;
@@ -1887,7 +2150,7 @@
         : `Despertar a ${petName} ahora; descanso ${activeSleepProgress}%`
       : hasSavedRest ? `Seguir descansando, ${savedSleepProgress}% guardado` : sleepLabel);
     el('sleepActionIcon').textContent = state.isAsleep ? '☀️' : '🌙';
-    el('sleepActionCopy').textContent = state.isAsleep ? activeSleepProgress >= 100 ? 'Listo para despertar' : `Descanso ${activeSleepProgress}%` : hasSavedRest ? `Descanso guardado: ${savedSleepProgress}%` : nightAwake ? 'Despierto con sueño' : 'Recupera fuerzas';
+    el('sleepActionCopy').textContent = state.isAsleep ? activeSleepProgress >= 100 ? 'Lista para despertar' : `Descanso ${activeSleepProgress}%` : hasSavedRest ? `Descanso guardado: ${savedSleepProgress}%` : nightAwake ? 'Despierta con sueño' : 'Recupera fuerzas';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
 
@@ -1943,7 +2206,7 @@
     el('trustValue').textContent = String(Math.round(state.traits.trust));
     el('disciplineValue').textContent = String(Math.round(state.traits.discipline));
     const favorite = Object.entries(state.habits).sort((a, b) => b[1] - a[1])[0];
-    const names = { care: 'Que lo cuides', walk: 'Salir a pasear', train: 'Aprender trucos', play: 'Jugar contigo', sleep: 'Dormir' };
+    const names = { care: 'Que la cuides', walk: 'Salir a pasear', train: 'Aprender trucos', play: 'Jugar contigo', sleep: 'Dormir' };
     el('favoriteAction').textContent = favorite?.[1] ? names[favorite[0]] : 'Todavía no decide';
   }
 
@@ -1954,7 +2217,7 @@
       const locked = state.level < skill.unlock;
       return `<div class="skill-row">
         <span class="skill-icon">${locked ? '🔒' : skill.icon}</span>
-        <div class="skill-copy"><strong>${locked ? `Nivel ${skill.unlock}` : skill.name}</strong><span>${locked ? 'Todavía no está listo' : `${Math.round(progress)}% de dominio`}</span><div class="skill-progress"><i style="width:${locked ? 0 : progress}%"></i></div></div>
+        <div class="skill-copy"><strong>${locked ? `Nivel ${skill.unlock}` : skill.name}</strong><span>${locked ? 'Todavía no está lista' : `${Math.round(progress)}% de dominio`}</span><div class="skill-progress"><i style="width:${locked ? 0 : progress}%"></i></div></div>
         <span class="skill-level">${locked ? '' : `Nv. ${level}`}</span>
       </div>`;
     }).join('');
@@ -1978,11 +2241,14 @@
     document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · gana monedas` : '5 tiros · precisión y monedas';
     document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : '15 s · evita todos los obstáculos';
     document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · repite las señales';
+    document.querySelector('[data-arcade="heart"] small').textContent = state.arcade.heartBest ? `Récord ${state.arcade.heartBest} · corazón` : '18 s · esquiva y reúne 5 flores';
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
     el('dodgeGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeDodge);
     el('memoryGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeMemory);
+    el('heartGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeHeart);
     document.querySelector('[data-arcade="dodge"]').disabled = isBusy();
     document.querySelector('[data-arcade="memory"]').disabled = isBusy();
+    document.querySelector('[data-arcade="heart"]').disabled = isBusy();
     document.querySelector('[data-arcade="ball"]').disabled = isBusy();
   }
 
@@ -2012,7 +2278,7 @@
       timer.style.setProperty('--sleep-progress', `${progress}%`);
       if (percentage >= 100) {
         timer.textContent = '100%';
-        timer.setAttribute('aria-label', 'Descanso completo, listo para despertar');
+        timer.setAttribute('aria-label', 'Descanso completo, lista para despertar');
       } else {
         timer.textContent = `${percentage}% · ${timeText}`;
         timer.setAttribute('aria-label', `Descanso ${percentage}%, faltan ${timeText}`);
@@ -2120,9 +2386,9 @@
       { value: pet.stats.health, threshold: 48, message: 'Gracias por acariciarme, pero no me siento bien.' },
       { value: pet.stats.food, threshold: 48, message: 'Gracias por acariciarme, pero tengo hambre.' },
       { value: pet.stats.water, threshold: 48, message: 'Gracias por acariciarme, pero tengo sed.' },
-      { value: pet.stats.energy, threshold: 48, message: 'Gracias por acariciarme, pero estoy cansado.' },
-      { value: pet.stats.hygiene, threshold: 48, message: 'Gracias por acariciarme, pero me siento sucio.' },
-      { value: 100 - pet.stress, threshold: 35, message: 'Gracias por acariciarme, pero estoy un poco nervioso.' },
+      { value: pet.stats.energy, threshold: 48, message: 'Gracias por acariciarme, pero estoy cansada.' },
+      { value: pet.stats.hygiene, threshold: 48, message: 'Gracias por acariciarme, pero me siento sucia.' },
+      { value: 100 - pet.stress, threshold: 35, message: 'Gracias por acariciarme, pero estoy un poco nerviosa.' },
       { value: pet.mood, threshold: 44, message: 'Gracias por acariciarme, pero me siento triste.' }
     ];
     const urgentNeed = needs
@@ -2200,6 +2466,7 @@
     if (id === 'gameModal' && gameActive) finishGame(true);
     if (id === 'dodgeModal') finishDodge(true);
     if (id === 'memoryModal') finishMemory(true);
+    if (id === 'heartModal') finishHeartGame(true);
     modal.classList.remove('open');
     modal.inert = true;
     const returnFocus = previousFocus;
@@ -2271,6 +2538,7 @@
     document.querySelectorAll('[data-dodge-act]').forEach(button => button.addEventListener('click', () => selectDodgeAct(button.dataset.dodgeAct)));
     el('startMemoryBtn').addEventListener('click', startMemory);
     document.querySelectorAll('[data-memory-pad]').forEach(button => button.addEventListener('click', () => handleMemoryPad(Number(button.dataset.memoryPad))));
+    el('startHeartBtn').addEventListener('click', startHeartGame);
 
     const movementKeys = {
       ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
@@ -2278,15 +2546,21 @@
     };
     document.addEventListener('keydown', event => {
       const direction = movementKeys[event.key];
-      if (!dodgeActive || !direction) return;
+      if (!direction || (!dodgeActive && !heartActive)) return;
       event.preventDefault();
-      dodgeDirections.add(direction);
+      if (dodgeActive) dodgeDirections.add(direction);
+      if (heartActive) heartDirections.add(direction);
     });
     document.addEventListener('keyup', event => {
       const direction = movementKeys[event.key];
-      if (direction) dodgeDirections.delete(direction);
+      if (!direction) return;
+      dodgeDirections.delete(direction);
+      heartDirections.delete(direction);
     });
-    window.addEventListener('blur', () => dodgeDirections.clear());
+    window.addEventListener('blur', () => {
+      dodgeDirections.clear();
+      heartDirections.clear();
+    });
     document.querySelectorAll('[data-dodge-dir]').forEach(button => {
       const direction = button.dataset.dodgeDir;
       const press = event => {
@@ -2320,6 +2594,39 @@
     el('dodgeArena').addEventListener('pointerup', endDodgePointer);
     el('dodgeArena').addEventListener('pointercancel', endDodgePointer);
 
+    document.querySelectorAll('[data-heart-dir]').forEach(button => {
+      const direction = button.dataset.heartDir;
+      const press = event => {
+        if (!heartActive) return;
+        event.preventDefault();
+        heartDirections.add(direction);
+        button.classList.add('pressed');
+      };
+      const release = () => {
+        heartDirections.delete(direction);
+        button.classList.remove('pressed');
+      };
+      button.addEventListener('pointerdown', press);
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('pointerleave', release);
+    });
+    let heartPointerId = null;
+    el('heartArena').addEventListener('pointerdown', event => {
+      if (!heartActive) return;
+      heartPointerId = event.pointerId;
+      el('heartArena').setPointerCapture?.(event.pointerId);
+      moveHeartPlayerToPointer(event);
+    });
+    el('heartArena').addEventListener('pointermove', event => {
+      if (event.pointerId === heartPointerId) moveHeartPlayerToPointer(event);
+    });
+    const endHeartPointer = event => {
+      if (event.pointerId === heartPointerId) heartPointerId = null;
+    };
+    el('heartArena').addEventListener('pointerup', endHeartPointer);
+    el('heartArena').addEventListener('pointercancel', endHeartPointer);
+
     el('settingsBtn').addEventListener('click', () => {
       el('settingsPartner').value = state.partnerName || '';
       el('settingsPet').value = state.petName || '';
@@ -2330,7 +2637,7 @@
     el('saveSettingsBtn').addEventListener('click', () => {
       syncSimulation();
       state.partnerName = el('settingsPartner').value.trim();
-      state.petName = el('settingsPet').value.trim() || 'Milo';
+      state.petName = el('settingsPet').value.trim() || 'Lolita';
       state.signature = el('settingsSignature').value.trim() || 'Creado con amor para ti 💗';
       state.customNote = el('settingsNote').value.trim();
       touch();
@@ -2352,7 +2659,7 @@
     });
     el('startBtn').addEventListener('click', () => {
       const partner = el('partnerInput').value.trim();
-      const pet = el('petInput').value.trim() || 'Milo';
+      const pet = el('petInput').value.trim() || 'Lolita';
       state.initialized = true;
       state.partnerName = partner;
       state.petName = pet;
@@ -2411,7 +2718,7 @@
     render();
     if (!state.initialized) {
       el('partnerInput').value = state.partnerName || '';
-      el('petInput').value = state.petName || 'Milo';
+      el('petInput').value = state.petName || 'Lolita';
       openModal('welcomeModal');
     } else {
       setTimeout(() => {

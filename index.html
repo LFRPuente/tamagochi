@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7c7d9" />
-  <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
+  <meta name="description" content="Cuida, entrena y convive con una perrita virtual que recuerda tus hábitos." />
   <script>
     (() => {
       const BIRTHDAY_START = 1786687200000;
@@ -42,8 +42,8 @@
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.21.0" />
-  <title>La casita de Milo</title>
+  <link rel="stylesheet" href="styles.css?v=3.22.0" />
+  <title>La casita de Lolita</title>
 </head>
 <body>
   <div class="app-shell">
@@ -51,8 +51,8 @@
       <div class="pet-hud">
         <span class="brand-paw" aria-hidden="true">🐾</span>
         <div>
-          <h1 id="petName">Milo</h1>
-          <p id="petStage">Cachorro recién adoptado</p>
+          <h1 id="petName">Lolita</h1>
+          <p id="petStage">Cachorra recién adoptada</p>
         </div>
       </div>
       <button class="icon-button" id="settingsBtn" type="button" aria-label="Abrir configuración">⚙️</button>
@@ -65,7 +65,7 @@
     </div>
 
     <main>
-      <section class="scene-card" id="sceneCard" aria-label="Habitación de Milo">
+      <section class="scene-card" id="sceneCard" aria-label="Habitación de Lolita">
         <div class="room room-day" id="room" aria-hidden="true">
           <div class="window"><span class="sky-orb"></span><i></i><i></i><i></i></div>
           <div class="wall-art">♡</div>
@@ -78,7 +78,7 @@
 
         <div class="scene-head">
           <div class="pet-title-line">
-            <span class="personality-chip" id="personalityChip">Curioso</span>
+            <span class="personality-chip" id="personalityChip">Curiosa</span>
           </div>
           <div class="scene-head-status">
             <span class="level-pill" id="levelPill">Nivel 1</span>
@@ -89,7 +89,7 @@
         <div class="speech" id="speech" role="status">Estoy conociendo mi nuevo hogar…</div>
 
         <div class="pet-zone">
-          <div class="pet-wrap" id="petWrap" data-pose="stand" role="button" tabindex="0" aria-label="Acariciar al perrito virtual">
+          <div class="pet-wrap" id="petWrap" data-pose="stand" role="button" tabindex="0" aria-label="Acariciar a la perrita virtual">
             <div class="zzz" aria-hidden="true"><span>Z</span><span>z</span><span>z</span></div>
             <div class="sparkles" id="sparkles" aria-hidden="true"></div>
             <div class="pet-track">
@@ -130,10 +130,10 @@
               </div>
             </div>
           </div>
-          <span class="pet-touch-hint" id="petTouchHint" aria-hidden="true">Tócalo para acariciarlo</span>
+          <span class="pet-touch-hint" id="petTouchHint" aria-hidden="true">Tócala para acariciarla</span>
         </div>
 
-        <div class="scene-needs-dock" aria-label="Necesidades actuales del perrito">
+        <div class="scene-needs-dock" aria-label="Necesidades actuales de la perrita">
           <div class="scene-need" data-scene-stat="food" data-label="Comida" aria-label="Comida: 82%">
             <div><span aria-hidden="true">🍲</span><strong class="scene-need-value">82%</strong></div>
             <span class="scene-need-name">Comida</span><span class="scene-need-meter" aria-hidden="true"><i></i></span>
@@ -165,13 +165,13 @@
           <div>
             <span>Ahora mismo</span>
             <strong id="nowTitle">Explorando</strong>
-            <p id="nowDescription">Milo está aprendiendo dónde está cada cosa.</p>
+            <p id="nowDescription">Lolita está aprendiendo dónde está cada cosa.</p>
           </div>
           <div class="activity-timer" id="activityTimer" aria-label="Tiempo restante"></div>
         </div>
       </section>
 
-      <section class="play-deck" aria-label="Qué hacer con Milo">
+      <section class="play-deck" aria-label="Qué hacer con Lolita">
         <nav class="action-grid" aria-label="Acciones principales">
           <button class="action-card" type="button" data-modal="careModal" aria-label="Cuidar"><span class="action-icon coral" aria-hidden="true"><span class="action-glyph">🍽️</span></span><strong>Cuidar</strong><small>Comida, agua y mimos</small></button>
           <button class="action-card" type="button" data-modal="walkModal" aria-label="Pasear"><span class="action-icon green" aria-hidden="true"><span class="action-glyph">🦮</span></span><strong>Pasear</strong><small>Salgan a explorar</small></button>
@@ -182,9 +182,9 @@
         <div class="companion-nudge" id="companionNudge">
           <span class="nudge-icon" id="nudgeIcon" aria-hidden="true">💗</span>
           <div class="nudge-copy">
-            <span id="nudgeKicker">Milo quiere estar contigo</span>
+            <span id="nudgeKicker">Lolita quiere estar contigo</span>
             <strong id="nudgeTitle">¿Qué hacemos ahora?</strong>
-            <p id="nudgeText">Puedes cuidarlo, salir o jugar un rato.</p>
+            <p id="nudgeText">Puedes cuidarla, salir o jugar un rato.</p>
           </div>
           <button class="nudge-action" id="nudgeAction" type="button">Jugar</button>
         </div>
@@ -207,7 +207,7 @@
               <div><span>💧 Agua disponible</span><strong id="waterBowlValue">2 porciones</strong></div>
             </div>
             <div class="inventory" id="inventoryList" aria-label="Mochila"></div>
-            <p class="helper-copy"><span class="pet-name-inline">Milo</span> come y bebe solo cuando tiene algo en sus cuencos.</p>
+            <p class="helper-copy"><span class="pet-name-inline">Lolita</span> come y bebe sola cuando tiene algo en sus cuencos.</p>
             <div class="panel-actions"><button class="text-button" type="button" data-modal="careModal">Preparar sus cuencos</button><button class="text-button secondary" type="button" data-modal="shopModal">Ir a la tienda</button></div>
           </article>
         </section>
@@ -222,7 +222,7 @@
           </article>
 
           <article class="panel personality-panel">
-            <div class="section-heading"><div><h2>Así es <span class="pet-name-inline">Milo</span></h2><span class="personality-summary" id="personalityTitle">Curioso</span></div><span class="big-emoji" id="personalityEmoji">🔎</span></div>
+            <div class="section-heading"><div><h2>Así es <span class="pet-name-inline">Lolita</span></h2><span class="personality-summary" id="personalityTitle">Curiosa</span></div><span class="big-emoji" id="personalityEmoji">🔎</span></div>
             <p id="personalityDescription">Le gusta explorar y aprende un poco más rápido durante los paseos.</p>
             <div class="trait-bars">
               <div><span>Confianza</span><div class="mini-meter"><i id="trustBar"></i></div><strong id="trustValue">10</strong></div>
@@ -256,23 +256,23 @@
   <div class="modal-backdrop" id="welcomeModal" hidden inert>
     <section class="modal welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
       <div class="welcome-paw">🐾</div>
-      <h2 id="welcomeTitle">Un perrito te está esperando</h2>
-      <p>Cuídalo, juega con él y descubre cómo cambia con tus decisiones.</p>
+      <h2 id="welcomeTitle">Una perrita te está esperando</h2>
+      <p>Cuídala, juega con ella y descubre cómo cambia con tus decisiones.</p>
       <label class="field"><span>Tu nombre</span><input id="partnerInput" maxlength="24" placeholder="Ej. Sofía" autocomplete="name" /></label>
-      <label class="field"><span>Nombre del perrito</span><input id="petInput" maxlength="18" placeholder="Ej. Milo" value="Milo" /></label>
-      <button class="primary full-button" id="startBtn" type="button">¡Adoptarlo! 💗</button>
+      <label class="field"><span>Nombre de la perrita</span><input id="petInput" maxlength="18" placeholder="Ej. Lolita" value="Lolita" /></label>
+      <button class="primary full-button" id="startBtn" type="button">¡Adoptarla! 💗</button>
     </section>
   </div>
 
   <div class="modal-backdrop" id="careModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="careTitle">
-      <div class="modal-heading"><div><h2 id="careTitle">Cuida a <span class="pet-name-inline">Milo</span></h2></div><button class="close-button" type="button" data-close="careModal" aria-label="Cerrar">×</button></div>
-      <p>Elige lo que más necesita ahora. Él te dirá cómo se siente.</p>
+      <div class="modal-heading"><div><h2 id="careTitle">Cuida a <span class="pet-name-inline">Lolita</span></h2></div><button class="close-button" type="button" data-close="careModal" aria-label="Cerrar">×</button></div>
+      <p>Elige lo que más necesita ahora. Ella te dirá cómo se siente.</p>
       <div class="choice-grid care-choice-grid">
         <button type="button" data-care="serveFood"><span>🍲</span><strong>Darle de comer</strong><small id="careFoodCount">3 porciones</small></button>
         <button type="button" data-care="giveTreat"><span>🦴</span><strong>Dar premio</strong><small id="careTreatCount">2 premios</small></button>
         <button type="button" data-care="fillWater"><span>💧</span><strong>Darle agua</strong><small>El agua es ilimitada</small></button>
-        <button type="button" data-care="brush"><span>🪮</span><strong>Cepillar</strong><small>Tranquilo y cuidadoso</small></button>
+        <button type="button" data-care="brush"><span>🪮</span><strong>Cepillar</strong><small>Tranquila y cuidadosa</small></button>
         <button type="button" data-care="bath"><span>🛁</span><strong>Dar un baño</strong><small id="careSoapCount">2 jabones</small></button>
         <button type="button" data-care="medicine"><span>🩹</span><strong>Dar medicina</strong><small id="careMedicineCount">1 dosis</small></button>
       </div>
@@ -302,11 +302,12 @@
   <div class="modal-backdrop" id="arcadeModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="arcadeTitle">
       <div class="modal-heading"><div><h2 id="arcadeTitle">Elige un juego</h2></div><button class="close-button" type="button" data-close="arcadeModal" aria-label="Cerrar">×</button></div>
-      <p>Supera retos, mejora tu récord y gana monedas con <span class="pet-name-inline">Milo</span>.</p>
+      <p>Supera retos, mejora tu récord y gana monedas con <span class="pet-name-inline">Lolita</span>.</p>
       <div class="arcade-grid">
         <button type="button" data-arcade="ball"><span class="arcade-icon">🎾</span><span class="arcade-copy"><strong>Atrapa la pelota</strong><small>Acerca la marca a la zona verde durante cinco rondas</small></span><b id="ballGameStatus">Energía −12</b></button>
         <button type="button" data-arcade="dodge"><span class="arcade-icon">🐾</span><span class="arcade-copy"><strong>Pista de reflejos</strong><small>Guía la huella entre hojas, gotitas y conos</small></span><b id="dodgeGameStatus">Energía −7</b></button>
         <button type="button" data-arcade="memory"><span class="arcade-icon">🎨</span><span class="arcade-copy"><strong>Secuencia de señales</strong><small>Observa las señales y repítelas en el mismo orden</small></span><b id="memoryGameStatus">Energía −5</b></button>
+        <button type="button" data-arcade="heart"><span class="arcade-icon heart-arcade-icon">♥</span><span class="arcade-copy"><strong>Corazón valiente</strong><small>Guía el corazón, esquiva patrones y reúne flores</small></span><b id="heartGameStatus">Energía −8</b></button>
       </div>
     </section>
   </div>
@@ -316,13 +317,13 @@
       <div class="modal-heading"><div><h2 id="gameTitle">Atrapa la pelota</h2></div><button class="close-button" type="button" data-close="gameModal" aria-label="Cerrar">×</button></div>
       <p>Toca «¡Atrapa!» cuando la huella pase por el verde. Tienes cinco tiros.</p>
       <div class="play-stage">
-        <div class="play-mascot"><span class="play-icon ball-creature" aria-hidden="true">🎾</span><div><strong>Pelota saltarina</strong><small><span class="pet-name-inline">Milo</span> sigue cada rebote.</small></div></div>
+        <div class="play-mascot"><span class="play-icon ball-creature" aria-hidden="true">🎾</span><div><strong>Pelota saltarina</strong><small><span class="pet-name-inline">Lolita</span> sigue cada rebote.</small></div></div>
         <div class="play-tip" id="gameDialogue">La pelota está lista para el primer lanzamiento.</div>
-        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Ronda <strong id="gameTurn">0 / 5</strong></span><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">25</strong>s</span></div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Ronda <strong id="gameTurn">0 / 5</strong></span><span>Puntos <strong id="gameScore">0</strong></span><span>Tiempo <strong id="gameTime">25</strong>s</span></div>
         <div class="game-field play-surface" id="gameField">
           <div class="strike-track" id="strikeTrack" hidden aria-hidden="true"><span class="strike-center"></span><i id="strikeCursor"></i></div>
           <button id="ballTarget" type="button" aria-label="Atrapar la pelota en la zona verde">¡Atrapa!</button>
-          <div class="game-message" id="gameMessage">Milo espera tu señal para comenzar.</div>
+          <div class="game-message" id="gameMessage">Lolita espera tu señal para comenzar.</div>
         </div>
         <div class="play-actions" id="ballActions" aria-label="Acciones para atrapar la pelota">
           <button type="button" data-ball-action="throw"><span>🎾</span> Lanzar</button>
@@ -341,8 +342,8 @@
       <p id="dodgeDescription">Arrastra la huella y evita los obstáculos durante 15 segundos.</p>
       <div class="play-stage">
         <div class="play-mascot"><span class="play-icon" id="dodgeEnemy" aria-hidden="true">🏁</span><div><strong id="dodgeEnemyName">Pista sorpresa</strong><small id="dodgeEnemyMood">Hojas, gotas y conos se cruzan.</small></div></div>
-        <div class="play-tip" id="dodgeDialogue">Milo observa la pista y espera tu señal.</div>
-        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Intentos <strong id="dodgeLives">🐾🐾🐾</strong></span><span>Puntos <strong id="dodgeScore">0</strong></span><span>Tiempo <strong id="dodgeTime">15</strong>s</span></div>
+        <div class="play-tip" id="dodgeDialogue">Lolita observa la pista y espera tu señal.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Intentos <strong id="dodgeLives">🐾🐾🐾</strong></span><span>Puntos <strong id="dodgeScore">0</strong></span><span>Tiempo <strong id="dodgeTime">15</strong>s</span></div>
         <div class="dodge-arena" id="dodgeArena" tabindex="0" aria-label="Área de juego. Mueve la huella para evitar los obstáculos.">
           <div class="arena-grid" aria-hidden="true"></div>
           <div class="wave-label" id="dodgeWave" aria-hidden="true">Tramo 1 · Hojas</div>
@@ -375,7 +376,7 @@
       <div class="play-stage">
         <div class="play-mascot"><span class="play-icon echo-creature" aria-hidden="true">🎨</span><div><strong>Rueda de señales</strong><small>Se ilumina en un orden nuevo.</small></div></div>
         <div class="memory-message play-tip" id="memoryMessage">Mira la secuencia y trata de recordarla.</div>
-        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Milo</b></span><span>Intentos <strong id="memoryLives">🐾🐾🐾</strong></span><span>Ronda <strong id="memoryRound">1 / 4</strong></span><span>Puntos <strong id="memoryScore">0</strong></span></div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Intentos <strong id="memoryLives">🐾🐾🐾</strong></span><span>Ronda <strong id="memoryRound">1 / 4</strong></span><span>Puntos <strong id="memoryScore">0</strong></span></div>
         <div class="memory-board play-surface" id="memoryBoard" aria-label="Secuencia de señales">
           <button type="button" data-memory-pad="0" aria-label="Señal cariño"><span>💗</span><strong>Cariño</strong></button>
           <button type="button" data-memory-pad="1" aria-label="Señal descanso"><span>🌙</span><strong>Descanso</strong></button>
@@ -404,6 +405,33 @@
     </section>
   </div>
 
+  <div class="modal-backdrop" id="heartModal" hidden inert>
+    <section class="modal challenge-modal play-modal heart-modal" role="dialog" aria-modal="true" aria-labelledby="heartTitle">
+      <div class="modal-heading"><div><h2 id="heartTitle">Corazón valiente</h2></div><button class="close-button" type="button" data-close="heartModal" aria-label="Cerrar">×</button></div>
+      <p>Mueve el corazón, esquiva los patrones del jardín y reúne flores durante 18 segundos.</p>
+      <div class="play-stage">
+        <div class="play-mascot"><span class="play-icon heart-creature" aria-hidden="true">♥</span><div><strong>El corazón de <span class="pet-name-inline">Lolita</span></strong><small>Se hace más fuerte con cada flor.</small></div></div>
+        <div class="play-tip" id="heartDialogue">El jardín está tranquilo. Prepárate para moverte.</div>
+        <div class="challenge-hud play-hud"><span><b class="game-pet-name">Lolita</b></span><span>Vida <strong id="heartLives">♥♥♥</strong></span><span>Flores <strong id="heartFlowers">0 / 5</strong></span><span>Tiempo <strong id="heartTime">18</strong>s</span></div>
+        <div class="dodge-arena heart-arena" id="heartArena" tabindex="0" aria-label="Área de juego. Mueve el corazón para esquivar los patrones y recoger flores.">
+          <div class="heart-garden-grid" aria-hidden="true"></div>
+          <div class="wave-label heart-wave-label" id="heartWave" aria-hidden="true">Ronda 1 · Lluvia suave</div>
+          <div class="dodge-message heart-message" id="heartMessage">Toca Empezar y guía el corazón.</div>
+          <span class="heart-player" id="heartPlayer" aria-hidden="true">♥</span>
+          <div id="heartObjectLayer" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div class="touch-controls heart-controls" aria-label="Controles de movimiento del corazón">
+        <button type="button" data-heart-dir="up" aria-label="Mover arriba">▲</button>
+        <span></span>
+        <button type="button" data-heart-dir="left" aria-label="Mover a la izquierda">◀</button>
+        <button type="button" data-heart-dir="down" aria-label="Mover abajo">▼</button>
+        <button type="button" data-heart-dir="right" aria-label="Mover a la derecha">▶</button>
+      </div>
+      <button class="primary full-button" id="startHeartBtn" type="button">Empezar reto · Energía −8</button>
+    </section>
+  </div>
+
   <div class="modal-backdrop" id="surpriseModal" hidden inert>
     <section class="modal surprise-modal" role="dialog" aria-modal="true" aria-labelledby="surpriseTitle" aria-describedby="surpriseMessage">
       <div class="surprise-gift" aria-hidden="true">🎁</div>
@@ -420,7 +448,7 @@
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="modal-heading"><div><h2 id="settingsTitle">Ajustes</h2></div><button class="close-button" type="button" data-close="settingsModal" aria-label="Cerrar">×</button></div>
       <label class="field"><span>Tu nombre</span><input id="settingsPartner" maxlength="24" /></label>
-      <label class="field"><span>Nombre del perrito</span><input id="settingsPet" maxlength="18" /></label>
+      <label class="field"><span>Nombre de la perrita</span><input id="settingsPet" maxlength="18" /></label>
       <label class="field"><span>Firma</span><input id="settingsSignature" maxlength="60" placeholder="Creado con amor por Luis 💗" /></label>
       <label class="field"><span>Mensaje especial</span><textarea id="settingsNote" maxlength="220"></textarea></label>
       <div class="settings-actions"><button class="danger" id="resetBtn" type="button">Empezar de cero</button><button class="primary" id="saveSettingsBtn" type="button">Guardar cambios</button></div>
@@ -428,6 +456,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.21.0" defer></script>
+  <script src="app.js?v=3.22.0" defer></script>
 </body>
 </html>

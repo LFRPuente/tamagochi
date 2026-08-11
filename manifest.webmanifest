@@ -1,7 +1,7 @@
 {
-  "name": "La casita — compañero virtual",
+  "name": "La casita — compañera virtual",
   "short_name": "La casita",
-  "description": "Una mascota virtual autónoma con animaciones, necesidades, personalidad, encuentros retro, entrenamiento y recuerdos.",
+  "description": "Una perrita virtual autónoma con animaciones, necesidades, personalidad, minijuegos y entrenamiento.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

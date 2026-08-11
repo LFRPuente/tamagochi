@@ -404,7 +404,7 @@ h2 { margin-bottom: 0; font-size: 1.2rem; line-height: 1.12; }
 @keyframes sleepyTail { 0%,100% { transform: rotate(-18deg); } 50% { transform: rotate(-23deg); } }
 
 /* Los keyframes siguientes quedan como historial visual; las reacciones activas viven
-   en .pet-react para no cancelar el paso, la respiración ni la postura del perro. */
+   en .pet-react para no cancelar el paso, la respiración ni la postura de la perrita. */
 @keyframes comfortLean { 0%,100% { transform: translateY(5px) scale(1); } 28% { transform: translateY(8px) scale(1.015,.985); } 58% { transform: translate(-3px,5px) rotate(-1.5deg); } 80% { transform: translate(1px,3px) rotate(.5deg); } }
 @keyframes comfortNuzzle { 0%,100% { transform: rotate(0); } 32%,64% { transform: translate(-5px,4px) rotate(-9deg); } 78% { transform: translate(-2px,1px) rotate(-3deg); } }
 @keyframes comfortBreath { 0%,100% { transform: scale(1); } 38%,68% { transform: scale(1.04,.97); } }
@@ -1014,6 +1014,7 @@ footer p { margin-bottom: 3px; color: var(--text); font-weight: 800; }
 .arcade-grid button:hover { transform: translateY(-2px); border-color: rgba(229,111,159,.35); }
 .arcade-grid button:disabled { cursor: not-allowed; opacity: .48; transform: none; }
 .arcade-icon { display: grid; width: 50px; height: 50px; place-items: center; border-radius: 16px; background: linear-gradient(145deg,#fde8f0,#eee8ff); font-size: 1.5rem; }
+.heart-arcade-icon { color: #c84f7d; background: #fff0f5; font-family: Georgia,serif; font-size: 1.8rem; }
 .arcade-copy { min-width: 0; }
 .arcade-grid strong, .arcade-grid small { display: block; }
 .arcade-grid strong { font-size: .79rem; }
@@ -1062,8 +1063,10 @@ footer p { margin-bottom: 3px; color: var(--text); font-weight: 800; }
 .play-icon { display: grid; width: 56px; height: 56px; place-items: center; border: 1px solid rgba(110,145,126,.12); border-radius: 50%; color: var(--text); background: #fff5df; box-shadow: 0 7px 18px rgba(80,105,91,.1); font-size: 2rem; animation: playFloat 1.8s ease-in-out infinite; }
 .ball-creature { animation: playBounce 1.15s ease-in-out infinite; }
 .echo-creature { background: #f0ebff; }
+.heart-creature { color: #cf4e78; background: #fff0f4; font-family: Georgia,serif; animation: heartBeat 1.35s ease-in-out infinite; }
 @keyframes playFloat { 50% { transform: translateY(-5px) rotate(4deg); } }
 @keyframes playBounce { 0%,100% { transform: translateY(3px) rotate(-7deg); } 50% { transform: translateY(-7px) rotate(7deg); } }
+@keyframes heartBeat { 0%,100% { transform: scale(.92); } 35% { transform: scale(1.08); } 52% { transform: scale(.98); } 68% { transform: scale(1.04); } }
 .play-tip { min-height: 54px; padding: 11px 13px; border: 1px solid #d8e9df; border-left: 4px solid #78b78f; border-radius: 8px; color: #43564c; background: #f1f8f4; font-size: .75rem; font-weight: 800; line-height: 1.42; text-align: left; }
 .challenge-hud { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; padding: 9px 11px; border-radius: 14px; color: var(--muted); background: #f7eef3; font-size: .68rem; font-weight: 850; }
 .challenge-hud strong { color: var(--text); }
@@ -1109,16 +1112,30 @@ footer p { margin-bottom: 3px; color: var(--text); font-weight: 800; }
 .hazard.leaf { background: #fff5dc; }
 .hazard.drop { background: #e4f5ff; }
 .hazard.cone { background: #fff0df; font-size: .82rem; }
+.heart-arena { isolation: isolate; border-color: #d7c6b2; background: #fffaf0; box-shadow: inset 0 -18px rgba(119,160,108,.08); }
+.heart-garden-grid { position: absolute; inset: 0; opacity: .48; background-image: linear-gradient(rgba(117,156,103,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(117,156,103,.12) 1px,transparent 1px); background-size: 36px 36px; }
+.heart-wave-label { color: #765a58; background: rgba(255,255,255,.88); }
+#heartObjectLayer { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.heart-player { position: absolute; z-index: 6; left: 50%; top: 72%; display: none; width: 34px; height: 34px; align-items: center; justify-content: center; border: 2px solid #fff; border-radius: 50%; color: #d44771; background: #ffe5ed; box-shadow: 0 5px 14px rgba(144,66,94,.22); font-family: Georgia,serif; font-size: 1.35rem; transform: translate(-50%,-50%); will-change: left,top; }
+.heart-player.hit { animation: heartPlayerHit .2s linear 4; }
+@keyframes heartPlayerHit { 50% { opacity: .16; transform: translate(-50%,-50%) scale(.72); } }
+.heart-object { position: absolute; left: 0; top: 0; z-index: 3; display: grid; place-items: center; border-radius: 50%; font-weight: 900; line-height: 1; will-change: transform; }
+.heart-object.rain { border: 1px solid #9bc9dd; color: #4d9bbb; background: #e7f7fc; box-shadow: 0 3px 8px rgba(70,138,167,.16); font-size: .62rem; transform: rotate(45deg); }
+.heart-object.breeze { border: 1px solid #b9cbb5; color: #609064; background: #f1f8ed; box-shadow: 0 3px 8px rgba(82,127,82,.14); font-size: 1rem; }
+.heart-object.glow { border: 1px solid #e4c883; color: #b88a25; background: #fff4bf; box-shadow: 0 0 0 4px rgba(255,235,151,.2); font-size: .72rem; }
+.heart-object.flower { z-index: 4; border: 2px solid #fff; background: #eff9e8; box-shadow: 0 5px 12px rgba(74,113,67,.2); font-size: 1.05rem; animation: flowerPulse 1.2s ease-in-out infinite; }
+@keyframes flowerPulse { 50% { filter: brightness(1.08); } }
+.heart-message { color: #70585f; }
 .wave-label { position: absolute; z-index: 2; top: 8px; left: 9px; padding: 4px 6px; border-radius: 6px; color: #577064; background: rgba(255,255,255,.78); font-size: .57rem; font-weight: 900; letter-spacing: 0; }
 .dodge-message { position: absolute; z-index: 7; inset: 0; display: grid; place-items: center; padding: 28px; color: #456052; font-size: .8rem; font-weight: 900; text-align: center; pointer-events: none; }
 .touch-controls { display: none; grid-template-columns: repeat(3,46px); grid-template-rows: repeat(2,42px); justify-content: center; gap: 5px; margin: 10px 0 2px; }
 .touch-controls button { border: 1px solid #bdd8ca; border-radius: 8px; color: #3f7457; background: #f8fffa; box-shadow: 0 3px 0 #aacbb8; cursor: pointer; font-weight: 950; user-select: none; }
 .touch-controls button:active, .touch-controls button.pressed { color: #2f6649; background: #e4f4e9; transform: translateY(2px); box-shadow: 0 1px 0 #aacbb8; }
-.touch-controls button[data-dodge-dir="up"] { grid-column: 2; }
+.touch-controls button[data-dodge-dir="up"], .touch-controls button[data-heart-dir="up"] { grid-column: 2; }
 .touch-controls span { grid-column: 1; grid-row: 2; }
-.touch-controls button[data-dodge-dir="left"] { grid-column: 1; grid-row: 2; }
-.touch-controls button[data-dodge-dir="down"] { grid-column: 2; grid-row: 2; }
-.touch-controls button[data-dodge-dir="right"] { grid-column: 3; grid-row: 2; }
+.touch-controls button[data-dodge-dir="left"], .touch-controls button[data-heart-dir="left"] { grid-column: 1; grid-row: 2; }
+.touch-controls button[data-dodge-dir="down"], .touch-controls button[data-heart-dir="down"] { grid-column: 2; grid-row: 2; }
+.touch-controls button[data-dodge-dir="right"], .touch-controls button[data-heart-dir="right"] { grid-column: 3; grid-row: 2; }
 .memory-board { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; padding: 0; border: 0 !important; border-radius: 8px; background: transparent !important; }
 .memory-board button { min-height: 82px; border: 1px solid rgba(82,98,90,.12); border-radius: 8px; color: #42544b; background: var(--pad-bg) !important; cursor: pointer; opacity: 1; font-family: inherit; touch-action: manipulation; user-select: none; transition: transform .12s ease,filter .12s ease,box-shadow .12s ease; }
 .memory-board button:nth-child(1) { --pad-bg: #fff0f4; --pad-active: #ffcbd9; --pad-ring: #e56f9f; }

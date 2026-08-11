@@ -1,6 +1,6 @@
 # Tamagochi romántico 🐶💗
 
-Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma decisiones según sus necesidades, su personalidad, la hora y los recursos que encuentre en casa.
+Mascota virtual autónoma para cuidar, entrenar y acompañar. La perrita toma decisiones según sus necesidades, su personalidad, la hora y los recursos que encuentre en casa.
 
 ## Sitio publicado
 
@@ -14,21 +14,21 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 
 - Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
-- Al despertarlo de noche permanece 30 minutos soñoliento; si interrumpes el descanso con anticipación, además conserva energía baja.
-- El descanso continúa aunque cierres la página y el perrito despierta automáticamente al completarlo.
+- Al despertarla de noche permanece 30 minutos soñolienta; si interrumpes el descanso con anticipación, además conserva energía baja.
+- El descanso continúa aunque cierres la página y la perrita despierta automáticamente al completarlo.
 - El porcentaje de descanso parte de la energía actual: con 25% de energía sólo necesita completar el 75% restante de las dos horas.
 - La energía baja más despacio y las actividades consumen cerca de una cuarta parte menos.
 - Al llevar comida, agua, limpieza, salud y cariño al 100% se desbloquea una sorpresa; la energía no cuenta para este requisito.
 - Al darle comida o agua atiende su necesidad de inmediato; si ya está al 100%, guarda la porción en su cuenco.
 - Personalidades distintas y hábitos que cambian con el cuidado.
-- Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
+- Ilustraciones completas y consistentes de la misma cachorra, con poses propias al dar la pata y estar soñolienta, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
 - Objetos integrados naturalmente en cada pose: pelota, cuencos, premio, cepillo, espuma y una cobija que deja libre su cara.
 - Caricias táctiles con reacciones, expresiones y vibración en celular.
 - Pantalla principal móvil con recomendaciones contextuales y acciones siempre etiquetadas.
 - Rincones compactos de Casa y Crecer, sin repetir las necesidades.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
-- Tres minijuegos luminosos de coordinación, agilidad y memoria, disponibles desde el inicio.
+- Cuatro minijuegos de coordinación, agilidad, memoria y esquiva, disponibles desde el inicio; Corazón valiente suma patrones móviles y flores para recoger.
 - Retos jugables que también pueden aparecer durante paseos y entrenamientos.
 - Controles por teclado, toque, arrastre y botones táctiles.
 - Monedas, inventario y tienda.

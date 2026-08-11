@@ -264,7 +264,7 @@
         <div class="letter-copy" id="letterCopy"></div>
         <p class="letter-signoff">Con todo mi cariño,<span class="signature" id="letterSignature"></span></p>
         <div class="continuation">
-          <p id="petWaiting">Tu pequeño compañero también ha estado esperando este momento.</p>
+          <p id="petWaiting">Tu pequeña compañera también ha estado esperando este momento.</p>
           <a class="primary" id="gameLink" href="index.html" referrerpolicy="no-referrer">Continuar al regalo</a>
           <small>Tu regalo continúa aquí.</small>
         </div>
@@ -286,7 +286,7 @@
       const openButton = document.getElementById('openLetterBtn');
       const getParam = (name, max, fallback = '') => (params.get(name)?.trim() || fallback).slice(0, max);
       const recipient = getParam('para', 40);
-      const petName = getParam('mascota', 30);
+      const petName = getParam('mascota', 30, 'Lolita');
       const signature = getParam('firma', 60);
       const note = getParam('nota', 1000, DEFAULT_NOTE);
       let letterShown = false;
@@ -294,6 +294,7 @@
 
       const gameUrl = new URL('./index.html', location.href);
       const gameParams = new URLSearchParams(location.search);
+      if (!gameParams.has('mascota')) gameParams.set('mascota', petName);
       if (gameParams.has('nota')) gameParams.set('nota', note.slice(0, 220));
       if (!isPreview) gameParams.set('letter', 'opened');
       gameUrl.search = gameParams.toString();
@@ -316,10 +317,8 @@
         const signoff = document.querySelector('.letter-signoff');
         if (signature) document.getElementById('letterSignature').textContent = signature;
         else signoff.textContent = 'Con todo mi cariño.';
-        if (petName) {
-          document.getElementById('petWaiting').textContent = `${petName} también ha estado esperando este momento.`;
-          gameLink.textContent = `Ir con ${petName}`;
-        }
+        document.getElementById('petWaiting').textContent = `${petName} también ha estado esperando este momento.`;
+        gameLink.textContent = `Ir con ${petName}`;
         const copy = document.getElementById('letterCopy');
         note.split(/\r?\n/).map(line => line.trim()).filter(Boolean).slice(0, 12).forEach(line => {
           const paragraph = document.createElement('p');
