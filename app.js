@@ -100,6 +100,7 @@
   ];
 
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
+  const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
   const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
 
@@ -270,6 +271,7 @@
 
   function normalizeState(saved) {
     const base = defaultState();
+    const current = now();
     const normalized = {
       ...base,
       ...saved,
@@ -286,12 +288,15 @@
     };
     normalized.photos = Array.isArray(saved.photos) ? saved.photos.slice(0, MAX_PHOTOS) : [];
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
-    normalized.lastInteractionAt = Number(saved.lastInteractionAt) || Number(saved.lastUpdated) || Number(saved.createdAt) || now();
+    normalized.createdAt = Math.min(current, Number(saved.createdAt) || current);
+    normalized.lastUpdated = Math.min(current, Number(saved.lastUpdated) || current);
+    normalized.lastInteractionAt = Math.min(current, Number(saved.lastInteractionAt) || normalized.lastUpdated || normalized.createdAt);
+    normalized.manualAwakeUntil = Math.min(current + 30 * 60_000, Math.max(0, Number(saved.manualAwakeUntil) || 0));
     if (!PERSONALITIES[normalized.personality]) normalized.personality = 'curious';
     Object.keys(normalized.stats).forEach(key => normalized.stats[key] = clamp(normalized.stats[key]));
     normalized.sleepProgress = clamp(normalized.sleepProgress);
     if (normalized.isAsleep) {
-      const startedAt = Number(normalized.sleepStartedAt) || now();
+      const startedAt = Math.min(current, Number(normalized.sleepStartedAt) || current);
       const savedAt = Math.max(startedAt, Number(normalized.lastUpdated) || startedAt);
       if (saved.sleepProgress == null) {
         const elapsedAtSave = Math.max(0, Math.min(savedAt, Number(normalized.sleepUntil) || savedAt) - startedAt);
@@ -302,6 +307,9 @@
         const remainingSleep = FULL_SLEEP_DURATION * (1 - normalized.sleepProgress / 100);
         const fullSleepUntil = savedAt + remainingSleep;
         normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || fullSleepUntil, fullSleepUntil);
+      } else {
+        const napUntil = startedAt + AUTO_NAP_DURATION;
+        normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || napUntil, napUntil);
       }
     }
     return normalized;
@@ -309,11 +317,48 @@
 
   function saveState() {
     try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) adoptStoredState(stored);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       return true;
     } catch (error) {
-      if (String(error).toLowerCase().includes('quota')) toast('No queda espacio para guardar más fotos en este dispositivo.');
-      else toast('No se pudo guardar la partida en este dispositivo.');
+      if (String(error).toLowerCase().includes('quota')) toast('No se pudo guardar la partida: no queda espacio en este dispositivo.');
+      else toast('No se pudo guardar la partida en este navegador.');
+      return false;
+    }
+  }
+
+  function adoptStoredState(raw) {
+    try {
+      const stored = raw === undefined ? localStorage.getItem(STORAGE_KEY) : raw;
+      const saved = JSON.parse(stored);
+      if (!saved) return false;
+      const incoming = normalizeState(saved);
+      const incomingUpdated = Number(incoming.lastUpdated) || 0;
+      const currentUpdated = Number(state.lastUpdated) || 0;
+      if (incoming.isAsleep && state.isAsleep && incoming.sleepMode !== 'nap' && state.sleepMode !== 'nap') {
+        const incomingStarted = Number(incoming.sleepStartedAt) || 0;
+        const currentStarted = Number(state.sleepStartedAt) || 0;
+        if (incomingStarted !== currentStarted) {
+          if (incomingStarted < currentStarted) return false;
+          state = incoming;
+          return true;
+        }
+      }
+      if (incoming.isAsleep !== state.isAsleep) {
+        if (incoming.isAsleep && incoming.sleepMode !== 'nap') {
+          const sleepStarted = Number(incoming.sleepStartedAt) || 0;
+          const currentInteraction = Number(state.lastInteractionAt) || 0;
+          if (sleepStarted <= currentInteraction) return false;
+        } else if (state.isAsleep && state.sleepMode !== 'nap') {
+          const sleepStarted = Number(state.sleepStartedAt) || 0;
+          const incomingInteraction = Number(incoming.lastInteractionAt) || 0;
+          if (incomingInteraction <= sleepStarted) return false;
+        } else if (incomingUpdated <= currentUpdated) return false;
+      } else if (incomingUpdated <= currentUpdated) return false;
+      state = incoming;
+      return true;
+    } catch (_) {
       return false;
     }
   }
@@ -365,6 +410,13 @@
     state.stress = clamp(state.stress - recovery);
   }
 
+  function completeFullSleep() {
+    state.sleepProgress = 100;
+    SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = 100);
+    state.mood = 100;
+    state.stress = 0;
+  }
+
   function currentSleepProgress(current = now()) {
     const savedProgress = clamp(state.sleepProgress);
     if (!state.isAsleep) return savedProgress;
@@ -384,8 +436,8 @@
     const elapsedHours = Math.min(72, Math.max(0, (current - previous) / 3_600_000));
     if (elapsedHours < .0002) {
       if (state.isAsleep && current >= Number(state.sleepUntil)) {
-        if (state.sleepMode !== 'nap') state.sleepProgress = 100;
-        wakePet(false);
+        if (state.sleepMode === 'nap') wakePet(false);
+        else completeFullSleep();
       }
       return elapsedHours;
     }
@@ -396,9 +448,13 @@
       applySleepRecovery(Math.min(elapsedHours, sleepHours));
       state.sleepProgress = clamp(state.sleepProgress + sleepHours * 3_600_000 / FULL_SLEEP_DURATION * 100);
       const awakeHours = Math.max(0, elapsedHours - sleepHours);
-      if (current >= state.sleepUntil && state.sleepMode !== 'nap') state.sleepProgress = 100;
-      if (state.sleepProgress >= 99.999 || current >= state.sleepUntil) wakePet(false);
-      applyAwakeDecay(awakeHours);
+      const sleepFinished = state.sleepProgress >= 99.999 || current >= state.sleepUntil;
+      if (sleepFinished && state.sleepMode === 'nap') {
+        wakePet(false);
+        applyAwakeDecay(awakeHours);
+      } else if (sleepFinished) {
+        completeFullSleep();
+      }
     } else {
       applyAwakeDecay(elapsedHours);
     }
@@ -498,7 +554,16 @@
   }
 
   function activityPreset() {
-    return { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
+    const activity = { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
+    if (state.isAsleep && currentSleepProgress() >= 99.999) {
+      return {
+        ...activity,
+        icon: '✨',
+        title: 'Ya descansó',
+        description: 'Terminó de descansar. Seguirá dormido hasta que tú lo despiertes.'
+      };
+    }
+    return activity;
   }
 
   function currentPetCondition(reference = now()) {
@@ -670,7 +735,7 @@
       beginSleep('night', FULL_SLEEP_DURATION, true);
     }
     else if (state.stats.energy < 16 && now() >= Number(state.manualAwakeUntil || 0) && !isBusy()) {
-      beginSleep('nap', 3 * 60_000, true);
+      beginSleep('nap', AUTO_NAP_DURATION, true);
     } else if (!isBusy() && Math.random() < .45) {
       chooseIdleActivity();
     }
@@ -707,7 +772,7 @@
     }
     const sleptMinutes = Math.max(0, Math.round((now() - state.sleepStartedAt) / 60000));
     const early = state.sleepUntil > now() + 60000;
-    const completedFullSleep = !byUser && state.sleepProgress >= 99.999;
+    const completedFullSleep = state.sleepMode !== 'nap' && state.sleepProgress >= 99.999;
     if (completedFullSleep) {
       SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = 100);
       state.mood = 100;
@@ -723,12 +788,21 @@
     const wokeAtNight = byUser && (wakeHour >= 22 || wakeHour < 6);
     if (byUser) markInteraction();
     if (byUser) state.manualAwakeUntil = now() + 30 * 60_000;
-    if (wokeAtNight) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
+    if (wokeAtNight && early && !completedFullSleep) state.stats.energy = Math.min(32, Math.max(20, state.stats.energy));
     if (byUser && early) modifyStats({ mood: -3, stress: 2 });
-    if (wokeAtNight) setActivity('drowsy', 14000);
+    if (wokeAtNight) setActivity('drowsy', 14000, completedFullSleep ? {
+      title: 'Despierto y descansado',
+      description: 'Aunque es de noche, se levantó con energía después de dormir muy bien.'
+    } : {});
     else setActivity('idle', 5200, { title: 'Recién despierto', description: 'Bosteza, estira las patas y vuelve a ponerse de pie.', icon: '🥱', css: 'waking' });
     if (byUser) {
-      addJournal('🥱', wokeAtNight ? 'Se despertó de noche' : 'Se despertó', wokeAtNight ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.` : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`);
+      const wakeTitle = completedFullSleep ? 'Terminó su descanso' : wokeAtNight ? 'Se despertó de noche' : 'Se despertó';
+      const wakeDescription = completedFullSleep
+        ? `${state.petName} durmió hasta sentirse completamente descansado.`
+        : wokeAtNight
+          ? `Se levantó para acompañarte. Su descanso quedó guardado en ${savedProgress}%.`
+          : `Descansó ${sleptMinutes || 'unos'} minutos. Su avance quedó guardado en ${savedProgress}%.`;
+      addJournal('🥱', wakeTitle, wakeDescription);
       speak(savedProgress < 100 ? 'Todavía tengo sueño. Luego sigo descansando.' : '¡Qué bien dormí!');
     } else {
       addJournal('☀️', 'Despertó descansado', `${state.petName} terminó su descanso y volvió a recorrer la casa.`);
@@ -1852,10 +1926,15 @@
     const savedSleepProgress = Math.floor(state.sleepProgress);
     const hasSavedRest = !state.isAsleep && savedSleepProgress > 0 && savedSleepProgress < 100;
     const sleepLabel = hasSavedRest ? 'Seguir descansando' : 'Dormir';
+    const activeSleepProgress = state.isAsleep ? Math.floor(currentSleepProgress()) : 0;
     el('sleepActionTitle').textContent = state.isAsleep ? 'Despertar' : sleepLabel;
-    el('sleepBtn').setAttribute('aria-label', state.isAsleep ? 'Despertar' : hasSavedRest ? `Seguir descansando, ${savedSleepProgress}% guardado` : sleepLabel);
+    el('sleepBtn').setAttribute('aria-label', state.isAsleep
+      ? activeSleepProgress >= 100
+        ? `Despertar a ${petName}; descanso completo`
+        : `Despertar a ${petName} ahora; descanso ${activeSleepProgress}%`
+      : hasSavedRest ? `Seguir descansando, ${savedSleepProgress}% guardado` : sleepLabel);
     el('sleepActionIcon').textContent = state.isAsleep ? '☀️' : '🌙';
-    el('sleepActionCopy').textContent = state.isAsleep ? `Descanso ${Math.floor(currentSleepProgress())}%` : hasSavedRest ? `Descanso guardado: ${savedSleepProgress}%` : nightAwake ? 'Despierto con sueño' : 'Recupera fuerzas';
+    el('sleepActionCopy').textContent = state.isAsleep ? activeSleepProgress >= 100 ? 'Listo para despertar' : `Descanso ${activeSleepProgress}%` : hasSavedRest ? `Descanso guardado: ${savedSleepProgress}%` : nightAwake ? 'Despierto con sueño' : 'Recupera fuerzas';
     document.querySelectorAll('.action-card:not(#sleepBtn)').forEach(button => button.disabled = isBusy());
   }
 
@@ -2021,8 +2100,13 @@
       const progress = currentSleepProgress(current);
       const percentage = Math.min(100, Math.floor(progress));
       timer.style.setProperty('--sleep-progress', `${progress}%`);
-      timer.textContent = `${percentage}% · ${timeText}`;
-      timer.setAttribute('aria-label', `Descanso ${percentage}%, faltan ${timeText}`);
+      if (percentage >= 100) {
+        timer.textContent = '100%';
+        timer.setAttribute('aria-label', 'Descanso completo, listo para despertar');
+      } else {
+        timer.textContent = `${percentage}% · ${timeText}`;
+        timer.setAttribute('aria-label', `Descanso ${percentage}%, faltan ${timeText}`);
+      }
     } else if (target <= current) {
       timer.textContent = '';
       timer.style.removeProperty('--sleep-progress');
@@ -2476,6 +2560,7 @@
 
     const refreshAfterReturn = () => {
       if (!state.initialized || document.hidden) return;
+      adoptStoredState();
       syncSimulation();
       touch();
       saveState();
@@ -2483,6 +2568,16 @@
     };
     document.addEventListener('visibilitychange', refreshAfterReturn);
     window.addEventListener('pageshow', refreshAfterReturn);
+    window.addEventListener('storage', event => {
+      if (event.key !== STORAGE_KEY) return;
+      if (!event.newValue) {
+        location.reload();
+        return;
+      }
+      if (!adoptStoredState(event.newValue)) return;
+      syncSimulation();
+      render();
+    });
   }
 
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {

@@ -12,7 +12,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 
 - Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
-- Despertar nocturno con energía baja y 30 minutos de actividad soñolienta.
+- Al despertarlo de noche permanece 30 minutos soñoliento; si interrumpes el descanso con anticipación, además conserva energía baja.
+- El descanso continúa aunque cierres la página; al completarlo, el perrito espera dormido y con energía llena hasta que regreses.
 - Comida y agua en cuencos que el perrito consume por su cuenta.
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
