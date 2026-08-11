@@ -106,7 +106,7 @@
   };
 
   const defaultState = () => ({
-    version: 4,
+    version: 5,
     initialized: false,
     partnerName: '',
     petName: 'Lolita',
@@ -231,6 +231,7 @@
       const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY));
       if (legacy) {
         const migrated = defaultState();
+        migrated.version = 0;
         migrated.initialized = !!legacy.initialized;
         migrated.partnerName = legacy.partnerName || '';
         migrated.petName = legacy.petName || 'Lolita';
@@ -271,6 +272,9 @@
       day: { ...base.day, ...(saved.day || {}) },
       story: { ...base.story, ...(saved.story || {}), choices: { ...base.story.choices, ...(saved.story?.choices || {}) } }
     };
+    const savedVersion = Number(saved.version) || 0;
+    normalized.version = base.version;
+    if (savedVersion < 5 && String(normalized.petName || '').trim().toLowerCase() === 'milo') normalized.petName = 'Lolita';
     normalized.photos = Array.isArray(saved.photos) ? saved.photos.slice(0, MAX_PHOTOS) : [];
     normalized.journal = Array.isArray(saved.journal) ? saved.journal.slice(0, 30) : [];
     normalized.createdAt = Math.min(current, Number(saved.createdAt) || current);
