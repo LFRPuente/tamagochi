@@ -1,11 +1,11 @@
-const CACHE = 'living-pet-v29';
+const CACHE = 'living-pet-v30';
 const SCOPE_PATH = new URL('./', self.location.href).pathname;
 const APP_SHELL = [
   './',
   './index.html',
   './carta.html',
   './styles.css?v=3.19.0',
-  './app.js?v=3.19.0',
+  './app.js?v=3.20.0',
   './manifest.webmanifest',
   './personalizar.html',
   './assets/icon.svg',

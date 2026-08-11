@@ -51,16 +51,16 @@
   };
 
   const WALK_ROUTES = {
-    block: { level: 1, energy: 6, water: 5, coins: 6, xp: 10, bond: 2, duration: 6500, name: 'Vuelta a la cuadra', icon: '🏘️' },
-    park: { level: 1, energy: 14, water: 10, coins: 12, xp: 20, bond: 4, duration: 10000, name: 'Visita al parque', icon: '🌳' },
-    adventure: { level: 3, energy: 24, water: 17, coins: 22, xp: 34, bond: 7, duration: 15000, name: 'Pequeña aventura', icon: '⛰️' }
+    block: { level: 1, energy: 5, water: 5, coins: 6, xp: 10, bond: 2, duration: 6500, name: 'Vuelta a la cuadra', icon: '🏘️' },
+    park: { level: 1, energy: 11, water: 10, coins: 12, xp: 20, bond: 4, duration: 10000, name: 'Visita al parque', icon: '🌳' },
+    adventure: { level: 3, energy: 19, water: 17, coins: 22, xp: 34, bond: 7, duration: 15000, name: 'Pequeña aventura', icon: '⛰️' }
   };
 
   const ENERGY_COSTS = {
-    training: 9,
-    arcadeBall: 16,
-    arcadeDodge: 9,
-    arcadeMemory: 6,
+    training: 7,
+    arcadeBall: 12,
+    arcadeDodge: 7,
+    arcadeMemory: 5,
     walkDodge: 3,
     trainingMemory: 2
   };
@@ -305,6 +305,7 @@
       }
       normalized.sleepStartedAt = startedAt;
       if (normalized.sleepMode !== 'nap') {
+        normalized.sleepProgress = Math.max(normalized.sleepProgress, normalized.stats.energy);
         const remainingSleep = FULL_SLEEP_DURATION * (1 - normalized.sleepProgress / 100);
         const fullSleepUntil = savedAt + remainingSleep;
         normalized.sleepUntil = Math.min(Number(normalized.sleepUntil) || fullSleepUntil, fullSleepUntil);
@@ -390,7 +391,7 @@
     if (hours <= 0) return;
     state.stats.food = clamp(state.stats.food - hours * 3.1);
     state.stats.water = clamp(state.stats.water - hours * 3.7);
-    state.stats.energy = clamp(state.stats.energy - hours * 2.15);
+    state.stats.energy = clamp(state.stats.energy - hours * 1.6);
     state.stats.hygiene = clamp(state.stats.hygiene - hours * 1.25);
     state.mood = clamp(state.mood - hours * (state.stats.bond < 25 ? 1.35 : .72));
 
@@ -692,24 +693,32 @@
     setActivity(type, 15000 + Math.floor(Math.random() * 22000));
   }
 
-  function consumeBowlFood(animate = true) {
+  function consumeBowlFood(animate = true, offeredByUser = false) {
     if (state.bowls.food <= 0) return false;
     state.bowls.food -= 1;
     const multiplier = PERSONALITIES[state.personality].food || 1;
     modifyStats({ food: 38, mood: 4 * multiplier, stress: -3, health: state.stats.health < 70 ? 2 : 0 });
     setActivity('eating', animate ? 4200 : 0);
-    addJournal('🍲', 'Comió por su cuenta', `${state.petName} tuvo hambre y fue directo a su cuenco.`);
-    if (animate) speak('¡Qué bueno que me dejaste comida!');
+    addJournal(
+      '🍲',
+      offeredByUser ? 'Le diste de comer' : 'Comió por su cuenta',
+      offeredByUser ? `${state.petName} comió la porción que le ofreciste.` : `${state.petName} tuvo hambre y fue directo a su cuenco.`
+    );
+    if (animate) speak(offeredByUser ? '¡Gracias! Justo tenía hambre.' : '¡Qué bueno que me dejaste comida!');
     return true;
   }
 
-  function consumeBowlWater(animate = true) {
+  function consumeBowlWater(animate = true, offeredByUser = false) {
     if (state.bowls.water <= 0) return false;
     state.bowls.water -= 1;
     modifyStats({ water: 44, mood: 1, stress: -2 });
     setActivity('drinking', animate ? 3200 : 0);
-    addJournal('💧', 'Fue a beber agua', `${state.petName} se hidrató sin tener que pedir ayuda.`);
-    if (animate) speak('Glup, glup… ¡gracias!');
+    addJournal(
+      '💧',
+      offeredByUser ? 'Le diste agua' : 'Fue a beber agua',
+      offeredByUser ? `${state.petName} bebió el agua fresca que le ofreciste.` : `${state.petName} se hidrató sin tener que pedir ayuda.`
+    );
+    if (animate) speak(offeredByUser ? '¡Gracias! Tenía mucha sed.' : 'Glup, glup… ¡gracias!');
     return true;
   }
 
@@ -744,7 +753,9 @@
   function beginSleep(mode = 'night', duration = FULL_SLEEP_DURATION, automatic = false) {
     if (state.isAsleep) return;
     if (!automatic) state.manualAwakeUntil = 0;
-    if (state.sleepProgress >= 99.999) state.sleepProgress = 0;
+    const savedRest = state.sleepProgress >= 99.999 ? 0 : state.sleepProgress;
+    const hadSavedRest = savedRest > 0;
+    state.sleepProgress = mode === 'nap' ? savedRest : Math.max(savedRest, state.stats.energy);
     const resumedProgress = Math.floor(state.sleepProgress);
     duration = Math.max(1000, Math.min(duration, sleepDurationFromProgress()));
     state.isAsleep = true;
@@ -753,8 +764,18 @@
     state.sleepUntil = now() + duration;
     setActivity('sleeping');
     recordHabit('sleep', !automatic);
-    addJournal('🌙', mode === 'nap' ? 'Tomó una siesta' : resumedProgress ? 'Retomó su descanso' : 'Hora de dormir', automatic ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.` : resumedProgress ? `Continuará desde el ${resumedProgress}% hasta completar su descanso.` : `Lo arropaste para que en dos horas recupere todas sus necesidades.`);
-    if (!automatic) speak(resumedProgress ? 'Todavía tengo sueño… seguiré descansando.' : 'Arrópame bien… zzz.');
+    const remainingMinutes = Math.max(1, Math.ceil(duration / 60_000));
+    const remainingLabel = remainingMinutes >= 60
+      ? `${Math.floor(remainingMinutes / 60)} h ${remainingMinutes % 60 ? `${remainingMinutes % 60} min` : ''}`.trim()
+      : `${remainingMinutes} min`;
+    const sleepTitle = mode === 'nap' ? 'Tomó una siesta' : hadSavedRest ? 'Retomó su descanso' : 'Hora de dormir';
+    const sleepDescription = automatic
+      ? `${state.petName} estaba agotado y decidió acostarse por su cuenta.`
+      : hadSavedRest
+        ? `Continuará desde el ${resumedProgress}% y le faltan aproximadamente ${remainingLabel}.`
+        : `Su descanso empieza en ${resumedProgress}% porque ya tenía esa energía; le faltan aproximadamente ${remainingLabel}.`;
+    addJournal('🌙', sleepTitle, sleepDescription);
+    if (!automatic) speak(hadSavedRest ? 'Todavía tengo sueño… seguiré donde me quedé.' : `Ya tengo ${resumedProgress}% de energía… descansaré lo que me falta.`);
     touch();
     saveState();
     render();
@@ -822,18 +843,31 @@
     let close = true;
     let feedback = '';
     switch (action) {
-      case 'serveFood':
-        if (state.inventory.food <= 0) return toast('No queda comida. Puedes comprar más en la tienda.');
-        if (state.bowls.food >= 3) return toast('El cuenco ya está lleno.');
-        state.inventory.food -= 1;
-        state.bowls.food += 1;
+      case 'serveFood': {
+        const needsFood = Math.round(clamp(state.stats.food)) < 100;
+        if (needsFood && state.bowls.food <= 0) {
+          if (state.inventory.food <= 0) return toast('No queda comida. Puedes comprar más en la tienda.');
+          state.inventory.food -= 1;
+          state.bowls.food += 1;
+        } else if (!needsFood) {
+          if (state.inventory.food <= 0) return toast('No queda comida. Puedes comprar más en la tienda.');
+          if (state.bowls.food >= 3) return toast('El cuenco ya está lleno.');
+          state.inventory.food -= 1;
+          state.bowls.food += 1;
+        }
         recordHabit('care');
         gainXp(3);
-        addJournal('🥫', 'Dejaste comida', `Serviste una porción para que ${state.petName} pueda comer cuando tenga hambre.`);
-        if (state.stats.food < 50) consumeBowlFood(true);
-        else speak('La guardaré para cuando tenga hambre.');
-        feedback = '🍲 Comida lista · +3 XP';
+        if (needsFood) {
+          const foodBefore = state.stats.food;
+          consumeBowlFood(true, true);
+          feedback = `🍲 +${Math.max(1, Math.round(state.stats.food - foodBefore))} comida · +3 XP`;
+        } else {
+          addJournal('🥫', 'Dejaste comida', `Serviste una porción para que ${state.petName} pueda comer más tarde.`);
+          speak('Estoy lleno; la guardaré para después.');
+          feedback = '🍲 Comida guardada · +3 XP';
+        }
         break;
+      }
       case 'giveTreat':
         if (state.inventory.treat <= 0) return toast('Se acabaron los premios. Puedes comprar más en la tienda.');
         if (state.stats.food > 95) return speak('Gracias, pero estoy demasiado lleno.'), toast('No quiso comer de más.');
@@ -846,15 +880,27 @@
         createSparkles('💗');
         feedback = '💗 +2 cariño · +6 XP';
         break;
-      case 'fillWater':
-        state.bowls.water = 3;
+      case 'fillWater': {
+        const needsWater = Math.round(clamp(state.stats.water)) < 100;
+        if (needsWater) {
+          if (state.bowls.water <= 0) state.bowls.water = 1;
+        } else {
+          if (state.bowls.water >= 3) return toast('El cuenco de agua ya está lleno.');
+          state.bowls.water = 3;
+        }
         recordHabit('care');
         gainXp(2);
-        addJournal('💧', 'Agua fresca', 'Llenaste el cuenco para que pueda beber cuando lo necesite.');
-        if (state.stats.water < 52) consumeBowlWater(true);
-        else speak('¡Ya tengo agua fresca!');
-        feedback = '💧 Agua lista · +2 XP';
+        if (needsWater) {
+          const waterBefore = state.stats.water;
+          consumeBowlWater(true, true);
+          feedback = `💧 +${Math.max(1, Math.round(state.stats.water - waterBefore))} agua · +2 XP`;
+        } else {
+          addJournal('💧', 'Agua fresca', 'Llenaste el cuenco para que pueda beber más tarde.');
+          speak('Estoy bien hidratado; la guardaré para después.');
+          feedback = '💧 Agua guardada · +2 XP';
+        }
         break;
+      }
       case 'brush':
         modifyStats({ hygiene: 13, mood: state.personality === 'calm' ? 9 : 5, bond: 2, stress: -5 });
         setActivity('brushing', 3500);
@@ -1241,8 +1287,6 @@
 
   function openArcadeGame(type) {
     if (isBusy()) return toast(`${state.petName} está ocupado en este momento.`);
-    const requiredLevel = type === 'dodge' ? 2 : type === 'memory' ? 3 : 1;
-    if (state.level < requiredLevel) return toast(`Este juego se desbloquea en el nivel ${requiredLevel}.`);
     if (state.stats.energy < arcadeEnergyCost(type)) return toast(`Necesita ${arcadeEnergyCost(type)}% de energía para jugar.`);
     closeModal('arcadeModal');
     setTimeout(() => {
@@ -2018,16 +2062,14 @@
   }
 
   function renderArcade() {
-    const dodgeUnlocked = state.level >= 2;
-    const memoryUnlocked = state.level >= 3;
     document.querySelector('[data-arcade="ball"] small').textContent = state.arcade.ballBest ? `Récord ${state.arcade.ballBest} · gana monedas` : '5 tiros · precisión y monedas';
     document.querySelector('[data-arcade="dodge"] small').textContent = state.arcade.dodgeBest ? `Récord ${state.arcade.dodgeBest} · reflejos` : '15 s · evita todos los obstáculos';
     document.querySelector('[data-arcade="memory"] small').textContent = state.arcade.memoryBest ? `Récord ${state.arcade.memoryBest} · memoria` : '4 rondas · repite las señales';
     el('ballGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeBall);
-    el('dodgeGameStatus').textContent = dodgeUnlocked ? energyLabel(ENERGY_COSTS.arcadeDodge) : 'Nivel 2';
-    el('memoryGameStatus').textContent = memoryUnlocked ? energyLabel(ENERGY_COSTS.arcadeMemory) : 'Nivel 3';
-    document.querySelector('[data-arcade="dodge"]').disabled = !dodgeUnlocked || isBusy();
-    document.querySelector('[data-arcade="memory"]').disabled = !memoryUnlocked || isBusy();
+    el('dodgeGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeDodge);
+    el('memoryGameStatus').textContent = energyLabel(ENERGY_COSTS.arcadeMemory);
+    document.querySelector('[data-arcade="dodge"]').disabled = isBusy();
+    document.querySelector('[data-arcade="memory"]').disabled = isBusy();
     document.querySelector('[data-arcade="ball"]').disabled = isBusy();
   }
 

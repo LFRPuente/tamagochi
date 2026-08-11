@@ -16,8 +16,10 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
 - Al despertarlo de noche permanece 30 minutos soñoliento; si interrumpes el descanso con anticipación, además conserva energía baja.
 - El descanso continúa aunque cierres la página y el perrito despierta automáticamente al completarlo.
+- El porcentaje de descanso parte de la energía actual: con 25% de energía sólo necesita completar el 75% restante de las dos horas.
+- La energía baja más despacio y las actividades consumen cerca de una cuarta parte menos.
 - Al llevar al 100% sus seis indicadores de cuidado se desbloquea una sorpresa guardada en la partida.
-- Comida y agua en cuencos que el perrito consume por su cuenta.
+- Al darle comida o agua atiende su necesidad de inmediato; si ya está al 100%, guarda la porción en su cuenco.
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
 - Objetos integrados naturalmente en cada pose: pelota, cuencos, premio, cepillo, espuma y una cobija que deja libre su cara.
@@ -27,7 +29,7 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 - Un momento narrativo diario donde el perrito pregunta, eliges cómo acompañarlo y recuerda la respuesta.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
-- Tres minijuegos luminosos de coordinación, agilidad y memoria.
+- Tres minijuegos luminosos de coordinación, agilidad y memoria, disponibles desde el inicio.
 - Retos jugables que también pueden aparecer durante paseos y entrenamientos.
 - Controles por teclado, toque, arrastre y botones táctiles.
 - Monedas, inventario y tienda.
