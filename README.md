@@ -13,7 +13,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
 - Ciclo local de día y noche, sueño prolongado y siestas autónomas.
 - Al despertarlo de noche permanece 30 minutos soñoliento; si interrumpes el descanso con anticipación, además conserva energía baja.
-- El descanso continúa aunque cierres la página; al completarlo, el perrito espera dormido y con energía llena hasta que regreses.
+- El descanso continúa aunque cierres la página y el perrito despierta automáticamente al completarlo.
+- Al llevar al 100% sus seis indicadores de cuidado se desbloquea una sorpresa guardada en la partida.
 - Comida y agua en cuencos que el perrito consume por su cuenta.
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
@@ -35,6 +36,6 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 
 ## Crear el enlace para el QR
 
-Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. El enlace compartido mantiene el sobre cerrado hasta el 14 de agosto de 2026; el personalizador también ofrece una vista previa para quien prepara el regalo. Después convierte el enlace compartido en un código QR.
+Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. La carta se puede abrir desde ahora y el personalizador también ofrece una vista previa. Después convierte el enlace compartido en un código QR.
 
 > El progreso y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.

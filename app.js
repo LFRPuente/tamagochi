@@ -1,8 +1,6 @@
 (() => {
   'use strict';
 
-  if (window.__GIFT_LOCKED__) return;
-
   const STORAGE_KEY = 'living-pet-v3';
   const LEGACY_KEY = 'romantic-pet-v1';
   const MAX_PHOTOS = 6;
@@ -102,7 +100,8 @@
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
   const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
-  const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
+  const CARE_LEVEL_KEYS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
+  const SLEEP_RECOVERY_STATS = CARE_LEVEL_KEYS;
 
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atento a lo que hagan juntos.', css: 'standing' },
@@ -169,7 +168,8 @@
     journal: [],
     photos: [],
     day: { key: '', actions: 0, bonusClaimed: false },
-    story: { lastDate: '', choices: {} }
+    story: { lastDate: '', choices: {} },
+    surpriseUnlocked: false
   });
 
   let state = loadState();
@@ -218,6 +218,7 @@
   let petReaction = '';
   let petReactionTimer = null;
   let lastAffectionRewardAt = 0;
+  let completionSurprisePending = false;
   let currentMoment = null;
   let activeWorldView = 'home';
 
@@ -382,6 +383,7 @@
       else if (key === 'stress') state.stress = clamp(state.stress + amount);
       else if (key in state.stats) state.stats[key] = clamp(state.stats[key] + amount);
     });
+    markCompletionSurprise();
   }
 
   function applyAwakeDecay(hours) {
@@ -415,6 +417,7 @@
     SLEEP_RECOVERY_STATS.forEach(key => state.stats[key] = 100);
     state.mood = 100;
     state.stress = 0;
+    markCompletionSurprise();
   }
 
   function currentSleepProgress(current = now()) {
@@ -436,8 +439,8 @@
     const elapsedHours = Math.min(72, Math.max(0, (current - previous) / 3_600_000));
     if (elapsedHours < .0002) {
       if (state.isAsleep && current >= Number(state.sleepUntil)) {
-        if (state.sleepMode === 'nap') wakePet(false);
-        else completeFullSleep();
+        if (state.sleepMode !== 'nap') completeFullSleep();
+        wakePet(false);
       }
       return elapsedHours;
     }
@@ -454,6 +457,8 @@
         applyAwakeDecay(awakeHours);
       } else if (sleepFinished) {
         completeFullSleep();
+        wakePet(false);
+        applyAwakeDecay(awakeHours);
       }
     } else {
       applyAwakeDecay(elapsedHours);
@@ -554,16 +559,7 @@
   }
 
   function activityPreset() {
-    const activity = { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
-    if (state.isAsleep && currentSleepProgress() >= 99.999) {
-      return {
-        ...activity,
-        icon: '✨',
-        title: 'Ya descansó',
-        description: 'Terminó de descansar. Seguirá dormido hasta que tú lo despiertes.'
-      };
-    }
-    return activity;
+    return { ...(ACTIVITY_PRESETS[state.activity.type] || ACTIVITY_PRESETS.idle), ...state.activity };
   }
 
   function currentPetCondition(reference = now()) {
@@ -2118,7 +2114,33 @@
     }
   }
 
+  function allCareLevelsComplete() {
+    return CARE_LEVEL_KEYS.every(key => Math.round(clamp(state.stats[key])) >= 100);
+  }
+
+  function markCompletionSurprise() {
+    if (!state.initialized || state.surpriseUnlocked || !allCareLevelsComplete()) return false;
+    state.surpriseUnlocked = true;
+    completionSurprisePending = true;
+    addJournal('🎁', 'Sorpresa desbloqueada', `${state.petName} llegó al 100% en todos sus niveles. Hay un regalito esperando.`);
+    return true;
+  }
+
+  function showCompletionSurprise() {
+    if (!completionSurprisePending || !state.initialized || document.querySelector('.modal-backdrop.open')) return;
+    completionSurprisePending = false;
+    el('surpriseTitle').textContent = state.partnerName ? `¡Felicidades, ${state.partnerName}!` : '¡Felicidades!';
+    el('surprisePetMessage').textContent = `${state.petName} llegó al 100 % en todos sus niveles.`;
+    openModal('surpriseModal');
+    createSparkles('✨', 16);
+    haptic([18, 45, 18, 45, 28]);
+  }
+
   function render() {
+    if (markCompletionSurprise()) {
+      touch();
+      saveState();
+    }
     renderClock();
     renderNeeds();
     renderScene();
@@ -2132,6 +2154,7 @@
     renderActivityTimer();
     setWorldView(activeWorldView);
     el('signature').textContent = state.signature || 'Creado con amor para ti 💗';
+    if (completionSurprisePending) requestAnimationFrame(showCompletionSurprise);
   }
 
   function escapeHtml(value) {
@@ -2274,6 +2297,7 @@
         document.body.classList.remove('modal-open');
         document.querySelector('.app-shell').inert = false;
         returnFocus?.focus?.({ preventScroll: true });
+        if (completionSurprisePending) requestAnimationFrame(showCompletionSurprise);
       }
     }, 180);
   }
