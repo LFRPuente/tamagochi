@@ -1,9 +1,11 @@
-const CACHE = 'living-pet-v25';
+const CACHE = 'living-pet-v26';
+const SCOPE_PATH = new URL('./', self.location.href).pathname;
 const APP_SHELL = [
   './',
   './index.html',
-  './styles.css?v=3.16.0',
-  './app.js?v=3.16.0',
+  './carta.html',
+  './styles.css?v=3.17.0',
+  './app.js?v=3.17.0',
   './manifest.webmanifest',
   './personalizar.html',
   './assets/icon.svg',
@@ -41,10 +43,21 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
+    Promise.all([
+      caches.keys().then(keys => Promise.all(keys
+        .filter(key => key.startsWith('living-pet-') && key !== CACHE)
+        .map(key => caches.delete(key)))),
+      self.clients.claim()
+    ])
   );
-  self.clients.claim();
 });
+
+function navigationCacheKey(url) {
+  if (url.pathname === `${SCOPE_PATH}carta.html`) return './carta.html';
+  if (url.pathname === `${SCOPE_PATH}personalizar.html`) return './personalizar.html';
+  if (url.pathname === SCOPE_PATH || url.pathname === `${SCOPE_PATH}index.html`) return './index.html';
+  return null;
+}
 
 self.addEventListener('fetch', event => {
   const { request } = event;
@@ -52,11 +65,19 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
+    const cacheKey = navigationCacheKey(url);
     event.respondWith(
-      fetch(request).then(response => {
-        if (response.ok) caches.open(CACHE).then(cache => cache.put(request, response.clone()));
+      fetch(request).then(async response => {
+        if (response.ok && cacheKey) {
+          const cache = await caches.open(CACHE);
+          await cache.put(cacheKey, response.clone());
+        }
         return response;
-      }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+      }).catch(async () => {
+        if (!cacheKey) return Response.error();
+        const cache = await caches.open(CACHE);
+        return (await cache.match(cacheKey)) || Response.error();
+      })
     );
     return;
   }

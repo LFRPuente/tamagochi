@@ -1,6 +1,8 @@
 (() => {
   'use strict';
 
+  if (window.__GIFT_LOCKED__) return;
+
   const STORAGE_KEY = 'living-pet-v3';
   const LEGACY_KEY = 'romantic-pet-v1';
   const MAX_PHOTOS = 6;

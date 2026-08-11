@@ -5,9 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7c7d9" />
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
+  <script>
+    (() => {
+      const RELEASE_AT = 1786687200000;
+      const preview = new URLSearchParams(location.search).get('preview') === '1';
+      window.__GIFT_LOCKED__ = !preview && Date.now() < RELEASE_AT;
+      if (!window.__GIFT_LOCKED__) return;
+      document.documentElement.style.visibility = 'hidden';
+      const target = new URL('./carta.html', location.href);
+      target.search = location.search;
+      target.hash = location.hash;
+      location.replace(target.href);
+    })();
+  </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.16.0" />
+  <link rel="stylesheet" href="styles.css?v=3.17.0" />
   <title>La casita de Milo</title>
 </head>
 <body>
@@ -407,6 +420,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.16.0" defer></script>
+  <script src="app.js?v=3.17.0" defer></script>
 </body>
 </html>

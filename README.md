@@ -5,6 +5,7 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 ## Sitio publicado
 
 - App: https://lfrpuente.github.io/tamagochi/
+- Carta: https://lfrpuente.github.io/tamagochi/carta.html
 - Personalizador: https://lfrpuente.github.io/tamagochi/personalizar.html
 
 ## Mecánicas
@@ -33,6 +34,6 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 
 ## Crear el enlace para el QR
 
-Abre `personalizar.html`, introduce los nombres y el mensaje, y genera el enlace personalizado. Después conviértelo en un código QR.
+Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. El enlace compartido mantiene el sobre cerrado hasta el 14 de agosto de 2026; el personalizador también ofrece una vista previa para quien prepara el regalo. Después convierte el enlace compartido en un código QR.
 
 > El progreso y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.
