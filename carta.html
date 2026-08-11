@@ -6,6 +6,27 @@
   <meta name="theme-color" content="#f4ddd8" />
   <meta name="robots" content="noindex,nofollow" />
   <meta name="referrer" content="no-referrer" />
+  <script>
+    (() => {
+      const BIRTHDAY_START = 1786687200000;
+      const BIRTHDAY_END = BIRTHDAY_START + 86_400_000;
+      const LETTER_SEEN_KEY = 'birthday-letter-seen-2026-08-14';
+      const preview = new URLSearchParams(location.search).get('preview') === '1';
+      const current = Date.now();
+      let letterSeen = false;
+      try {
+        letterSeen = localStorage.getItem(LETTER_SEEN_KEY) === '1';
+      } catch (_) {}
+      window.__BIRTHDAY_LETTER_AVAILABLE__ = preview || (!letterSeen && current >= BIRTHDAY_START && current < BIRTHDAY_END);
+      if (window.__BIRTHDAY_LETTER_AVAILABLE__) return;
+
+      document.documentElement.style.visibility = 'hidden';
+      const target = new URL('./index.html', location.href);
+      target.search = location.search;
+      target.searchParams.delete('letter');
+      location.replace(target.href);
+    })();
+  </script>
   <title>Una carta para ti</title>
   <style>
     :root {
@@ -255,6 +276,8 @@
     (() => {
       'use strict';
 
+      if (!window.__BIRTHDAY_LETTER_AVAILABLE__) return;
+
       const DEFAULT_NOTE = 'Hoy no quería regalarte solamente una página, sino un pequeño lugar hecho pensando en ti.\n\nGracias por cada momento, por tu forma de acompañarme y por todo lo bonito que traes a mis días. Espero que este nuevo año te encuentre tranquila, muy querida y con muchísimas razones para sonreír.\n\nFeliz cumpleaños.';
       const params = new URLSearchParams(location.search);
       const isPreview = params.get('preview') === '1';
@@ -272,6 +295,7 @@
       const gameUrl = new URL('./index.html', location.href);
       const gameParams = new URLSearchParams(location.search);
       if (gameParams.has('nota')) gameParams.set('nota', note.slice(0, 220));
+      if (!isPreview) gameParams.set('letter', 'opened');
       gameUrl.search = gameParams.toString();
       gameUrl.hash = location.hash;
 

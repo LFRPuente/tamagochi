@@ -8,6 +8,8 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 - Carta: https://lfrpuente.github.io/tamagochi/carta.html
 - Personalizador: https://lfrpuente.github.io/tamagochi/personalizar.html
 
+El juego está disponible desde ahora. La carta no muestra cuenta regresiva: aparece automáticamente una sola vez al abrir el juego durante el 14 de agosto de 2026, según la hora de Ciudad de México.
+
 ## Mecánicas
 
 - Saciedad, hidratación, energía, higiene, salud, ánimo, estrés y vínculo.
@@ -36,6 +38,6 @@ Mascota virtual autónoma para cuidar, entrenar y acompañar. El perrito toma de
 
 ## Crear el enlace para el QR
 
-Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. La carta se puede abrir desde ahora y el personalizador también ofrece una vista previa. Después convierte el enlace compartido en un código QR.
+Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. Antes del cumpleaños el enlace abre directamente el juego; el 14 de agosto muestra la carta automáticamente. El personalizador conserva una vista previa para quien prepara el regalo. Después convierte el enlace compartido en un código QR.
 
 > El progreso y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.

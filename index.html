@@ -5,6 +5,41 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#f7c7d9" />
   <meta name="description" content="Cuida, entrena y convive con un perrito virtual que recuerda tus hábitos." />
+  <script>
+    (() => {
+      const BIRTHDAY_START = 1786687200000;
+      const BIRTHDAY_END = BIRTHDAY_START + 86_400_000;
+      const LETTER_SEEN_KEY = 'birthday-letter-seen-2026-08-14';
+      const params = new URLSearchParams(location.search);
+      const fromLetter = params.get('letter') === 'opened';
+      const preview = params.get('preview') === '1';
+      let letterSeen = false;
+
+      try {
+        if (fromLetter) localStorage.setItem(LETTER_SEEN_KEY, '1');
+        letterSeen = localStorage.getItem(LETTER_SEEN_KEY) === '1';
+      } catch (_) {
+        letterSeen = fromLetter;
+      }
+
+      if (fromLetter) {
+        const cleanUrl = new URL(location.href);
+        cleanUrl.searchParams.delete('letter');
+        history.replaceState(null, '', cleanUrl.href);
+        return;
+      }
+
+      const current = Date.now();
+      const isBirthday = current >= BIRTHDAY_START && current < BIRTHDAY_END;
+      if (preview || !isBirthday || letterSeen) return;
+
+      document.documentElement.style.visibility = 'hidden';
+      const target = new URL('./carta.html', location.href);
+      target.search = location.search;
+      target.hash = location.hash;
+      location.replace(target.href);
+    })();
+  </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
   <link rel="stylesheet" href="styles.css?v=3.19.0" />

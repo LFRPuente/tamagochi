@@ -1,4 +1,4 @@
-const CACHE = 'living-pet-v28';
+const CACHE = 'living-pet-v29';
 const SCOPE_PATH = new URL('./', self.location.href).pathname;
 const APP_SHELL = [
   './',
