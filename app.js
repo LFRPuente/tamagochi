@@ -65,43 +65,11 @@
     trainingMemory: 2
   };
 
-  const STORY_MOMENTS = [
-    {
-      id: 'lost-ball', icon: '🎾', title: 'La pelota escondida',
-      when: pet => pet.habits.play > 0 || pet.habits.walk > 0,
-      prompt: 'Escondí mi pelota y ya no recuerdo dónde… ¿la buscamos?',
-      choices: [
-        { id: 'tracks', icon: '👣', label: 'Seguir tus huellas', detail: 'Confianza y curiosidad', stats: { bond: 3, mood: 2, stress: -1 }, traits: { trust: 2 }, response: '¡Mi nariz sabía que íbamos por buen camino!', result: '+2 confianza · +3 cariño', activity: 'exploring', memory: 'Siguieron sus huellas hasta encontrar la pelota escondida.' },
-        { id: 'together', icon: '🔎', label: 'Buscar juntos', detail: 'Cariño y atención', stats: { bond: 4, mood: 2 }, traits: { discipline: 1 }, response: 'Contigo hasta buscar debajo de la cama es divertido.', result: '+4 cariño · +1 atención', activity: 'exploring', memory: 'Buscaron la pelota en cada rincón y celebraron al encontrarla.' },
-        { id: 'later', icon: '🌿', label: 'Dejarla para luego', detail: 'Calma y paciencia', stats: { bond: 1, stress: -3 }, traits: { trust: 1 }, response: 'Está bien. Me quedo cerquita de ti un rato.', result: '−3 nervios · +1 confianza', activity: 'sitting', memory: 'Decidieron dejar la búsqueda para otro momento y descansar juntos.' }
-      ]
-    },
-    {
-      id: 'practice', icon: '🐾', title: 'Un intento difícil',
-      when: pet => pet.habits.train > 0,
-      prompt: 'Hoy no me salió bien el truco… ¿qué hacemos?',
-      choices: [
-        { id: 'again', icon: '⭐', label: 'Una vez más', detail: 'Atención y confianza', stats: { bond: 2, mood: 1, energy: -2 }, traits: { discipline: 2, trust: 1 }, response: '¡Una más! Esta vez miraré bien tu señal.', result: '+2 atención · +1 confianza', activity: 'training', memory: 'Volvieron a intentarlo con paciencia y estuvo más atento a la señal.' },
-        { id: 'rest', icon: '🧺', label: 'Descansar un rato', detail: 'Calma y confianza', stats: { bond: 2, stress: -4, energy: 2 }, traits: { trust: 2 }, response: 'Gracias. Luego lo intento con más ganas.', result: '−4 nervios · +2 confianza', activity: 'sitting', memory: 'Hicieron una pausa a tiempo y el descanso también contó como aprendizaje.' },
-        { id: 'celebrate', icon: '💗', label: 'Celebrar el intento', detail: 'Ánimo y cariño', stats: { bond: 3, mood: 4, stress: -2 }, traits: { trust: 1 }, response: '¿También cuentan los intentos? ¡Entonces moví muy bien la cola!', result: '+4 ánimo · +3 cariño', activity: 'playing', memory: 'Celebraron el esfuerzo, aunque el truco todavía necesita práctica.' }
-      ]
-    },
-    {
-      id: 'window-noise', icon: '🪟', title: 'Un ruido en la ventana',
-      prompt: 'Escuché algo junto a la ventana… ¿vienes conmigo?',
-      choices: [
-        { id: 'look', icon: '👀', label: 'Mirar juntos', detail: 'Confianza y curiosidad', stats: { bond: 3, stress: -2 }, traits: { trust: 2 }, response: '¡Era sólo una hoja! Me gusta investigar contigo.', result: '+2 confianza · +3 cariño', activity: 'watching', memory: 'Investigaron juntos un ruido misterioso que resultó ser una hoja.' },
-        { id: 'light', icon: '💡', label: 'Encender una luz', detail: 'Calma y atención', stats: { mood: 2, stress: -4, bond: 2 }, traits: { discipline: 1 }, response: 'Así se ve menos misterioso. Gracias por venir.', result: '−4 nervios · +2 cariño', activity: 'watching', memory: 'Encendieron una luz y observaron la ventana hasta sentirse tranquilos.' },
-        { id: 'bed', icon: '🧸', label: 'Volver a la cama', detail: 'Seguridad y descanso', stats: { energy: 3, stress: -3, bond: 1 }, traits: { trust: 1 }, response: 'Buena idea. Desde aquí puedo cuidar la casa contigo.', result: '+3 energía · +1 confianza', activity: 'sitting', memory: 'Volvieron a su rincón favorito y escucharon el viento desde la cama.' }
-      ]
-    }
-  ];
-
   const FULL_SLEEP_DURATION = 2 * 3_600_000;
   const AUTO_NAP_DURATION = 3 * 60_000;
   const SLEEP_RECOVERY_PER_HOUR = 50;
-  const CARE_LEVEL_KEYS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
-  const SLEEP_RECOVERY_STATS = CARE_LEVEL_KEYS;
+  const SURPRISE_LEVEL_KEYS = ['food', 'water', 'hygiene', 'health', 'bond'];
+  const SLEEP_RECOVERY_STATS = ['food', 'water', 'energy', 'hygiene', 'health', 'bond'];
 
   const ACTIVITY_PRESETS = {
     idle: { icon: '🐾', title: 'Cerca de ti', description: 'Está de pie, atento a lo que hagan juntos.', css: 'standing' },
@@ -219,7 +187,6 @@
   let petReactionTimer = null;
   let lastAffectionRewardAt = 0;
   let completionSurprisePending = false;
-  let currentMoment = null;
   let activeWorldView = 'home';
 
   function localDateKey(date = new Date()) {
@@ -1756,60 +1723,8 @@
     return '#65af7d';
   }
 
-  function canOfferMoment() {
-    const today = localDateKey();
-    return state.initialized && state.day.key === today && state.day.actions > 0 && state.story.lastDate !== today && !state.isAsleep && !isBusy();
-  }
-
-  function getDailyMoment() {
-    const available = STORY_MOMENTS.filter(moment => !moment.when || moment.when(state));
-    return available[hashCode(`${localDateKey()}-${state.petName}-${state.personality}`) % available.length] || STORY_MOMENTS.at(-1);
-  }
-
-  function openDailyMoment() {
-    if (!canOfferMoment()) return;
-    currentMoment = getDailyMoment();
-    el('momentIcon').textContent = currentMoment.icon;
-    el('momentTitle').textContent = currentMoment.title;
-    const rememberedChoice = currentMoment.choices.find(choice => choice.id === state.story.choices[currentMoment.id]);
-    el('momentPrompt').textContent = rememberedChoice
-      ? `La vez pasada eligieron «${rememberedChoice.label}». ${currentMoment.prompt}`
-      : currentMoment.prompt;
-    el('momentChoices').innerHTML = currentMoment.choices.map((choice, index) => `
-      <button class="moment-choice" type="button" data-moment-choice="${index}">
-        <span aria-hidden="true">${choice.icon}</span>
-        <div><strong>${escapeHtml(choice.label)}</strong><small>${escapeHtml(choice.detail)}</small></div>
-      </button>`).join('');
-    openModal('momentModal');
-  }
-
-  function completeMoment(choiceIndex) {
-    const choice = currentMoment?.choices[choiceIndex];
-    if (!currentMoment || !choice) return;
-    modifyStats(choice.stats || {});
-    Object.entries(choice.traits || {}).forEach(([key, amount]) => {
-      if (key in state.traits) state.traits[key] = clamp(state.traits[key] + amount);
-    });
-    state.story.lastDate = localDateKey();
-    state.story.choices[currentMoment.id] = choice.id;
-    markInteraction();
-    gainXp(4);
-    addJournal(currentMoment.icon, currentMoment.title, choice.memory);
-    setActivity(choice.activity || 'sitting', 4800, { title: currentMoment.title, description: choice.memory });
-    const response = choice.response;
-    const result = choice.result;
-    currentMoment = null;
-    touch();
-    saveState();
-    render();
-    closeModal('momentModal');
-    speak(response);
-    createSparkles('💗', 7);
-    toast(`${result} · +4 XP`);
-  }
-
   function setWorldView(view) {
-    if (!['home', 'growth', 'moments'].includes(view)) return;
+    if (!['home', 'growth'].includes(view)) return;
     activeWorldView = view;
     document.querySelectorAll('[data-world-view]').forEach(button => {
       const selected = button.dataset.worldView === view;
@@ -1848,8 +1763,6 @@
       suggestion = { icon: '💗', kicker: `${petName} necesita compañía`, title: '¿Te quedas conmigo?', text: 'Una caricia le ayudará a sentirse acompañado.', action: 'pet', label: 'Acariciarlo' };
     } else if (condition?.key === 'lonely') {
       suggestion = { icon: '💌', kicker: `${petName} te extrañó`, title: '¡Qué bueno que volviste!', text: 'Estuvo esperando un ratito de cariño contigo.', action: 'pet', label: 'Saludarlo' };
-    } else if (canOfferMoment()) {
-      suggestion = { icon: '💌', kicker: `${petName} quiere contarte algo`, title: 'Tengo algo que contarte…', text: 'Escúchalo y elijan juntos qué hacer.', action: 'moment', label: 'Escucharlo' };
     } else {
       const invitations = {
         curious: ['¿Vamos a descubrir algo?', 'Un paseo puede traer una historia nueva.'],
@@ -2073,47 +1986,6 @@
     document.querySelector('[data-arcade="ball"]').disabled = isBusy();
   }
 
-  function renderDiary() {
-    if (!state.journal.length) {
-      el('diaryList').innerHTML = `<div class="diary-entry"><span class="entry-icon">🐾</span><div><strong>${escapeHtml(state.petName)} llegó a casa</strong><p>Jueguen, paseen y cuídense para llenar este espacio de momentos.</p></div></div>`;
-      return;
-    }
-    el('diaryList').innerHTML = state.journal.slice(0, 12).map(entry => {
-      const date = new Date(entry.at);
-      const sameDay = localDateKey(date) === localDateKey();
-      const time = sameDay ? date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
-      return `<div class="diary-entry"><span class="entry-icon">${entry.icon}</span><div><strong>${escapeHtml(entry.title)}</strong><p>${escapeHtml(entry.text)}</p></div><time datetime="${date.toISOString()}">${time}</time></div>`;
-    }).join('');
-  }
-
-  function renderPhotos() {
-    const grid = el('memoryGrid');
-    grid.innerHTML = '';
-    for (let i = 0; i < MAX_PHOTOS; i++) {
-      const item = document.createElement('div');
-      item.className = 'memory';
-      if (state.photos[i]) {
-        const img = document.createElement('img');
-        img.src = state.photos[i];
-        img.alt = `Recuerdo ${i + 1}`;
-        item.appendChild(img);
-        const remove = document.createElement('button');
-        remove.type = 'button';
-        remove.textContent = '×';
-        remove.setAttribute('aria-label', `Eliminar recuerdo ${i + 1}`);
-        remove.addEventListener('click', () => {
-          syncSimulation();
-          state.photos.splice(i, 1);
-          touch();
-          saveState();
-          renderPhotos();
-        });
-        item.appendChild(remove);
-      } else item.textContent = '♡';
-      grid.appendChild(item);
-    }
-  }
-
   function renderActivityTimer() {
     const target = state.isAsleep ? state.sleepUntil : state.activity.endsAt;
     const timer = el('activityTimer');
@@ -2157,14 +2029,14 @@
   }
 
   function allCareLevelsComplete() {
-    return CARE_LEVEL_KEYS.every(key => Math.round(clamp(state.stats[key])) >= 100);
+    return SURPRISE_LEVEL_KEYS.every(key => Math.round(clamp(state.stats[key])) >= 100);
   }
 
   function markCompletionSurprise() {
     if (!state.initialized || state.surpriseUnlocked || !allCareLevelsComplete()) return false;
     state.surpriseUnlocked = true;
     completionSurprisePending = true;
-    addJournal('🎁', 'Sorpresa desbloqueada', `${state.petName} llegó al 100% en todos sus niveles. Hay un regalito esperando.`);
+    addJournal('🎁', 'Sorpresa desbloqueada', `${state.petName} llegó al 100% en comida, agua, limpieza, salud y cariño. Hay un regalito esperando.`);
     return true;
   }
 
@@ -2172,7 +2044,7 @@
     if (!completionSurprisePending || !state.initialized || document.querySelector('.modal-backdrop.open')) return;
     completionSurprisePending = false;
     el('surpriseTitle').textContent = state.partnerName ? `¡Felicidades, ${state.partnerName}!` : '¡Felicidades!';
-    el('surprisePetMessage').textContent = `${state.petName} llegó al 100 % en todos sus niveles.`;
+    el('surprisePetMessage').textContent = `${state.petName} llegó al 100 % en comida, agua, limpieza, salud y cariño.`;
     openModal('surpriseModal');
     createSparkles('✨', 16);
     haptic([18, 45, 18, 45, 28]);
@@ -2191,8 +2063,6 @@
     renderPersonality();
     renderSkills();
     renderArcade();
-    renderDiary();
-    renderPhotos();
     renderActivityTimer();
     setWorldView(activeWorldView);
     el('signature').textContent = state.signature || 'Creado con amor para ti 💗';
@@ -2344,27 +2214,6 @@
     }, 180);
   }
 
-  function resizeImage(file, maxSize = 720, quality = .76) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = () => {
-        const image = new Image();
-        image.onerror = reject;
-        image.onload = () => {
-          const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
-          const canvas = document.createElement('canvas');
-          canvas.width = Math.round(image.width * scale);
-          canvas.height = Math.round(image.height * scale);
-          canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        image.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
   function applyGiftParams() {
     if (state.initialized) return;
     const params = new URLSearchParams(location.search);
@@ -2388,15 +2237,10 @@
       const action = el('nudgeAction').dataset.nudgeAction;
       if (action === 'sleep') return handleSleepButton();
       if (action === 'pet') return triggerPetReaction();
-      if (action === 'moment') return openDailyMoment();
       const modalByAction = { care: 'careModal', walk: 'walkModal', play: 'arcadeModal' };
       if (modalByAction[action]) openModal(modalByAction[action]);
     });
     document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => closeModal(button.dataset.close)));
-    el('momentChoices').addEventListener('click', event => {
-      const button = event.target.closest('[data-moment-choice]');
-      if (button) completeMoment(Number(button.dataset.momentChoice));
-    });
     document.querySelectorAll('[data-care]').forEach(button => button.addEventListener('click', () => handleCare(button.dataset.care)));
     document.querySelectorAll('[data-walk]').forEach(button => button.addEventListener('click', () => handleWalk(button.dataset.walk)));
     document.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => handleBuy(button.dataset.buy)));
@@ -2496,7 +2340,7 @@
       toast('Cambios guardados.');
     });
     el('resetBtn').addEventListener('click', () => {
-      if (!confirm('¿Empezar de cero? Se borrarán la mochila, los momentos y las fotos de este dispositivo.')) return;
+      if (!confirm('¿Empezar de cero? Se borrarán la mochila y todo el progreso de este dispositivo.')) return;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(LEGACY_KEY);
       state = defaultState();
@@ -2553,34 +2397,6 @@
       }
     });
 
-    el('uploadBtn').addEventListener('click', () => {
-      if (state.photos.length >= MAX_PHOTOS) return toast('Ya llenaste los seis espacios de recuerdos.');
-      el('photoInput').click();
-    });
-    el('photoInput').addEventListener('change', async event => {
-      const file = event.target.files?.[0];
-      event.target.value = '';
-      if (!file) return;
-      if (!file.type.startsWith('image/')) return toast('Selecciona una imagen válida.');
-      try {
-        const encoded = await resizeImage(file);
-        syncSimulation();
-        state.photos.push(encoded);
-        addJournal('📸', 'Un recuerdo nuevo', 'Guardaste una foto especial en su diario de vida.');
-        touch();
-        if (!saveState()) {
-          state.photos.pop();
-          if (state.journal[0]?.title === 'Un recuerdo nuevo') state.journal.shift();
-        }
-        else {
-          renderPhotos();
-          renderDiary();
-          toast('Recuerdo guardado.');
-        }
-      } catch (_) {
-        toast('No pude guardar esa foto. Intenta con otra.');
-      }
-    });
   }
 
   function init() {

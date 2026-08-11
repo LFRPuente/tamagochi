@@ -18,23 +18,20 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 - El descanso continúa aunque cierres la página y el perrito despierta automáticamente al completarlo.
 - El porcentaje de descanso parte de la energía actual: con 25% de energía sólo necesita completar el 75% restante de las dos horas.
 - La energía baja más despacio y las actividades consumen cerca de una cuarta parte menos.
-- Al llevar al 100% sus seis indicadores de cuidado se desbloquea una sorpresa guardada en la partida.
+- Al llevar comida, agua, limpieza, salud y cariño al 100% se desbloquea una sorpresa; la energía no cuenta para este requisito.
 - Al darle comida o agua atiende su necesidad de inmediato; si ya está al 100%, guarda la porción en su cuenco.
 - Personalidades distintas y hábitos que cambian con el cuidado.
 - Ilustraciones completas y consistentes del mismo cachorro, con poses propias al dar la pata y estar soñoliento, más cuadros alternos al caminar, asearse, comer, beber, cepillarse y bañarse.
 - Objetos integrados naturalmente en cada pose: pelota, cuencos, premio, cepillo, espuma y una cobija que deja libre su cara.
 - Caricias táctiles con reacciones, expresiones y vibración en celular.
 - Pantalla principal móvil con recomendaciones contextuales y acciones siempre etiquetadas.
-- Rincones compactos de Casa, Crecer y Momentos, sin repetir las necesidades.
-- Un momento narrativo diario donde el perrito pregunta, eliges cómo acompañarlo y recuerda la respuesta.
+- Rincones compactos de Casa y Crecer, sin repetir las necesidades.
 - Paseos con rutas, clima y eventos aleatorios.
 - Entrenamiento progresivo de varios trucos.
 - Tres minijuegos luminosos de coordinación, agilidad y memoria, disponibles desde el inicio.
 - Retos jugables que también pueden aparecer durante paseos y entrenamientos.
 - Controles por teclado, toque, arrastre y botones táctiles.
 - Monedas, inventario y tienda.
-- Diario de actividades, incluso mientras la aplicación está cerrada.
-- Galería privada guardada únicamente en el dispositivo.
 - Personalización mediante parámetros en el enlace.
 - Instalación como aplicación web y funcionamiento sin conexión.
 
@@ -42,4 +39,4 @@ El juego está disponible desde ahora. La carta no muestra cuenta regresiva: apa
 
 Abre `personalizar.html`, introduce los nombres y el texto de la carta, y genera el enlace del regalo. Antes del cumpleaños el enlace abre directamente el juego; el 14 de agosto muestra la carta automáticamente. El personalizador conserva una vista previa para quien prepara el regalo. Después convierte el enlace compartido en un código QR.
 
-> El progreso y las fotos se guardan únicamente en el navegador del dispositivo mediante almacenamiento local.
+> El progreso se guarda únicamente en el navegador del dispositivo mediante almacenamiento local.

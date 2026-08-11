@@ -42,7 +42,7 @@
   </script>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/icon.svg" />
-  <link rel="stylesheet" href="styles.css?v=3.19.0" />
+  <link rel="stylesheet" href="styles.css?v=3.21.0" />
   <title>La casita de Milo</title>
 </head>
 <body>
@@ -193,7 +193,6 @@
       <nav class="world-nav" aria-label="Cambiar de rincón">
         <button class="world-tab active" type="button" data-world-view="home" aria-controls="homeView" aria-pressed="true"><span aria-hidden="true">🏠</span><strong>Casa</strong></button>
         <button class="world-tab" type="button" data-world-view="growth" aria-controls="growthView" aria-pressed="false"><span aria-hidden="true">⭐</span><strong>Crecer</strong></button>
-        <button class="world-tab" type="button" data-world-view="moments" aria-controls="momentsView" aria-pressed="false"><span aria-hidden="true">📖</span><strong>Momentos</strong></button>
       </nav>
 
       <div class="world-views">
@@ -238,22 +237,6 @@
           </article>
         </section>
 
-        <section class="world-view" id="momentsView" data-world-panel="moments" aria-labelledby="momentsViewTitle" hidden>
-          <article class="panel diary-panel">
-            <div class="section-heading"><div><h2 id="momentsViewTitle">Aventuras de <span class="pet-name-inline">Milo</span></h2><p class="section-intro">Lo que han vivido juntos.</p></div><span class="big-emoji" aria-hidden="true">📖</span></div>
-            <div class="diary-list" id="diaryList" aria-live="polite"></div>
-          </article>
-
-          <section class="panel memories-panel">
-            <div class="section-heading">
-              <div><h2>Fotos juntos</h2><p class="section-intro">Un rinconcito sólo para ustedes.</p></div>
-              <button class="text-button" id="uploadBtn" type="button">＋ Añadir foto</button>
-            </div>
-            <p class="helper-copy">Solo tú puedes ver estas fotos en este dispositivo.</p>
-            <div class="memory-grid" id="memoryGrid"></div>
-            <input type="file" id="photoInput" accept="image/*" hidden />
-          </section>
-        </section>
       </div>
 
       <div class="state-bindings" hidden aria-hidden="true">
@@ -404,15 +387,6 @@
     </section>
   </div>
 
-  <div class="modal-backdrop" id="momentModal" hidden inert>
-    <section class="modal moment-modal" role="dialog" aria-modal="true" aria-labelledby="momentTitle">
-      <div class="modal-heading"><div><span class="moment-tag">🐾 Un momento con <span class="pet-name-inline">Milo</span></span><h2 id="momentTitle">Tengo algo que contarte…</h2></div><button class="close-button" type="button" data-close="momentModal" aria-label="Cerrar">×</button></div>
-      <div class="moment-prompt"><span class="moment-avatar" id="momentIcon" aria-hidden="true">🐶</span><p id="momentPrompt">¿Me ayudas a decidir?</p></div>
-      <div class="moment-choices" id="momentChoices"></div>
-      <p class="moment-helper">Elige cómo quieres acompañarlo. <span class="pet-name-inline">Milo</span> lo recordará.</p>
-    </section>
-  </div>
-
   <div class="modal-backdrop" id="shopModal" hidden inert>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
       <div class="modal-heading"><div><h2 id="shopTitle">Tienda del barrio</h2></div><button class="close-button" type="button" data-close="shopModal" aria-label="Cerrar">×</button></div>
@@ -435,9 +409,9 @@
       <div class="surprise-gift" aria-hidden="true">🎁</div>
       <span class="eyebrow">Sorpresa desbloqueada</span>
       <h2 id="surpriseTitle">¡Felicidades!</h2>
-      <p class="surprise-pet-message" id="surprisePetMessage">Todos los niveles llegaron al 100 %.</p>
+      <p class="surprise-pet-message" id="surprisePetMessage">Comida, agua, limpieza, salud y cariño llegaron al 100 %.</p>
       <p id="surpriseMessage">Ganaste un regalito sorpresa. Háblale a tu viejo para que te lo dé.</p>
-      <div class="surprise-score" aria-label="Todos los niveles están al cien por ciento"><strong>100%</strong><span>🍲 💧 🌙 🫧 ❤️ 💗</span></div>
+      <div class="surprise-score" aria-label="Comida, agua, limpieza, salud y cariño están al cien por ciento"><strong>100%</strong><span>🍲 💧 🫧 ❤️ 💗</span></div>
       <button class="primary full-button" type="button" data-close="surpriseModal">¡Voy por mi regalo!</button>
     </section>
   </div>
@@ -454,6 +428,6 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app.js?v=3.20.0" defer></script>
+  <script src="app.js?v=3.21.0" defer></script>
 </body>
 </html>
